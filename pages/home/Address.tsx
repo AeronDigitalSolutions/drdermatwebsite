@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import styles from "@/styles/user/address.module.css";
+import styles from "@/styles/user/Address.module.css";
 import { FaUserCircle, FaShoppingCart, FaCreditCard } from "react-icons/fa";
 import { BsShieldCheck } from "react-icons/bs";
 import { HiOutlineMail } from "react-icons/hi";

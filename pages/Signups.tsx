@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/router";
-import API from "./utils/axios";
+import API from "../utils/axios";
 import Image from "next/image";
 import styles from "@/styles/components/forms/Signup.module.css";
 import illustration from "../public/register.png"; // adjust path if needed

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
-import API from "./utils/axios";
+import API from "../utils/axios";
 import Image from "next/image";
 import styles from "@/styles/components/forms/ModularForm.module.css";
 import Topbar from "@/components/Layout/Topbar";

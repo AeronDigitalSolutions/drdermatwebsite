@@ -1,4 +1,4 @@
-// pages/index.tsx  (or the same path you already have)
+// pages/index.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -24,7 +24,7 @@ import ProductCategory from "@/components/homePage/productCategories";
 import FullPageLoader from "@/components/common/FullPageLoader";
 
 const Index = () => {
-  const router = useRouter(); // Initialize router for navigation
+  const router = useRouter();
 
   // loader / prefetch state
   const [appReady, setAppReady] = useState(false);
@@ -34,7 +34,8 @@ const Index = () => {
   useEffect(() => {
     let mounted = true;
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+    const API_BASE =
+      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
 
     const endpoints = [
       "/api/clinic-categories",
@@ -60,30 +61,25 @@ const Index = () => {
     (async () => {
       try {
         setMessage("Loading homepage data...");
-        // run sequentially to allow progressive progress update (gives more accurate progress)
         for (let i = 0; i < endpoints.length; i++) {
           if (!mounted) return;
           const ep = endpoints[i];
           setMessage(`Loading ${ep.replace("/api/", "")}...`);
           try {
             const res = await fetchWithTimeout(`${API_BASE}${ep}`, 10_000);
-            // attempt to parse json, but ignore parse errors (some endpoints might return images/base64)
             try {
               await res?.json();
             } catch {
-              // ignore parse errors
+              // ignore JSON parse errors
             }
           } catch (err) {
-            // don't block forever: log and continue — the components themselves will keep trying
             console.warn(`Prefetch failed for ${ep}`, err);
           }
-          // update progress after each endpoint (0..100)
           setProgress(Math.round(((i + 1) / endpoints.length) * 100));
         }
 
         if (!mounted) return;
         setMessage("Finalizing...");
-        // small delay for UX
         await new Promise((r) => setTimeout(r, 200));
         setAppReady(true);
       } catch (err) {
@@ -94,7 +90,6 @@ const Index = () => {
       }
     })();
 
-    // safety timeout: if backend is extremely slow, open page after 20s
     const safetyTimeout = setTimeout(() => {
       if (mounted && !appReady) {
         console.warn("Safety timeout reached, opening page anyway.");
@@ -111,10 +106,10 @@ const Index = () => {
 
   return (
     <>
-      {/* Loader overlay — covers the page until appReady */}
-      {!appReady && <FullPageLoader  />}  
+      {/* Loader overlay */}
+      {!appReady && <FullPageLoader />}
 
-      {/* Main page (kept unchanged) */}
+      {/* Main page */}
       <Topbar />
 
       <div className={styles.blueBackground}>
@@ -126,6 +121,7 @@ const Index = () => {
               { url: "/card-2.png", heading: "Book A Video Consultation" },
               { url: "/card-3.png", heading: "Top Dermatology Clinics" },
             ]}
+            loading={!appReady} // 👈 pass loader state
           />
         </div>
       </div>
@@ -145,27 +141,65 @@ const Index = () => {
             marginTop: "1rem",
           }}
         >
-          <h1 style={{ textAlign: "center", marginBottom: "30px", fontWeight:"700", fontSize: "26px" }}>
+          <h1
+            style={{
+              textAlign: "center",
+              marginBottom: "30px",
+              fontWeight: "700",
+              fontSize: "26px",
+            }}
+          >
             Top Products
           </h1>
           {<TopProducts />}
           <Link href="/product-listing">
-            <h5 style={{ textAlign: "center", marginBottom: "40px", textDecoration:"underline", }}>
+            <h5
+              style={{
+                textAlign: "center",
+                marginBottom: "40px",
+                textDecoration: "underline",
+              }}
+            >
               Show More
             </h5>
           </Link>
-          <div style={{ padding: "0px 20px", backgroundColor: "#ffffff", marginTop: "0px" }}>
-            <h2 style={{ textAlign: "center", marginBottom: "20px", fontWeight:"700", fontSize: "26px" }}>
+          <div
+            style={{
+              padding: "0px 20px",
+              backgroundColor: "#ffffff",
+              marginTop: "0px",
+            }}
+          >
+            <h2
+              style={{
+                textAlign: "center",
+                marginBottom: "20px",
+                fontWeight: "700",
+                fontSize: "26px",
+              }}
+            >
               Exclusive Offers
             </h2>
-            <div style={{ display: "flex", gap: "20px", justifyContent: "center", flexWrap: "nowrap" }}>
+            <div
+              style={{
+                display: "flex",
+                gap: "20px",
+                justifyContent: "center",
+                flexWrap: "nowrap",
+              }}
+            >
               <Offer></Offer>
             </div>
           </div>
         </div>
 
         <div style={{ padding: "0px 0 0px 0" }}>
-          <ProductCategory title="Popular Product Categories" backgroundColor="#ffffff" textBg="white" border="7px solid white" />
+          <ProductCategory
+            title="Popular Product Categories"
+            backgroundColor="#ffffff"
+            textBg="white"
+            border="7px solid white"
+          />
         </div>
 
         <ClinicCategories
@@ -176,29 +210,91 @@ const Index = () => {
         />
       </div>
 
-      <div style={{ padding: "10px 20px", backgroundColor: "#ffffff", marginTop: "-40px" }}>
-        <h2 style={{ textAlign: "center", margin: "20px", fontWeight:"700", fontSize: "26px" }}>
+      <div
+        style={{
+          padding: "10px 20px",
+          backgroundColor: "#ffffff",
+          marginTop: "-40px",
+        }}
+      >
+        <h2
+          style={{
+            textAlign: "center",
+            margin: "20px",
+            fontWeight: "700",
+            fontSize: "26px",
+          }}
+        >
           Latest Offers
         </h2>
-        <div style={{ display: "flex", gap: "20px", justifyContent: "center", flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "20px",
+            justifyContent: "center",
+            flexWrap: "wrap",
+          }}
+        >
           <LatestOffer />
         </div>
       </div>
 
-      <div style={{ padding: "10px 20px", backgroundColor: "#ffffff", marginTop: "-40px" }}>
-        <h2 style={{ textAlign: "center", marginBottom: "14px",marginTop: "32px", fontWeight:"700", fontSize: "26px",  }}>
+      <div
+        style={{
+          padding: "10px 20px",
+          backgroundColor: "#ffffff",
+          marginTop: "-40px",
+        }}
+      >
+        <h2
+          style={{
+            textAlign: "center",
+            marginBottom: "14px",
+            marginTop: "32px",
+            fontWeight: "700",
+            fontSize: "26px",
+          }}
+        >
           Treatment Procedure
         </h2>
-        <div style={{ display: "flex", gap: "20px", justifyContent: "center", flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "20px",
+            justifyContent: "center",
+            flexWrap: "wrap",
+          }}
+        >
           <Treatment />
         </div>
       </div>
 
-      <div style={{ padding: "10px 20px", backgroundColor: "#ffffff", marginTop: "-40px" }}>
-        <h2 style={{ textAlign: "center", marginBottom: "14px",marginTop: "32px", fontWeight:"700", fontSize: "26px" }}>
+      <div
+        style={{
+          padding: "10px 20px",
+          backgroundColor: "#ffffff",
+          marginTop: "-40px",
+        }}
+      >
+        <h2
+          style={{
+            textAlign: "center",
+            marginBottom: "14px",
+            marginTop: "32px",
+            fontWeight: "700",
+            fontSize: "26px",
+          }}
+        >
           Happy Stories
         </h2>
-        <div style={{ display: "flex", gap: "20px", justifyContent: "center", flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "20px",
+            justifyContent: "center",
+            flexWrap: "wrap",
+          }}
+        >
           <HappyStories />
         </div>
       </div>

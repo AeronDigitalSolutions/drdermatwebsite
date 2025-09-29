@@ -10,10 +10,12 @@ type ImageSliderItem = {
 
 type ImageSliderProps = {
   slides: ImageSliderItem[];
+  loading: boolean;
 };
 
-const FeaturedSection = ({ slides }: ImageSliderProps) => {
+const FeaturedSection = ({ slides, loading }: ImageSliderProps) => {
   const [imageIndex, setImageIndex] = useState(0);
+  const [animate, setAnimate] = useState(false);
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -24,6 +26,13 @@ const FeaturedSection = ({ slides }: ImageSliderProps) => {
   };
 
   useEffect(() => {
+    if (!loading) {
+      setAnimate(true); // Start animations only after loader finishes
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    if (loading) return;
     const el = scrollRef.current;
     if (!el) return;
 
@@ -45,25 +54,42 @@ const FeaturedSection = ({ slides }: ImageSliderProps) => {
     children.forEach((child) => observer.observe(child));
 
     return () => observer.disconnect();
-  }, []);
+  }, [loading]);
 
   return (
     <div className={styles.featuredSection}>
       {/* Slider */}
       <div ref={scrollRef} className={styles.sliderWrapper}>
-        {slides.map((slide, index) => (
-          <div
-            key={index}
-            data-index={index}
-            className={styles.imageContainer}
-            onClick={() => handleImageClick(index)}
-          >
-            <img src={slide.url} alt={`Slide ${index}`} className={styles.imageSliderImage} />
-            <div className={styles.imageOverlay}>
-              <h3 className={styles.imageHeading}>{slide.heading}</h3>
+        {slides.map((slide, index) => {
+          let animationClass = "";
+          if (animate) {
+            if (index === imageIndex) {
+              animationClass = styles.centerImage;
+            } else if (index < imageIndex) {
+              animationClass = styles.leftImage;
+            } else {
+              animationClass = styles.rightImage;
+            }
+          }
+
+          return (
+            <div
+              key={index}
+              data-index={index}
+              className={`${styles.imageContainer} ${animationClass}`}
+              onClick={() => handleImageClick(index)}
+            >
+              <img
+                src={slide.url}
+                alt={`Slide ${index}`}
+                className={styles.imageSliderImage}
+              />
+              <div className={styles.imageOverlay}>
+                <h3 className={styles.imageHeading}>{slide.heading}</h3>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Dots */}
@@ -71,7 +97,9 @@ const FeaturedSection = ({ slides }: ImageSliderProps) => {
         {slides.map((_, index) => (
           <span
             key={index}
-            className={`${styles.dot} ${imageIndex === index ? styles.activeDot : ""}`}
+            className={`${styles.dot} ${
+              imageIndex === index ? styles.activeDot : ""
+            }`}
           />
         ))}
       </div>

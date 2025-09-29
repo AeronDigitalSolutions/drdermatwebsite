@@ -1,0 +1,157 @@
+.container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.quillContainer {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.button {
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.button:hover {
+  background-color: #005bb5;
+}
+
+.imagePreviewContainer {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.imagePreview {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+.container {
+  max-width: 800px;
+  margin: 20px auto;
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.input,
+.select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+}
+
+.input:focus,
+.select:focus {
+  border-color: #0070f3;
+}
+
+.select {
+  background: #fff;
+  cursor: pointer;
+}
+
+.quillContainer {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  min-height: 150px;
+}
+
+.imagePreviewContainer {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.imagePreview {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.button {
+  background: #0070f3;
+  color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease-in-out;
+}
+
+.button:hover {
+  background: #0056b3;
+}
+.selectedList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.selectedTag {
+  background: #e0f7fa;
+  color: #00796b;
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.removeBtn {
+  background: transparent;
+  border: none;
+  color: #00796b;
+  margin-left: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+}

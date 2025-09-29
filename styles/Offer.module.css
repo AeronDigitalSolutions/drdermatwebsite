@@ -1,0 +1,84 @@
+.sliderWrapper {
+  width: 90%;
+  max-width: 1200px;
+  margin: 1rem auto;
+  overflow: hidden;
+  position: relative;
+  border-radius: 8px;
+}
+
+.slider {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+  height: auto; /* ✅ Allow height to adjust to image */
+}
+
+.slide {
+  flex: 0 0 100%;
+  position: relative; /* Required for next/image layout="fill" */
+}
+
+.slide img {
+  width: 100%;
+  height: auto;        /* ✅ Maintain aspect ratio */
+  object-fit: contain;  /* ✅ Show complete image */
+  display: block;
+  border-radius: 8px;
+}
+
+/* Dots */
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: #ccc;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.activeDot {
+  background: #000;
+}
+
+/* Responsive */
+
+/* Tablets & large phones */
+@media (max-width: 1024px) {
+  .sliderWrapper {
+    width: 95%;
+  }
+
+  .slide img {
+    height: auto;
+  }
+}
+
+/* Small phones (480px) */
+@media (max-width: 480px) {
+  .sliderWrapper {
+    width: 98%;
+    margin: 0.5rem auto;
+  }
+
+  .slide img {
+    height: auto;
+  }
+}
+
+/* Extra small phones (≤370px) */
+@media (max-width: 370px) {
+  .sliderWrapper {
+    width: 100%;
+    margin: 0.5rem auto;
+  }
+
+  .slide img {
+    height: auto;
+  }
+}

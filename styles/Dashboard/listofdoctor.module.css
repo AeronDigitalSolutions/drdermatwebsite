@@ -1,0 +1,180 @@
+.container {
+  max-width: 900px;
+  margin: 50px auto;
+  padding: 25px 20px;
+  background: #fdfdfd;
+  border-radius: 15px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 2rem;
+  color: #222;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.th,
+.td {
+  padding: 12px 15px;
+  border: 1px solid #e0e0e0;
+  text-align: left;
+  transition: background 0.2s ease;
+}
+
+.th {
+  background-color: #0070f3;
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.tr:hover {
+  background-color: #e6f0ff;
+}
+
+.td {
+  color: #333;
+}
+
+@media (max-width: 768px) {
+  .table,
+  .th,
+  .td {
+    font-size: 0.85rem;
+  }
+}
+/* Buttons */
+.editButton,
+.deleteButton {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Edit button – soft blue */
+.editButton {
+  background-color: #4f9eff;
+  color: #fff;
+}
+
+.editButton:hover {
+  background-color: #3a7cd5;
+  transform: scale(1.05);
+  box-shadow: 0 2px 6px rgba(63, 135, 255, 0.4);
+}
+
+/* Delete button – soft red */
+.deleteButton {
+  background-color: #ff6b6b;
+  color: #fff;
+  margin-left: 6px;
+}
+
+.deleteButton:hover {
+  background-color: #e04040;
+  transform: scale(1.05);
+  box-shadow: 0 2px 6px rgba(255, 107, 107, 0.4);
+}
+
+/* Table styling */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.th, .td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+.tr:hover {
+  background-color: #f5f5f5;
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* Modal buttons container */
+.modalButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+/* Modal overlay */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* Modal */
+.modal {
+  background: #fff;
+  padding: 24px 28px;
+  border-radius: 10px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* Input styling */
+.input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-top: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #4f9eff;
+  box-shadow: 0 0 6px rgba(79, 158, 255, 0.3);
+}
+
+/* Labels */
+.label {
+  display: block;
+  margin-top: 12px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* Error message */
+.error {
+  color: #e04040;
+
+
+  
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+

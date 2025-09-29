@@ -1,0 +1,167 @@
+.container {
+  max-width: 1100px; /* reduced width */
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #222;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* smaller cards */
+  gap: 1rem;
+}
+
+.card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.imageWrapper {
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.image {
+  width: 75%;
+  height: 132px; /* smaller image */
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.noImage {
+  width: 100%;
+  height: 120px;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #ef4444;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.company {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.category {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin-bottom: 0.5rem;
+}
+
+.priceRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 0.75rem;
+}
+
+.discountPrice {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #16a34a;
+}
+
+.originalPrice {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  text-decoration: line-through;
+}
+
+.actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.addToCart,
+.buyNow {
+  flex: 1;
+  padding: 0.35rem 0.5rem; /* smaller buttons */
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 0.4rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.addToCart {
+  background: #155e95;
+  color: white;
+  border: none;
+}
+
+.addToCart:hover {
+    background: White;
+  color: #155e95;
+  border: 1px solid #155e95;
+}
+
+.buyNow {
+  background: White;
+  color: #155e95;
+  border: 1px solid #155e95;
+}
+
+.buyNow:hover {
+  background: #155e95;
+  color: white;
+  border: none;
+}
+
+/* ✅ Mobile adjustments */
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .actions {
+    flex-direction: column; /* stack buttons on mobile */
+  }
+
+  .addToCart,
+  .buyNow {
+    font-size: 0.7rem;
+    padding: 0.3rem;
+  }
+}

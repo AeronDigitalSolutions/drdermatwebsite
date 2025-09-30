@@ -20,7 +20,7 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.5.0",
     "multer": "^2.0.2",
-    "uuid": "^9.0.0"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",

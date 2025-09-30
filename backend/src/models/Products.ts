@@ -1,8 +1,7 @@
-// src/models/Product.ts
 import mongoose, { Schema, model, models, HydratedDocument } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
 
-/** Plain interfaces describing shapes (not Mongoose Document variants) */
+/** Interfaces for plain data shapes */
 export interface IReview {
   rating: number;
   comment: string;
@@ -26,9 +25,10 @@ export interface IProduct {
   updatedAt?: Date;
 }
 
-/** Mongoose Document type for this model */
+/** Mongoose Document type */
 export type ProductDocument = HydratedDocument<IProduct>;
 
+/** Subdocument schema for reviews */
 const ReviewSchema = new Schema<IReview>(
   {
     rating: { type: Number, required: true },
@@ -37,9 +37,10 @@ const ReviewSchema = new Schema<IReview>(
     createdAt: { type: Date, default: () => new Date() },
     updatedAt: { type: Date, default: () => new Date() },
   },
-  { _id: false } // store review as sub-doc with no separate _id
+  { _id: false }
 );
 
+/** Main product schema */
 const ProductSchema = new Schema<ProductDocument>(
   {
     id: {
@@ -61,7 +62,9 @@ const ProductSchema = new Schema<ProductDocument>(
   { timestamps: true }
 );
 
-/** Prevent model overwrite in dev/Next.js hot reload */
-const ProductModel = (models.Product as mongoose.Model<ProductDocument>) || model<ProductDocument>("Product", ProductSchema);
+/** Prevent model overwrite in dev/hot reload */
+const ProductModel =
+  (models.Product as mongoose.Model<ProductDocument>) ||
+  model<ProductDocument>("Product", ProductSchema);
 
 export default ProductModel;

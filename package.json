@@ -54,7 +54,7 @@
     "react-responsive": "^10.0.1",
     "react-router-dom": "^7.6.3",
     "swiper": "^11.1.15",
-    "uuid": "^9.0.0"
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

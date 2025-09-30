@@ -1,9 +1,13 @@
 {
   "name": "drdermat-backend",
   "version": "1.0.0",
-  "main": "server.ts",
+  "description": "Backend for DrDermat Website",
+  "main": "dist/server.js",
+  "type": "commonjs",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only server.ts"
+    "dev": "ts-node-dev --respawn --transpile-only server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

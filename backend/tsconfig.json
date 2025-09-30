@@ -1,13 +1,36 @@
+// {
+//   "compilerOptions": {
+//     "target": "ES2020",
+//     "module": "CommonJS",
+//     "rootDir": "./",
+//     "outDir": "dist",
+//     "strict": true,
+//     "esModuleInterop": true,
+//     "moduleResolution": "node",
+//     "resolveJsonModule": true,
+//     "typeRoots": ["./node_modules/@types", "./types"]
+//   }
+// }
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "CommonJS",
-    "rootDir": "./",
-    "outDir": "dist",
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
     "strict": true,
+    "noEmit": true,
     "esModuleInterop": true,
-    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "typeRoots": ["./node_modules/@types", "./types"]
-  }
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
 }

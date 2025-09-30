@@ -1,15 +1,17 @@
-import mongoose, { Schema, Document } from "mongoose";
+// src/models/Product.ts
+import mongoose, { Schema, model, models, HydratedDocument } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
 
+/** Plain interfaces describing shapes (not Mongoose Document variants) */
 export interface IReview {
   rating: number;
   comment: string;
   user: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-export interface IProduct extends Document {
+export interface IProduct {
   id: string;
   category: string;
   company: string;
@@ -20,22 +22,25 @@ export interface IProduct extends Document {
   description: string;
   images: string[];
   reviews: IReview[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
+
+/** Mongoose Document type for this model */
+export type ProductDocument = HydratedDocument<IProduct>;
 
 const ReviewSchema = new Schema<IReview>(
   {
     rating: { type: Number, required: true },
     comment: { type: String, required: true },
     user: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
+    createdAt: { type: Date, default: () => new Date() },
+    updatedAt: { type: Date, default: () => new Date() },
   },
-  { _id: false }
+  { _id: false } // store review as sub-doc with no separate _id
 );
 
-const ProductSchema = new Schema<IProduct>(
+const ProductSchema = new Schema<ProductDocument>(
   {
     id: {
       type: String,
@@ -50,10 +55,13 @@ const ProductSchema = new Schema<IProduct>(
     price: { type: Number, required: true },
     discountPrice: { type: Number, required: true },
     description: { type: String, required: true },
-    images: { type: [String], required: true },
-    reviews: { type: [ReviewSchema], default: [] }, // ✅ reviews
+    images: { type: [String], required: true, default: [] },
+    reviews: { type: [ReviewSchema], default: [] },
   },
   { timestamps: true }
 );
 
-export default mongoose.model<IProduct>("Product", ProductSchema);
+/** Prevent model overwrite in dev/Next.js hot reload */
+const ProductModel = (models.Product as mongoose.Model<ProductDocument>) || model<ProductDocument>("Product", ProductSchema);
+
+export default ProductModel;

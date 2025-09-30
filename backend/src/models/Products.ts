@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
-import * as uuid from "uuid";
+import { v4 as uuidv4 } from "uuid";
 
 export interface IReview {
   rating: number;
@@ -41,7 +41,7 @@ const ProductSchema = new Schema<IProduct>(
       type: String,
       unique: true,
       required: true,
-      default: () => `PROD-${uuid.v4().slice(0, 8)}`,
+      default: () => `PROD-${uuidv4().slice(0, 8)}`,
     },
     category: { type: String, required: true },
     company: { type: String, required: true },

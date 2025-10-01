@@ -5,10 +5,11 @@
   "main": "dist/server.js",
   "type": "commonjs",
   "scripts": {
-  "dev": "next dev", 
-  "build": "next build && tsc", 
+  "dev": "next dev",
+  "build": "next build && tsc",
   "start": "node dist/server.js"
 }
+
 ,
   "dependencies": {
     "bcryptjs": "^2.4.3",

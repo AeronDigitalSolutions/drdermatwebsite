@@ -18,11 +18,11 @@ const Dashboard = () => {
         if (!resAdmins.ok) throw new Error("Failed to fetch admins");
         const admins = await resAdmins.json();
 
-        const resClinics = await fetch("http://localhost:5000/api/clinics");
+        const resClinics = await fetch("https://generous-insight-production.up.railway.app/api/clinics");
         if (!resClinics.ok) throw new Error("Failed to fetch clinics");
         const clinics = await resClinics.json();
 
-        const resProducts = await fetch("http://localhost:5000/api/products");
+const resProducts = await fetch("https://generous-insight-production.up.railway.app/api/products");
         if (!resProducts.ok) throw new Error("Failed to fetch products");
         const products = await resProducts.json();
 

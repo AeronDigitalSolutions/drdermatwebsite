@@ -1,16 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-// src/models/Product.ts
 const mongoose_1 = require("mongoose");
 const uuid_1 = require("uuid");
+/** Subdocument schema for reviews */
 const ReviewSchema = new mongoose_1.Schema({
     rating: { type: Number, required: true },
     comment: { type: String, required: true },
     user: { type: String, required: true },
     createdAt: { type: Date, default: () => new Date() },
     updatedAt: { type: Date, default: () => new Date() },
-}, { _id: false } // store review as sub-doc with no separate _id
-);
+}, { _id: false });
+/** Main product schema */
 const ProductSchema = new mongoose_1.Schema({
     id: {
         type: String,
@@ -28,6 +28,7 @@ const ProductSchema = new mongoose_1.Schema({
     images: { type: [String], required: true, default: [] },
     reviews: { type: [ReviewSchema], default: [] },
 }, { timestamps: true });
-/** Prevent model overwrite in dev/Next.js hot reload */
-const ProductModel = mongoose_1.models.Product || (0, mongoose_1.model)("Product", ProductSchema);
+/** Prevent model overwrite in dev/hot reload */
+const ProductModel = mongoose_1.models.Product ||
+    (0, mongoose_1.model)("Product", ProductSchema);
 exports.default = ProductModel;

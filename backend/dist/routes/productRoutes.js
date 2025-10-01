@@ -6,6 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const Products_1 = __importDefault(require("../models/Products"));
 const router = express_1.default.Router();
+router.get("/", (req, res) => {
+    res.json([{ id: 1, name: "Test product" }]);
+});
 router.post("/", async (req, res) => {
     try {
         const { category, company, name, quantity, price, discountPrice, description, images } = req.body;

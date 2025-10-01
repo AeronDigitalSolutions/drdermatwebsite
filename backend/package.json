@@ -5,12 +5,10 @@
   "main": "dist/server.js",
   "type": "commonjs",
   "scripts": {
-  "dev": "next dev",
-  "build": "next build && tsc",
-  "start": "node dist/server.js"
-}
-
-,
+    "dev": "next dev",
+    "build": "next build && tsc",
+    "start": "node dist/server.js"
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cookie": "^1.0.2",
@@ -22,9 +20,9 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.5.0",
     "multer": "^2.0.2",
-    "next": "^14.2.3", 
-    "react": "^18.3.1", 
-    "react-dom": "^18.3.1", 
+    "next": "^14.2.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

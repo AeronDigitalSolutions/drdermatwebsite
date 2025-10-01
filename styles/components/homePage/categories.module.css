@@ -13,33 +13,30 @@
 
 .gridContainer {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* Desktop - 4 columns */
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   justify-content: center;
   padding: 20px 40px;
-  box-sizing: border-box;
   max-width: 1151px;
   margin: 0 auto;
 }
 
 .categoryCard {
-  width: 100%;          /* ✅ Full width of column */
-  aspect-ratio: 1 / 1;  
+  width: 100%;
+  aspect-ratio: 1 / 1;
   border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
-  padding: 0;
   background: none;
   border: none;
-  transition: transform 0.3s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;   /* ✅ Center content horizontally */
-  justify-content: center; /* ✅ Center content vertically */
+  position: relative;
 }
 
-.categoryCard:hover {
-  transform: scale(1.05);
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 .categoryImg {
@@ -47,120 +44,131 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 0.6s ease;
+}
+
+/* Full slide animation for image from left */
+@keyframes slideImageFromLeftFull {
+  from {
+    transform: translateX(-100%);
+    opacity: 0.9;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Reverse slide animation for image to left */
+@keyframes slideImageToLeftFull {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0.9;
+  }
+}
+
+/* Full slide animation for overlay from right */
+@keyframes slideOverlayFromRightFull {
+  from {
+    right: -100%;
+  }
+  to {
+    right: 0;
+  }
+}
+
+/* Reverse slide animation for overlay to right */
+@keyframes slideOverlayToRightFull {
+  from {
+    right: 0;
+  }
+  to {
+    right: -100%;
+  }
+}
+
+.categoryCard:hover .categoryImg {
+  animation: slideImageFromLeftFull 0.6s ease forwards;
+}
+
+.categoryCard .categoryImg.reverse {
+  animation: slideImageToLeftFull 0.6s ease forwards;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  right: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(225, 223, 223, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #155e95;
+  border-radius: 10px;
+  transition: none;
+}
+
+.categoryCard:hover .overlay {
+  animation: slideOverlayFromRightFull 0.5s ease forwards;
+}
+
+.categoryCard .overlay.reverse {
+  animation: slideOverlayToRightFull 0.5s ease forwards;
+}
+
+.overlayContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #155e95;
+  font-weight: bold;
+  opacity: 0;
+  animation: fadeInText 0.5s ease forwards;
+  animation-delay: 0.5s;
+}
+
+@keyframes fadeInText {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .categoryText {
-  font-size: 20px;
-  color: #000000;
-  font-weight: 300;
-  text-align: center;
-  padding-top: 10px;
+  font-size: 18px;
+  margin-bottom: 5px;
 }
 
-/* ========================== */
-/* 📱 Mobile Responsive Views */
-/* ========================== */
+.arrow {
+  font-size: 24px;
+  color: #155e95;
+}
 
-/* Tablets (1024px) */
+/* Responsive adjustments */
 @media (max-width: 1024px) {
   .gridContainer {
     grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    padding: 20px;
   }
 }
 
-/* Small tablets & large phones (768px) */
 @media (max-width: 768px) {
   .gridContainer {
-    grid-template-columns: repeat(3, 1fr); /* 2 columns */
-    gap: 15px;
-    padding: 16px;
-    margin: 0 auto;
+    grid-template-columns: repeat(2, 1fr);
   }
-
-  .categoryText {
-    font-size: 16px;
-  }
-}
-
-/* Phones (480px) */
-@media (max-width: 480px) {
-  .cliniContainer {
-    padding: 1rem;
-    width: 100%;
-  }
-
-  .clinicTitle {
-    font-size: 22px;
-    margin-top: 0px;
-    padding-bottom: 10px;
-    text-decoration: underline;
-  }
-
-  .gridContainer {
-    grid-template-columns: repeat(3, 1fr); /* 2 columns */
-    gap: 12px;
-    padding: 10px;
-    margin: 0 auto;
-  }
-
-  .categoryText {
-    font-size: 14px;
-  }
-}
-
-/* Extra small devices (≤370px) */
-@media (max-width: 370px) {
-  .cliniContainer {
-    padding: 0.5rem;
-    width: 100%;
-  }
-
-  .clinicTitle {
-    font-size: 20px;
-    padding-bottom: 8px;
-  }
-
-  .gridContainer {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    padding: 8px;
-    margin: 0 auto;
-  }
-
-  .categoryText {
-    font-size: 12px;
-    padding-top: 6px;
-  }
-}
-
-/* Ultra small devices (≤320px) → single column */
-@media (max-width: 320px) {
-  .gridContainer {
-    grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 8px;
-    margin: 0 auto;
-  }
-
-  .categoryCard {
-    width: 100%; /* Full width column */
-    margin: 0 auto;
-  }
-
-  .categoryText {
-    font-size: 12px;
-  }
-}
-
-/* Show "More" only on mobile */
-.mobileOnly {
-  display: none;
 }
 
 @media (max-width: 480px) {
-  .mobileOnly {
-    display: block !important;
+  .gridContainer {
+    grid-template-columns: repeat(1, 1fr);
   }
 }

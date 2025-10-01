@@ -1,5 +1,4 @@
 import mongoose, { Schema, model, models, HydratedDocument } from "mongoose";
-import { v4 as uuidv4 } from "uuid";
 
 /** Interfaces for plain data shapes */
 export interface IReview {
@@ -11,7 +10,7 @@ export interface IReview {
 }
 
 export interface IProduct {
-  id: string;
+  _id?: string; // ✅ use MongoDB’s built-in ObjectId
   category: string;
   company: string;
   name: string;
@@ -43,12 +42,6 @@ const ReviewSchema = new Schema<IReview>(
 /** Main product schema */
 const ProductSchema = new Schema<ProductDocument>(
   {
-    id: {
-      type: String,
-      unique: true,
-      required: true,
-      default: () => `PROD-${uuidv4().slice(0, 8)}`,
-    },
     category: { type: String, required: true },
     company: { type: String, required: true },
     name: { type: String, required: true },

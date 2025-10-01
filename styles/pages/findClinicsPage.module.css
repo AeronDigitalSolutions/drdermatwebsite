@@ -153,3 +153,71 @@
 .title {
   display: none;
 }
+.closeIconWrapper {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.closeIcon {
+  cursor: pointer;
+  color: #555;
+  transition: color 0.2s ease;
+}
+
+.closeIcon:hover {
+  color: red;
+}
+
+.openSidebarBtn {
+  padding: 8px 12px;
+  background-color: #155e95;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.openSidebarBtn:hover {
+  background-color: #0f4b73;
+}
+
+/* Sidebar adjustments for all viewports */
+.sidebar {
+  position: relative;
+  background: white;
+  padding-top: 10px;
+  min-width: 200px;
+  border-right: 1px solid #ddd;
+}
+
+/* Add smooth transition */
+.sidebar {
+  transition: all 0.3s ease;
+}
+
+/* Main adjusts when sidebar closed */
+.main {
+  flex: 1;
+  transition: all 0.3s ease;
+}
+
+/* Optional: change layout when sidebar closed */
+.layout {
+  display: flex;
+  gap: 20px;
+}
+
+/* Mobile and desktop both will have close button */
+@media (max-width: 768px) {
+  .sidebar {
+    position: absolute;
+    height: 100%;
+    z-index: 100;
+    width: 70%;
+    top: 0;
+    left: 0;
+    box-shadow: 2px 0px 8px rgba(0, 0, 0, 0.2);
+  }
+}

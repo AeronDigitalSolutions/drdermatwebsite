@@ -5,12 +5,12 @@ import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import styles from "@/styles/Dashboard/createproduct.module.css";
 
-// Dynamically import ReactQuill
+// ✅ Dynamically import ReactQuill (for rich text)
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
 
 interface Category {
-  id: string; // ✅ matches CAT-0001 style from ListOfCategory
+  _id: string; // ✅ now using MongoDB _id
   name: string;
   imageUrl: string;
 }
@@ -28,35 +28,36 @@ const CreateProduct = () => {
     description: "",
   });
 
-  // Fetch categories
+  /** ✅ Fetch categories from backend */
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const res = await fetch("http://localhost:5000/api/categories");
         const data = await res.json();
 
-        // ✅ ensure consistent structure like ListOfCategory
+        // ✅ Expect categories with _id, name, imageUrl
         const validCategories = data
           .map((cat: any) => ({
-            id: cat.id,
+            _id: cat._id,
             name: cat.name,
             imageUrl: cat.imageUrl,
           }))
-          .filter((cat: Category) => cat.id && cat.id.trim() !== "");
+          .filter((cat: Category) => cat._id && cat.name);
 
         setCategories(validCategories);
       } catch (err) {
         console.error("Failed to fetch categories:", err);
       }
     };
+
     fetchCategories();
   }, []);
 
+  /** ✅ Handle image uploads (Base64) */
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
       const fileArr = Array.from(files);
-
       fileArr.forEach((file) => {
         if (file.size > 1024 * 1024) {
           alert("Image size should not exceed 1MB.");
@@ -71,10 +72,12 @@ const CreateProduct = () => {
     }
   };
 
+  /** ✅ Remove image from preview */
   const handleRemoveImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  /** ✅ Handle text and select changes */
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -82,10 +85,12 @@ const CreateProduct = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  /** ✅ Handle description (ReactQuill) */
   const handleDescriptionChange = (value: string) => {
     setFormData((prev) => ({ ...prev, description: value }));
   };
 
+  /** ✅ Handle form submission */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -104,7 +109,7 @@ const CreateProduct = () => {
       quantity: Number(formData.quantity),
       price: Number(formData.price),
       discountPrice: Number(formData.discountPrice),
-      images, // Send array of base64 images
+      images,
     };
 
     try {
@@ -120,7 +125,7 @@ const CreateProduct = () => {
       alert("✅ Product created successfully!");
       console.log("Created product:", result);
 
-      // Reset form
+      // ✅ Reset form
       setFormData({
         category: "",
         company: "",
@@ -141,7 +146,7 @@ const CreateProduct = () => {
     <form className={styles.form} onSubmit={handleSubmit}>
       <h2 className={styles.heading}>Add New Product</h2>
 
-      {/* Image Upload */}
+      {/* ✅ Image Upload */}
       <div className={styles.row}>
         <label className={styles.imageUpload}>
           <span>Upload Images</span>
@@ -155,7 +160,7 @@ const CreateProduct = () => {
         </label>
       </div>
 
-      {/* Preview images */}
+      {/* ✅ Image Preview */}
       <div className={styles.previewContainer}>
         {images.map((img, index) => (
           <div key={index} className={styles.previewWrapper}>
@@ -175,7 +180,7 @@ const CreateProduct = () => {
         ))}
       </div>
 
-      {/* Category & Company */}
+      {/* ✅ Category & Company */}
       <div className={styles.row}>
         <select
           name="category"
@@ -185,8 +190,8 @@ const CreateProduct = () => {
         >
           <option value="">Select Category</option>
           {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.name} ({cat.id})
+            <option key={cat._id} value={cat._id}>
+              {cat.name}
             </option>
           ))}
         </select>
@@ -205,7 +210,7 @@ const CreateProduct = () => {
         </select>
       </div>
 
-      {/* Name & Quantity */}
+      {/* ✅ Name & Quantity */}
       <div className={styles.row}>
         <input
           type="text"
@@ -225,7 +230,7 @@ const CreateProduct = () => {
         />
       </div>
 
-      {/* Price & Discount */}
+      {/* ✅ Price & Discount */}
       <div className={styles.row}>
         <input
           type="number"
@@ -245,7 +250,7 @@ const CreateProduct = () => {
         />
       </div>
 
-      {/* Description */}
+      {/* ✅ Description */}
       <div className={styles.richTextWrapper}>
         <ReactQuill
           value={formData.description}
@@ -262,6 +267,7 @@ const CreateProduct = () => {
         />
       </div>
 
+      {/* ✅ Submit */}
       <button type="submit" className={styles.button}>
         Add Product
       </button>

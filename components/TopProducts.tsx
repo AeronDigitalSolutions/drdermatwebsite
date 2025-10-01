@@ -4,17 +4,18 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import styles from "@/styles/topproducts.module.css";
 import { useCart } from "@/context/CartContext";
+import { FaCartPlus, FaHeart, FaSearch } from "react-icons/fa";
 
 interface Product {
   _id?: string;
-  id?: string; // ✅ custom product ID (PROD-xxxx)
+  id?: string;
   name: string;
   category?: string;
   company?: string;
   price?: number | string;
   discountPrice?: number | string;
   discount?: number | string;
-  images?: string[]; // ✅ Store all images
+  images?: string[];
 }
 
 const TopProducts: React.FC = () => {
@@ -22,12 +23,12 @@ const TopProducts: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mainImages, setMainImages] = useState<Record<string, string>>({});
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const router = useRouter();
-
-  const { addToCart } = useCart(); // ✅ now inside component
+  const { addToCart } = useCart();
 
   const getImage = (img?: string) => {
-    if (!img) return "/product1.png"; // fallback image
+    if (!img) return "/product1.png";
     if (img.startsWith("data:")) return img;
     return img;
   };
@@ -42,7 +43,6 @@ const TopProducts: React.FC = () => {
         const data: (Product | null)[] = await res.json();
         setTopProducts(data);
 
-        // Initialize main image for each product
         const initialMain: Record<string, string> = {};
         data.forEach((p) => {
           const key = p?.id || p?._id;
@@ -59,29 +59,28 @@ const TopProducts: React.FC = () => {
     fetchTopProducts();
   }, []);
 
-  // ✅ use context addToCart
   const handleAddToCart = (e: React.MouseEvent, product: Product) => {
-  e.stopPropagation();
+    e.stopPropagation();
+    const price = Number(product.price) || 0;
+    const discountPrice = Number(product.discountPrice) || price;
+    const hasDiscount = discountPrice < price;
+    const discountPercent = hasDiscount
+      ? Math.round(((price - discountPrice) / price) * 100)
+      : 0;
 
-  const price = Number(product.price) || 0;
-  const discountPrice = Number(product.discountPrice) || price;
-  const hasDiscount = discountPrice < price;
-  const discountPercent = hasDiscount ? Math.round(((price - discountPrice) / price) * 100) : 0;
+    addToCart({
+      id: product.id || product._id!,
+      name: product.name,
+      price: discountPrice,
+      mrp: price,
+      discount: hasDiscount ? `${discountPercent}% OFF` : undefined,
+      discountPrice: discountPrice,
+      company: product.company,
+      image: product.images?.[0],
+    });
 
-  addToCart({
-    id: product.id || product._id!,
-    name: product.name,
-    price: discountPrice,
-    mrp: price,
-    discount: hasDiscount ? `${discountPercent}% OFF` : undefined,
-    discountPrice: discountPrice,
-    company: product.company,
-    image: product.images?.[0],
-  });
-
-  alert(`${product.name} added to cart!`);
-};
-
+    alert(`${product.name} added to cart!`);
+  };
 
   const handleBuyNow = (e: React.MouseEvent, product: Product) => {
     e.stopPropagation();
@@ -103,7 +102,7 @@ const TopProducts: React.FC = () => {
             );
           }
 
-          const productId = product.id || product._id; // ✅ always use custom ID first
+          const productId = product.id || product._id;
           const price = Number(product.price) || 0;
           const discount =
             Number(product.discountPrice ?? product.discount) || price;
@@ -120,21 +119,44 @@ const TopProducts: React.FC = () => {
             <div
               key={productId || idx}
               className={styles.card}
-              onClick={() => router.push(`/product/${productId}`)} // ✅ route by custom ID
-              style={{ cursor: "pointer" }}
+              onClick={() => router.push(`/product/${productId}`)}
+              onMouseEnter={() => setHoveredIndex(idx)}
+              onMouseLeave={() => setHoveredIndex(null)}
             >
               <div className={styles.imageWrapper}>
                 {mainImage ? (
                   <img
                     src={getImage(mainImage)}
                     alt={product.name}
-                    className={styles.image}
+                    className={`${styles.image} ${
+                      hoveredIndex === idx ? styles.imageHover : ""
+                    }`}
                   />
                 ) : (
                   <div className={styles.noImage}>No Image</div>
                 )}
+
                 {hasDiscount && (
-                  <span className={styles.badge}>-{discountPercent}%</span>
+                  <span
+                    className={`${styles.badge} ${
+                      hoveredIndex === idx ? styles.badgeHover : ""
+                    }`}
+                  >
+                    -{discountPercent}%
+                  </span>
+                )}
+
+                {hoveredIndex === idx && (
+                  <div className={styles.overlay}>
+                    <div className={styles.iconContainer}>
+                      <FaCartPlus
+                        className={styles.icon}
+                        onClick={(e) => handleAddToCart(e, product)}
+                      />
+                      <FaHeart className={styles.icon} />
+                      <FaSearch className={styles.icon} />
+                    </div>
+                  </div>
                 )}
               </div>
 

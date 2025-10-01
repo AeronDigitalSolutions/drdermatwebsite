@@ -24,6 +24,7 @@ const ClinicCategories: React.FC<ClinicCategoryProps> = ({
   const router = useRouter();
   const [categories, setCategories] = useState<ClinicCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -43,8 +44,7 @@ const ClinicCategories: React.FC<ClinicCategoryProps> = ({
   }, []);
 
   const handleCategoryClick = (category: ClinicCategory) => {
-    // Redirect to find-clinics page with category query parameter
-router.push(`/home/findClinicsPage?category=${category._id}`);
+    router.push(`/home/findClinicsPage?category=${category._id}`);
   };
 
   if (loading) return <p>Loading categories...</p>;
@@ -56,22 +56,38 @@ router.push(`/home/findClinicsPage?category=${category._id}`);
     >
       <h2 className={styles.clinicTitle}>{title}</h2>
       <div className={styles.gridContainer}>
-        {categories.map((category) => (
+        {categories.map((category, index) => (
           <div
             key={category._id}
             className={styles.categoryCard}
-            onClick={() => handleCategoryClick(category)}
             style={{
               cursor: "pointer",
               backgroundColor: textBg || "#D9EBFD",
               border: border || "none",
             }}
+            onClick={() => handleCategoryClick(category)}
+            onMouseEnter={() => setHoveredIndex(index)}
+            onMouseLeave={() => setHoveredIndex(null)}
           >
-            <img
-              src={category.imageUrl}
-              alt={category.name}
-              className={styles.categoryImg}
-            />
+            <div className={styles.imageWrapper}>
+              <img
+                src={category.imageUrl}
+                alt={category.name}
+                className={`${styles.categoryImg} ${
+                  hoveredIndex === index ? "" : "reverse"
+                }`}
+              />
+              <div
+                className={`${styles.overlay} ${
+                  hoveredIndex === index ? "" : "reverse"
+                }`}
+              >
+                <div className={styles.overlayContent}>
+                  <span className={styles.categoryText}>{category.name}</span>
+                  <span className={styles.arrow}>&rarr;</span>
+                </div>
+              </div>
+            </div>
           </div>
         ))}
       </div>

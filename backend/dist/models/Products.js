@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
-const uuid_1 = require("uuid");
 /** Subdocument schema for reviews */
 const ReviewSchema = new mongoose_1.Schema({
     rating: { type: Number, required: true },
@@ -12,12 +11,6 @@ const ReviewSchema = new mongoose_1.Schema({
 }, { _id: false });
 /** Main product schema */
 const ProductSchema = new mongoose_1.Schema({
-    id: {
-        type: String,
-        unique: true,
-        required: true,
-        default: () => `PROD-${(0, uuid_1.v4)().slice(0, 8)}`,
-    },
     category: { type: String, required: true },
     company: { type: String, required: true },
     name: { type: String, required: true },

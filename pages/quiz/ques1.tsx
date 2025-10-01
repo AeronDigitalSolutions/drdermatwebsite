@@ -28,6 +28,8 @@ const UserQuiz: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number[]>>({});
   const [showSummary, setShowSummary] = useState(false);
+  const [slideClass, setSlideClass] = useState("");
+  const [showCategory, setShowCategory] = useState(true);
 
   useEffect(() => {
     if (!activeCategory) return;
@@ -46,7 +48,49 @@ const UserQuiz: React.FC = () => {
     }
   };
 
-  const handleCategorySelect = (category: "Hair" | "Skin") => setActiveCategory(category);
+  const triggerSlide = (direction: "left" | "right", callback: () => void) => {
+    setSlideClass(direction === "left" ? styles["slide-left"] : styles["slide-right"]);
+    setTimeout(() => {
+      callback();
+      setSlideClass("");
+    }, 300);
+  };
+
+  const handleCategorySelect = (category: "Hair" | "Skin") => {
+    triggerSlide("left", () => {
+      setActiveCategory(category);
+      setShowCategory(false);
+    });
+  };
+
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      triggerSlide("right", () => setCurrentIndex(currentIndex - 1));
+    } else {
+      triggerSlide("right", () => {
+        setShowCategory(true);
+        setActiveCategory(null);
+      });
+    }
+  };
+
+  const handleNext = () => {
+    if (currentIndex < questions.length - 1) {
+      triggerSlide("left", () => setCurrentIndex(currentIndex + 1));
+    } else {
+      setShowSummary(true);
+    }
+  };
+
+  const handleRestart = () => {
+    setActiveCategory(null);
+    setQuestions([]);
+    setSelectedAnswers({});
+    setCurrentIndex(0);
+    setShowSummary(false);
+    setShowCategory(true);
+    setSlideClass("");
+  };
 
   const handleOptionChange = (questionId: string, optionIndex: number, type: "single" | "multiple") => {
     setSelectedAnswers((prev) => {
@@ -60,29 +104,12 @@ const UserQuiz: React.FC = () => {
     });
   };
 
-  const handleNext = () => {
-    if (currentIndex < questions.length - 1) setCurrentIndex(currentIndex + 1);
-    else setShowSummary(true);
-  };
-
-  const handlePrev = () => {
-    if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
-  };
-
-  const handleRestart = () => {
-    setActiveCategory(null);
-    setQuestions([]);
-    setSelectedAnswers({});
-    setCurrentIndex(0);
-    setShowSummary(false);
-  };
-
-  if (!activeCategory) {
+  if (showCategory) {
     return (
       <>
         <Topbar />
         <div className={styles.pageWrapper}>
-          <div className={styles.cardWrapper}>
+          <div className={`${styles.cardWrapper} ${slideClass}`}>
             <h2 className={styles.mainHeading}>Choose Your Concern</h2>
             <div className={styles.categoryGrid}>
               {categories.map((cat) => (
@@ -111,7 +138,7 @@ const UserQuiz: React.FC = () => {
     <>
       <Topbar />
       <div className={styles.pageWrapper}>
-        <div className={styles.cardWrapper}>
+        <div className={`${styles.cardWrapper} ${slideClass}`}>
           {!showSummary ? (
             <>
               <h2 className={styles.mainHeading}>{currentQuestion.question}</h2>
@@ -119,9 +146,7 @@ const UserQuiz: React.FC = () => {
                 {currentQuestion.options.map((opt, i) => (
                   <label
                     key={i}
-                    className={`${styles.optionRow} ${
-                      selected.includes(i) ? styles.optionSelected : ""
-                    }`}
+                    className={`${styles.optionRow} ${selected.includes(i) ? styles.optionSelected : ""}`}
                   >
                     <input
                       type={currentQuestion.type === "single" ? "radio" : "checkbox"}
@@ -133,11 +158,9 @@ const UserQuiz: React.FC = () => {
                 ))}
               </div>
               <div className={styles.navButtons}>
-                {currentIndex > 0 && (
-                  <button className={styles.navBtn} onClick={handlePrev}>
-                    Previous
-                  </button>
-                )}
+                <button className={styles.navBtn} onClick={handlePrev}>
+                  Previous
+                </button>
                 {currentIndex < questions.length - 1 ? (
                   <button className={styles.navBtn} onClick={handleNext}>
                     Next
@@ -159,10 +182,7 @@ const UserQuiz: React.FC = () => {
                     <p className={styles.summaryQ}>{q.question}</p>
                     <ul>
                       {q.options.map((opt, i) => (
-                        <li
-                          key={i}
-                          className={userSelected.includes(i) ? styles.optionSelected : ""}
-                        >
+                        <li key={i} className={userSelected.includes(i) ? styles.optionSelected : ""}>
                           {opt.text} {userSelected.includes(i) ? "(Selected)" : ""}
                         </li>
                       ))}

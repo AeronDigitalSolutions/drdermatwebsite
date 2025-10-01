@@ -1,5 +1,4 @@
 import express from "express";
-import next from "next";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
@@ -28,53 +27,44 @@ import treatmentShortsRoutes from "./src/routes/treatmentshortsRoutes";
 
 dotenv.config();
 
-const dev = process.env.NODE_ENV !== "production";
-const nextApp = next({ dev });
-const handle = nextApp.getRequestHandler();
+const server = express();
 
-nextApp.prepare().then(() => {
-  const server = express();
+// Middleware
+server.use(cors());
+server.use(express.json({ limit: "20mb" }));
 
-  // Middleware
-  server.use(cors());
-  server.use(express.json({ limit: "20mb" }));
+// Static uploads
+server.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
-  // Static uploads
-  server.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+// API routes
+server.use("/api/auth", authRoutes);
+server.use("/api/users", userRoutes);
+server.use("/api/admins", adminRoutes);
+server.use("/api/categories", categoryRoutes);
+server.use("/api/clinics", clinicRoutes);
+server.use("/api/products", productRoutes);
+server.use("/api/appointments", appointmentRoutes);
+server.use("/api/doctors", doctorRoutes);
+server.use("/api/editclinics", editClinicRoutes);
+server.use("/api/services", serviceRoutes);
+server.use("/api/offers", offerRoutes);
+server.use("/api/doctoradmin", doctorAdminRoutes);
+server.use("/api/service-categories", serviceCategoryRoutes);
+server.use("/api/clinic-categories", clinicCategoryRoutes);
+server.use("/api/top-products", topProductsRoute);
+server.use("/api/latest-offers", latestOfferRoutes);
+server.use("/api/latest-shorts", latestShortRoutes);
+server.use("/api/quiz", quizRoutes);
+server.use("/api/treatment-shorts", treatmentShortsRoutes);
 
-  // API routes
-  server.use("/api/auth", authRoutes);
-  server.use("/api/users", userRoutes);
-  server.use("/api/admins", adminRoutes);
-  server.use("/api/categories", categoryRoutes);
-  server.use("/api/clinics", clinicRoutes);
-  server.use("/api/products", productRoutes);
-  server.use("/api/appointments", appointmentRoutes);
-  server.use("/api/doctors", doctorRoutes);
-  server.use("/api/editclinics", editClinicRoutes);
-  server.use("/api/services", serviceRoutes);
-  server.use("/api/offers", offerRoutes);
-  server.use("/api/doctoradmin", doctorAdminRoutes);
-  server.use("/api/service-categories", serviceCategoryRoutes);
-  server.use("/api/clinic-categories", clinicCategoryRoutes);
-  server.use("/api/top-products", topProductsRoute);
-  server.use("/api/latest-offers", latestOfferRoutes);
-  server.use("/api/latest-shorts", latestShortRoutes);
-  server.use("/api/quiz", quizRoutes);
-  server.use("/api/treatment-shorts", treatmentShortsRoutes);
+// MongoDB connect
+mongoose
+  .connect(process.env.MONGO_URI as string)
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-  // MongoDB connect
-  mongoose
-    .connect(process.env.MONGO_URI as string)
-    .then(() => console.log("✅ MongoDB connected"))
-    .catch((err) => console.error("❌ MongoDB connection error:", err));
-
-  // Let Next.js handle everything else
-  server.all("*", (req, res) => handle(req, res));
-
-  // Start server
-  const PORT = process.env.PORT || 8080;
-  server.listen(PORT, () => {
-    console.log(`🚀 Server ready on http://localhost:${PORT}`);
-  });
+// Start server
+const PORT = process.env.PORT || 8080;
+server.listen(PORT, () => {
+  console.log(`🚀 Server ready on http://localhost:${PORT}`);
 });

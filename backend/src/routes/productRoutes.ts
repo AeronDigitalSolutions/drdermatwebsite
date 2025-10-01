@@ -3,13 +3,19 @@ import Product from "../models/Products";
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  res.json([{ id: 1, name: "Test product" }]);
-});
-
+/** CREATE PRODUCT */
 router.post("/", async (req: Request, res: Response) => {
   try {
-    const { category, company, name, quantity, price, discountPrice, description, images } = req.body;
+    const {
+      category,
+      company,
+      name,
+      quantity,
+      price,
+      discountPrice,
+      description,
+      images,
+    } = req.body;
 
     if (!Array.isArray(images) || images.length === 0) {
       return res.status(400).json({ message: "At least one image is required" });
@@ -30,11 +36,14 @@ router.post("/", async (req: Request, res: Response) => {
     res.status(201).json(newProduct);
   } catch (err: any) {
     console.error("Create product error:", err);
-    res.status(500).json({ message: "Failed to create product.", error: err });
+    res.status(500).json({
+      message: "Failed to create product.",
+      error: err.message,
+    });
   }
 });
 
-// READ ALL PRODUCTS
+/** READ ALL PRODUCTS */
 router.get("/", async (req: Request, res: Response) => {
   try {
     const { categoryId } = req.query;
@@ -45,53 +54,79 @@ router.get("/", async (req: Request, res: Response) => {
     }
 
     const products = await Product.find(filter).sort({ createdAt: -1 });
-    res.json(products);
+    res.status(200).json(products);
   } catch (err: any) {
-    res.status(500).json({ message: "Failed to fetch products.", error: err });
+    res.status(500).json({
+      message: "Failed to fetch products.",
+      error: err.message,
+    });
   }
 });
 
-// READ ONE PRODUCT BY custom `id`
+/** READ ONE PRODUCT BY _id */
 router.get("/:id", async (req: Request, res: Response) => {
   try {
-    const product = await Product.findOne({ id: req.params.id });
-    if (!product) return res.status(404).json({ message: "Product not found" });
+    const product = await Product.findById(req.params.id);
+
+    if (!product)
+      return res.status(404).json({ message: "Product not found" });
+
     res.status(200).json(product);
-  } catch (err) {
-    res.status(500).json({ message: "Failed to fetch product.", error: err });
+  } catch (err: any) {
+    res.status(500).json({
+      message: "Failed to fetch product.",
+      error: err.message,
+    });
   }
 });
 
-// UPDATE PRODUCT BY custom `id`
+/** UPDATE PRODUCT BY _id */
 router.put("/:id", async (req: Request, res: Response) => {
   try {
-    const updated = await Product.findOneAndUpdate({ id: req.params.id }, req.body, { new: true });
-    if (!updated) return res.status(404).json({ message: "Product not found" });
-    res.status(200).json(updated);
-  } catch (err) {
-    res.status(500).json({ message: "Failed to update product.", error: err });
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedProduct)
+      return res.status(404).json({ message: "Product not found" });
+
+    res.status(200).json(updatedProduct);
+  } catch (err: any) {
+    res.status(500).json({
+      message: "Failed to update product.",
+      error: err.message,
+    });
   }
 });
 
-// DELETE PRODUCT BY custom `id`
+/** DELETE PRODUCT BY _id */
 router.delete("/:id", async (req: Request, res: Response) => {
   try {
-    const deleted = await Product.findOneAndDelete({ id: req.params.id });
-    if (!deleted) return res.status(404).json({ message: "Product not found" });
+    const deletedProduct = await Product.findByIdAndDelete(req.params.id);
+
+    if (!deletedProduct)
+      return res.status(404).json({ message: "Product not found" });
+
     res.status(200).json({ message: "Product deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ message: "Failed to delete product.", error: err });
+  } catch (err: any) {
+    res.status(500).json({
+      message: "Failed to delete product.",
+      error: err.message,
+    });
   }
 });
 
-// ADD REVIEW TO PRODUCT
+/** ADD REVIEW TO PRODUCT */
 router.post("/:id/reviews", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { rating, comment, user } = req.body;
 
-    const product = await Product.findOne({ id });
-    if (!product) return res.status(404).json({ message: "Product not found" });
+    const product = await Product.findById(id);
+    if (!product)
+      return res.status(404).json({ message: "Product not found" });
 
     const newReview = {
       rating,
@@ -105,9 +140,12 @@ router.post("/:id/reviews", async (req: Request, res: Response) => {
     await product.save();
 
     res.status(201).json(product.reviews); // return updated reviews
-  } catch (err) {
+  } catch (err: any) {
     console.error("Error adding review:", err);
-    res.status(500).json({ message: "Failed to add review.", error: err });
+    res.status(500).json({
+      message: "Failed to add review.",
+      error: err.message,
+    });
   }
 });
 

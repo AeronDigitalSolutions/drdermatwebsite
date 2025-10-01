@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation"; // to read query params
+import { useSearchParams } from "next/navigation";
 import ClinicCard from "@/components/Layout/clinicCard";
 import SideCategories from "@/components/Layout/SideCategories";
 import styles from "@/styles/pages/findClinicsPage.module.css";
 import Footer from "@/components/Layout/Footer";
 import Topbar from "@/components/Layout/Topbar";
-import MobileNavbar from './../../components/Layout/MobileNavbar';
+import MobileNavbar from "@/components/Layout/MobileNavbar";
+import { X } from "lucide-react"; // Icon library
 
 const ITEMS_PER_PAGE = 6;
 
@@ -36,6 +37,7 @@ const FindClinicsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Sidebar toggle state
 
   useEffect(() => {
     fetchCategories();
@@ -96,28 +98,39 @@ const FindClinicsPage: React.FC = () => {
   return (
     <>
       <Topbar />
+
       <div className={styles.layout}>
-        <aside className={styles.sidebar}>
-          <SideCategories
-            categories={categories}
-            selectedCategoryId={selectedCategoryId}
-            onCategorySelect={setSelectedCategoryId}
-          />
-        </aside>
+        {isSidebarOpen && (
+          <aside className={styles.sidebar}>
+            <div className={styles.closeIconWrapper}>
+              <X size={24} onClick={() => setIsSidebarOpen(false)} className={styles.closeIcon} />
+            </div>
+            <SideCategories
+              categories={categories}
+              selectedCategoryId={selectedCategoryId}
+              onCategorySelect={setSelectedCategoryId}
+            />
+          </aside>
+        )}
 
         <main className={styles.main}>
-          {/* Updated search bar */}
-          <div className={styles.searchWrapper}>
-            <input
-              type="text"
-              placeholder="Search Clinics, Tests, Products"
-              className={styles.searchBarSC}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <button className={styles.searchButton}>
-              🔍
-            </button>
+          <div className={styles.headerRow}>
+            {!isSidebarOpen && (
+              <button className={styles.openSidebarBtn} onClick={() => setIsSidebarOpen(true)}>
+                ☰ Categories
+              </button>
+            )}
+
+            <div className={styles.searchWrapper}>
+              <input
+                type="text"
+                placeholder="Search Clinics, Tests, Products"
+                className={styles.searchBarSC}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <button className={styles.searchButton}>🔍</button>
+            </div>
           </div>
 
           {loading ? (
@@ -143,7 +156,8 @@ const FindClinicsPage: React.FC = () => {
           </div>
         </main>
       </div>
-      <MobileNavbar/>
+
+      <MobileNavbar />
       <Footer />
     </>
   );

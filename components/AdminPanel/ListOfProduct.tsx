@@ -3,15 +3,15 @@ import React, { useEffect, useState } from "react";
 import styles from "@/styles/Dashboard/productlist.module.css";
 
 interface Category {
-  id: string; // ✅ custom category id (CAT-0001)
+  _id: string; // ✅ MongoDB _id
   name: string;
   imageUrl: string;
 }
 
 type RawProduct = {
-  id: string; // ✅ custom product id (PROD-xxxx)
+  _id: string; // ✅ MongoDB _id
   name: string;
-  category: string; // category.id
+  category: string; // category _id
   company: string;
   price: number;
   discountPrice: number;
@@ -24,7 +24,7 @@ interface ProductWithCategory extends RawProduct {
   categoryObj?: Category | null;
 }
 
-function ListOfProduct() {
+const ListOfProduct: React.FC = () => {
   const [products, setProducts] = useState<ProductWithCategory[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [editingProduct, setEditingProduct] = useState<ProductWithCategory | null>(null);
@@ -37,7 +37,7 @@ function ListOfProduct() {
   }, []);
 
   const normalizeProduct = (p: RawProduct, categories: Category[]): ProductWithCategory => {
-    const categoryObj = categories.find((c) => c.id === p.category) || null;
+    const categoryObj = categories.find((c) => c._id === p.category) || null;
     return { ...p, categoryObj };
   };
 
@@ -54,34 +54,37 @@ function ListOfProduct() {
       const catData: Category[] = await catRes.json();
       const prodData: RawProduct[] = await prodRes.json();
 
-      const normalized = prodData.map((p) => normalizeProduct(p, catData));
+      const normalizedProducts = prodData.map((p) => normalizeProduct(p, catData));
 
       setCategories(catData);
-      setProducts(normalized);
+      setProducts(normalizedProducts);
 
-      // set main images
-      const initialMainImages: Record<string, string> = {};
-      normalized.forEach((p) => {
-        initialMainImages[p.id] =
-          p.images?.[0] || "https://via.placeholder.com/200?text=No+Image";
+      // ✅ Set main image for each product
+      const mainImgMap: Record<string, string> = {};
+      normalizedProducts.forEach((p) => {
+        mainImgMap[p._id] = p.images?.[0] || "https://via.placeholder.com/200?text=No+Image";
       });
-      setMainImages(initialMainImages);
+      setMainImages(mainImgMap);
     } catch (error) {
       console.error("Failed to fetch:", error);
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (_id: string) => {
     if (!confirm("Are you sure you want to delete this product?")) return;
+
     try {
-      const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+      const res = await fetch(`http://localhost:5000/api/products/${_id}`, {
         method: "DELETE",
       });
+
       if (!res.ok) throw new Error("Delete failed");
-      setProducts((prev) => prev.filter((p) => p.id !== id));
+
+      setProducts((prev) => prev.filter((p) => p._id !== _id));
+      alert("✅ Product deleted successfully.");
     } catch (error) {
+      console.error("Delete failed:", error);
       alert("Failed to delete product.");
-      console.error(error);
     }
   };
 
@@ -92,7 +95,7 @@ function ListOfProduct() {
     const { name, value } = e.target;
 
     if (name === "category") {
-      const selected = categories.find((c) => c.id === value) || null;
+      const selected = categories.find((c) => c._id === value) || null;
       setEditingProduct({ ...editingProduct, category: value, categoryObj: selected });
     } else {
       setEditingProduct({ ...editingProduct, [name]: value });
@@ -103,7 +106,7 @@ function ListOfProduct() {
     if (!editingProduct) return;
 
     try {
-      const bodyToSend = {
+      const payload = {
         name: editingProduct.name,
         company: editingProduct.company,
         category: editingProduct.category,
@@ -114,40 +117,37 @@ function ListOfProduct() {
         images: editingProduct.images,
       };
 
-      const res = await fetch(
-        `http://localhost:5000/api/products/${editingProduct.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(bodyToSend),
-        }
-      );
+      const res = await fetch(`http://localhost:5000/api/products/${editingProduct._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-      if (!res.ok) throw new Error("Failed to update product.");
-      const updatedRaw: RawProduct = await res.json();
-      const updatedNormalized = normalizeProduct(updatedRaw, categories);
+      const updatedRaw = await res.json();
+      if (!res.ok) throw new Error(updatedRaw.message || "Failed to update product");
+
+      const updatedProduct = normalizeProduct(updatedRaw, categories);
 
       setProducts((prev) =>
-        prev.map((p) => (p.id === updatedNormalized.id ? updatedNormalized : p))
+        prev.map((p) => (p._id === updatedProduct._id ? updatedProduct : p))
       );
 
       setMainImages((prev) => ({
         ...prev,
-        [updatedNormalized.id]:
-          updatedNormalized.images?.[0] || prev[updatedNormalized.id],
+        [updatedProduct._id]: updatedProduct.images?.[0] || prev[updatedProduct._id],
       }));
 
+      alert("✅ Product updated successfully.");
       setEditingProduct(null);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error("Update error:", error);
       alert("Failed to update product.");
     }
   };
 
+  // ✅ Filter by search + category
   const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory =
       selectedCategory === "all" || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
@@ -158,7 +158,7 @@ function ListOfProduct() {
       <h2 className={styles.heading}>Product List</h2>
 
       <div className={styles.layout}>
-        {/* Sidebar */}
+        {/* Sidebar for Categories */}
         <aside className={styles.sidebar}>
           <h3>Categories</h3>
           <ul>
@@ -170,9 +170,9 @@ function ListOfProduct() {
             </li>
             {categories.map((cat) => (
               <li
-                key={cat.id}
-                className={selectedCategory === cat.id ? styles.active : ""}
-                onClick={() => setSelectedCategory(cat.id)}
+                key={cat._id}
+                className={selectedCategory === cat._id ? styles.active : ""}
+                onClick={() => setSelectedCategory(cat._id)}
               >
                 {cat.name}
               </li>
@@ -180,7 +180,7 @@ function ListOfProduct() {
           </ul>
         </aside>
 
-        {/* Main Product Grid */}
+        {/* Product Grid */}
         <main className={styles.main}>
           <input
             type="text"
@@ -192,16 +192,17 @@ function ListOfProduct() {
 
           <div className={styles.grid}>
             {filteredProducts.map((product) => (
-              <div key={product.id} className={styles.card}>
+              <div key={product._id} className={styles.card}>
                 <img
                   src={
-                    mainImages[product.id] ||
+                    mainImages[product._id] ||
                     "https://via.placeholder.com/200?text=No+Image"
                   }
                   alt={product.name}
                   className={styles.mainImage}
                 />
 
+                {/* Image Thumbnails */}
                 {product.images && product.images.length > 1 && (
                   <div className={styles.imageRow}>
                     {product.images.map((img, idx) => (
@@ -210,14 +211,12 @@ function ListOfProduct() {
                         src={img}
                         alt={`${product.name}-${idx}`}
                         className={`${styles.imageThumb} ${
-                          mainImages[product.id] === img
-                            ? styles.activeThumb
-                            : ""
+                          mainImages[product._id] === img ? styles.activeThumb : ""
                         }`}
                         onClick={() =>
                           setMainImages((prev) => ({
                             ...prev,
-                            [product.id]: img,
+                            [product._id]: img,
                           }))
                         }
                       />
@@ -241,12 +240,9 @@ function ListOfProduct() {
 
                 <div className={styles.priceRow}>
                   <span className={styles.discount}>₹{product.price}</span>
-                  {product.discountPrice &&
-                    product.discountPrice !== product.price && (
-                      <span className={styles.original}>
-                        ₹{product.discountPrice}
-                      </span>
-                    )}
+                  {product.discountPrice && product.discountPrice !== product.price && (
+                    <span className={styles.original}>₹{product.discountPrice}</span>
+                  )}
                 </div>
 
                 <p className={styles.quantity}>Available: {product.quantity}</p>
@@ -265,7 +261,7 @@ function ListOfProduct() {
                   </button>
                   <button
                     className={styles.deleteBtn}
-                    onClick={() => handleDelete(product.id)}
+                    onClick={() => handleDelete(product._id)}
                   >
                     Delete
                   </button>
@@ -276,23 +272,26 @@ function ListOfProduct() {
         </main>
       </div>
 
-      {/* Edit Modal */}
+      {/* ✅ Edit Product Modal */}
       {editingProduct && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
             <h3>Edit Product</h3>
+
             <input
               name="name"
               value={editingProduct.name}
               onChange={handleInputChange}
               placeholder="Name"
             />
+
             <input
               name="company"
               value={editingProduct.company}
               onChange={handleInputChange}
               placeholder="Company"
             />
+
             <select
               name="category"
               value={editingProduct.category}
@@ -300,29 +299,36 @@ function ListOfProduct() {
             >
               <option value="">Select Category</option>
               {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
+                <option key={cat._id} value={cat._id}>
                   {cat.name}
                 </option>
               ))}
             </select>
+
             <input
               name="price"
+              type="number"
               value={editingProduct.price}
               onChange={handleInputChange}
               placeholder="Price"
             />
+
             <input
               name="discountPrice"
+              type="number"
               value={editingProduct.discountPrice}
               onChange={handleInputChange}
               placeholder="Discount Price"
             />
+
             <input
               name="quantity"
+              type="number"
               value={editingProduct.quantity}
               onChange={handleInputChange}
               placeholder="Quantity"
             />
+
             <textarea
               name="description"
               value={editingProduct.description}
@@ -340,6 +346,6 @@ function ListOfProduct() {
       )}
     </div>
   );
-}
+};
 
 export default ListOfProduct;

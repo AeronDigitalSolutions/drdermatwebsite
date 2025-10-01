@@ -9,15 +9,15 @@ import MobileNavbar from "@/components/Layout/MobileNavbar";
 import { useCart } from "@/context/CartContext";
 
 interface Category {
-  id: string;
+  _id: string;
   name: string;
   imageUrl?: string;
 }
 
 interface RawProduct {
-  id: string;
+  _id: string;
   name: string;
-  category: string;
+  category: string; // stores category _id
   company: string;
   price: number;
   discountPrice: number;
@@ -47,7 +47,7 @@ const ProductListingPage: React.FC = () => {
   };
 
   const normalizeProduct = (p: RawProduct, cats: Category[]): ProductWithCategory => {
-    const categoryObj = cats.find((c) => c.id === p.category) || null;
+    const categoryObj = cats.find((c) => c._id === p.category) || null;
     return { ...p, categoryObj };
   };
 
@@ -88,7 +88,7 @@ const ProductListingPage: React.FC = () => {
       p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.company.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesCategory = selectedCategory ? p.category === selectedCategory.id : true;
+    const matchesCategory = selectedCategory ? p.category === selectedCategory._id : true;
     return matchesSearch && matchesCategory;
   });
 
@@ -110,8 +110,10 @@ const ProductListingPage: React.FC = () => {
             </div>
             {categories.map((cat) => (
               <div
-                key={cat.id}
-                className={`${styles.sidebarCard} ${selectedCategory?.id === cat.id ? styles.activeCategory : ""}`}
+                key={cat._id}
+                className={`${styles.sidebarCard} ${
+                  selectedCategory?._id === cat._id ? styles.activeCategory : ""
+                }`}
                 onClick={() => setSelectedCategory(cat)}
                 role="button"
               >
@@ -149,15 +151,22 @@ const ProductListingPage: React.FC = () => {
 
                   return (
                     <div
-                      key={product.id}
+                      key={product._id}
                       className={styles.productCard}
-                      onClick={() => router.push(`/product-detail/${product.id}`)}
+                      onClick={() => router.push(`/product-detail/${product._id}`)}
                       role="button"
                     >
                       <div className={styles.productItem}>
                         <img src={mainImage} alt={product.name} className={styles.productImage} />
                         <h3 className={styles.productName}>{product.name}</h3>
                         <p className={styles.productSize}>{product.company}</p>
+
+                        {/* Show category name under product */}
+                        {product.categoryObj && (
+                          <p className={styles.categoryName}>
+                            Category: {product.categoryObj.name}
+                          </p>
+                        )}
 
                         <div className={styles.productPriceContainer}>
                           {discount > 0 && discount < price ? (
@@ -178,11 +187,14 @@ const ProductListingPage: React.FC = () => {
                           onClick={(e) => {
                             e.stopPropagation();
                             addToCart({
-                              id: product.id,
+                              id: product._id,
                               name: product.name,
                               price: product.price,
                               mrp: product.price,
-                              discount: discount > 0 ? `${Math.round(((price - discount) / price) * 100)}% OFF` : undefined,
+                              discount:
+                                discount > 0
+                                  ? `${Math.round(((price - discount) / price) * 100)}% OFF`
+                                  : undefined,
                               discountPrice: product.discountPrice,
                               company: product.company,
                               image: product.images?.[0],

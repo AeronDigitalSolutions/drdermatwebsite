@@ -17,7 +17,7 @@ const LatestShorts = () => {
   // ✅ Fetch shorts
   const fetchShorts = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/latest-shorts");
+      const res = await axios.get("https://generous-insight-production.up.railway.app/api/latest-shorts");
       setShorts(res.data);
     } catch (err) {
       console.error("Failed to fetch shorts", err);

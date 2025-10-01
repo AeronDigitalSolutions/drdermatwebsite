@@ -1,12 +1,12 @@
 {
   "name": "drdermat-backend",
   "version": "1.0.0",
-  "description": "Fullstack App (Next.js + Express) for DrDermat Website",
+  "description": "Backend API for DrDermat Website",
   "main": "dist/server.js",
   "type": "commonjs",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build && tsc",
+    "dev": "ts-node-dev --respawn --transpile-only server.ts",
+    "build": "tsc",
     "start": "node dist/server.js"
   },
   "dependencies": {
@@ -16,13 +16,9 @@
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.18.2",
-    "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.5.0",
     "multer": "^2.0.2",
-    "next": "^14.2.3",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -30,7 +26,6 @@
     "@types/cookie": "^1.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^4.17.21",
-    "@types/js-cookie": "^3.0.6",
     "@types/jsonwebtoken": "^9.0.2",
     "@types/multer": "^2.0.0",
     "@types/node": "^20.6.1",

@@ -22,7 +22,7 @@ export default function ClinicLogin() {
     try {
       console.log("📡 Sending login request:", form);
 
-      const res = await fetch("http://localhost:5000/api/clinics/login", {
+      const res = await fetch("https://dermatbackend.onrender.com/api/clinics/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

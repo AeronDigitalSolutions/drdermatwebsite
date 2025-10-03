@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import styles from "@/styles/adminlogin.module.css";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = "https://dermatbackend.onrender.com"
 
 export default function AdminLogin() {
   const router = useRouter();

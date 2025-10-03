@@ -52,7 +52,7 @@ const CreateServiceCategory = () => {
     try {
       const base64Image = await convertToBase64(categoryImage);
 
-      const response = await fetch("http://localhost:5000/api/service-categories", {
+      const response = await fetch("https://dermatbackend.onrender.com/api/service-categories", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

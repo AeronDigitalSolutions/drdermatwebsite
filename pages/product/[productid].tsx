@@ -55,7 +55,7 @@ export default function ProductDetail() {
     if (!productid) return;
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/products/${productid}`);
+        const res = await axios.get(`https://dermatbackend.onrender.com/api/products/${productid}`);
         setProduct(res.data);
         setMainImage(res.data.images?.[0] || null);
       } catch (err) {

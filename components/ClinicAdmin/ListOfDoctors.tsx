@@ -20,7 +20,7 @@ function ListOfDoctors() {
   // Fetch Doctors
   const fetchDoctors = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/doctors");
+      const res = await fetch("https://dermatbackend.onrender.com/api/doctors");
       const data = await res.json();
       setDoctors(data);
     } catch (err) {
@@ -38,7 +38,7 @@ function ListOfDoctors() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this doctor?")) return;
     try {
-      await fetch(`http://localhost:5000/api/doctors/${id}`, { method: "DELETE" });
+      await fetch(`https://dermatbackend.onrender.com/api/doctors/${id}`, { method: "DELETE" });
       setDoctors(doctors.filter((doc) => doc._id !== id));
     } catch (err) {
       console.error("Error deleting doctor:", err);
@@ -51,7 +51,7 @@ function ListOfDoctors() {
     if (!selectedDoctor) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/doctors/${selectedDoctor._id}`, {
+      const res = await fetch(`https://dermatbackend.onrender.com/api/doctors/${selectedDoctor._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(selectedDoctor),

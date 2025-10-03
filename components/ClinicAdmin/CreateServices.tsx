@@ -33,8 +33,8 @@ const CreateServices = () => {
   const [clinicId, setClinicId] = useState<string | null>(null);
   const [notification, setNotification] = useState<string>("");
 
-  const SERVICE_URL = "http://localhost:5000/api/services";
-  const CATEGORY_URL = "http://localhost:5000/api/clinic-categories";
+  const SERVICE_URL = "https://dermatbackend.onrender.com/api/services";
+  const CATEGORY_URL = "https://dermatbackend.onrender.com/api/clinic-categories";
 
   // Get clinicId from token
   useEffect(() => {

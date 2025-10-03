@@ -117,7 +117,7 @@ const ListOfProduct: React.FC = () => {
         images: editingProduct.images,
       };
 
-      const res = await fetch(`http://localhost:5000/api/products/${editingProduct._id}`, {
+      const res = await fetch(`https://dermatbackend.onrender.com/api/products/${editingProduct._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

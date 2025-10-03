@@ -41,8 +41,8 @@ const ServiceList = () => {
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
   const [notification, setNotification] = useState<string>("");
 
-  const BASE_URL = "http://localhost:5000/api/services";
-  const CATEGORY_URL = "http://localhost:5000/api/service-categories";
+  const BASE_URL = "https://dermatbackend.onrender.com/api/services";
+  const CATEGORY_URL = "https://dermatbackend.onrender.com/api/service-categories";
 
   // Get clinicId from token
   useEffect(() => {

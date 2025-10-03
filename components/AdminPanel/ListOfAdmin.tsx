@@ -37,7 +37,7 @@ function ListOfAdmin() {
     if (!window.confirm("Are you sure you want to delete this admin?")) return;
 
     try {
-      await fetch(`http://localhost:5000/api/admins/${id}`, {
+      await fetch(`https://dermatbackend.onrender.com/api/admins/${id}`, {
         method: "DELETE",
       });
       fetchAdmins();
@@ -64,7 +64,7 @@ function ListOfAdmin() {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/admins/${currentAdmin._id}`,
+        `https://dermatbackend.onrender.com/api/admins/${currentAdmin._id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

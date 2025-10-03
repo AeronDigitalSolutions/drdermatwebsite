@@ -38,7 +38,7 @@ const TopProducts: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch("http://localhost:5000/api/top-products");
+        const res = await fetch("https://dermatbackend.onrender.com/api/top-products");
         if (!res.ok) throw new Error("Failed to fetch top products");
         const data: (Product | null)[] = await res.json();
         setTopProducts(data);

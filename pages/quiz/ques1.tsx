@@ -38,7 +38,7 @@ const UserQuiz: React.FC = () => {
 
   const fetchQuestions = async (category: "Hair" | "Skin") => {
     try {
-      const res = await axios.get<Question[]>(`http://localhost:5000/api/quiz/${category}`);
+      const res = await axios.get<Question[]>(`https://dermatbackend.onrender.com/api/quiz/${category}`);
       setQuestions(res.data);
       setCurrentIndex(0);
       setSelectedAnswers({});

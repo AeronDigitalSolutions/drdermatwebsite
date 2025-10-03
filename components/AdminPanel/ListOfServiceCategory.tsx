@@ -22,7 +22,7 @@ const ListOfServiceCategory = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/service-categories");
+      const res = await fetch("https://dermatbackend.onrender.com/api/service-categories");
       const data = await res.json();
       setCategories(data);
     } catch (error) {
@@ -34,7 +34,7 @@ const ListOfServiceCategory = () => {
     if (!confirm("Are you sure you want to delete this service category?")) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/service-categories/${id}`, {
+      const res = await fetch(`https://dermatbackend.onrender.com/api/service-categories/${id}`, {
         method: "DELETE",
       });
       const data = await res.json();
@@ -98,7 +98,7 @@ const ListOfServiceCategory = () => {
       }
 
       const res = await fetch(
-        `http://localhost:5000/api/service-categories/${editingCategory?._id}`,
+        `https://dermatbackend.onrender.com/api/service-categories/${editingCategory?._id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

@@ -29,7 +29,7 @@ const ClinicCategories: React.FC<ClinicCategoryProps> = ({
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/clinic-categories");
+        const res = await fetch("https://dermatbackend.onrender.com/api/clinic-categories");
         if (!res.ok) throw new Error("Failed to fetch categories");
         const data: ClinicCategory[] = await res.json();
         setCategories(data);

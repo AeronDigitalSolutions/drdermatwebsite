@@ -29,7 +29,7 @@ const ListOfAppointments = () => {
   // Fetch appointments
   const fetchAppointments = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/appointments");
+      const res = await fetch("https://dermatbackend.onrender.com/api/appointments");
       const data = await res.json();
       setAppointments(data);
       setFilteredAppointments(data);
@@ -68,7 +68,7 @@ const ListOfAppointments = () => {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this appointment?")) return;
     try {
-      await fetch(`http://localhost:5000/api/appointments/${id}`, { method: "DELETE" });
+      await fetch(`https://dermatbackend.onrender.com/api/appointments/${id}`, { method: "DELETE" });
       setAppointments(appointments.filter((appt) => appt._id !== id));
     } catch (err) {
       console.error("Error deleting appointment:", err);
@@ -92,7 +92,7 @@ const ListOfAppointments = () => {
   const handleUpdate = async () => {
     if (!editingAppt) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/appointments/${editingAppt._id}`, {
+      const res = await fetch(`https://dermatbackend.onrender.com/api/appointments/${editingAppt._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editForm),

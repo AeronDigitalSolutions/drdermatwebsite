@@ -37,7 +37,7 @@ function ClinicDashboard() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const BASE_URL = "http://localhost:5000/api";
+  const BASE_URL = "https://dermatbackend.onrender.com/api";
 
   const fetchData = async () => {
     try {

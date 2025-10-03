@@ -31,12 +31,12 @@ const ListOfTopProduct: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        const resAll = await fetch("http://localhost:5000/api/products");
+        const resAll = await fetch("https://dermatbackend.onrender.com/api/products");
         if (!resAll.ok) throw new Error("Failed to fetch all products");
         const allData: Product[] = await resAll.json();
         setAllProducts(allData);
 
-        const resTop = await fetch("http://localhost:5000/api/top-products");
+        const resTop = await fetch("https://dermatbackend.onrender.com/api/top-products");
         if (!resTop.ok) throw new Error("Failed to fetch top products");
         const topData: (Product | null)[] = await resTop.json();
 
@@ -64,7 +64,7 @@ const ListOfTopProduct: React.FC = () => {
   // Save top products to backend
   const saveTopProducts = async (products: (Product | null)[]) => {
     try {
-      await fetch("http://localhost:5000/api/top-products", {
+      await fetch("https://dermatbackend.onrender.com/api/top-products", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(products),

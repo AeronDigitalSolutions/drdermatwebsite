@@ -55,8 +55,8 @@ const ProductListingPage: React.FC = () => {
     setLoading(true);
     try {
       const [catRes, prodRes] = await Promise.all([
-        fetch("http://localhost:5000/api/categories"),
-        fetch("http://localhost:5000/api/products"),
+        fetch("https://dermatbackend.onrender.com/api/categories"),
+        fetch("https://dermatbackend.onrender.com/api/products"),
       ]);
 
       const catData: Category[] = await catRes.json();

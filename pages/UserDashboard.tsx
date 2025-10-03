@@ -43,7 +43,7 @@ const UserDashboard = () => {
       // ✅ Fallback: fetch from backend
       const fetchProfile = async () => {
         try {
-          const res = await fetch("http://localhost:5000/api/users/me", {
+          const res = await fetch("https://dermatbackend.onrender.com/api/users/me", {
             headers: { Authorization: `Bearer ${token}` },
           });
 

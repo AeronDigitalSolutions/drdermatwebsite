@@ -55,7 +55,7 @@ export default function ProductDetail() {
     if (!id) return;
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/products/${id}`);
+        const res = await fetch(`https://dermatbackend.onrender.com/api/products/${id}`);
         if (!res.ok) throw new Error("Failed to fetch product");
         const data: Product = await res.json();
         setProduct(data);

@@ -32,7 +32,7 @@ const CreateProduct = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/categories");
+        const res = await fetch("https://dermatbackend.onrender.com/api/categories");
         const data = await res.json();
 
         // ✅ Expect categories with _id, name, imageUrl
@@ -113,7 +113,7 @@ const CreateProduct = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:5000/api/products", {
+      const response = await fetch("https://dermatbackend.onrender.com/api/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(productData),

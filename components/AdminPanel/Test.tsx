@@ -35,7 +35,7 @@ const Test: React.FC = () => {
 
   const fetchQuestions = async () => {
     try {
-      const res = await axios.get<Question[]>(`http://localhost:5000/api/quiz/${activeCategory}`);
+      const res = await axios.get<Question[]>(`https://dermatbackend.onrender.com/api/quiz/${activeCategory}`);
       setQuestions(res.data);
     } catch (err) {
       console.error(err);

@@ -32,7 +32,7 @@ const DoctorDashboard = () => {
 
     const fetchProfile = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/doctors/me", {
+        const res = await fetch("https://dermatbackend.onrender.com/api/doctors/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {

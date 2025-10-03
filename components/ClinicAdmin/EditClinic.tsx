@@ -4,7 +4,7 @@ import styles from "@/styles/clinicdashboard/editprofile.module.css";
 import MobileNavbar from "../Layout/MobileNavbar";
 
 const CLINIC_ID = "replace_with_real_id"; // TODO: Replace with actual clinic id
-const BASE_URL = "http://localhost:5000/api/clinics";
+const BASE_URL = "https://dermatbackend.onrender.com/api/clinics";
 
 const EditClinic = () => {
   const [formData, setFormData] = useState({

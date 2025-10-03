@@ -37,7 +37,7 @@ const CreateDoctor: React.FC<Props> = ({ onDoctorCreated }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post("http://localhost:5000/api/doctoradmin", form);
+      await axios.post("https://dermatbackend.onrender.com/api/doctoradmin", form);
       setMessage("Doctor created successfully!");
       setForm({ title: "", firstName: "", lastName: "", specialist: "", email: "", password: "" });
       if (onDoctorCreated) onDoctorCreated();

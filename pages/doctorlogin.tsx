@@ -24,7 +24,7 @@ const LoginDoctor = () => {
     setMessage(null);
 
     try {
-      const res = await fetch("http://localhost:5000/api/doctors/login", {
+      const res = await fetch("https://dermatbackend.onrender.com/api/doctors/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

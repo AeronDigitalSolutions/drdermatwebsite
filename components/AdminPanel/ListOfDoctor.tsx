@@ -45,7 +45,7 @@ const ListOfDoctor: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this doctor?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/doctoradmin/${id}`);
+      await axios.delete(`https://dermatbackend.onrender.com/api/doctoradmin/${id}`);
       fetchDoctors();
     } catch (err) {
       console.error(err);
@@ -73,7 +73,7 @@ const ListOfDoctor: React.FC = () => {
     e.preventDefault();
     if (!editingDoctor) return;
     try {
-      await axios.put(`http://localhost:5000/api/doctoradmin/${editingDoctor._id}`, editForm);
+      await axios.put(`https://dermatbackend.onrender.com/api/doctoradmin/${editingDoctor._id}`, editForm);
       setModalOpen(false);
       setEditingDoctor(null);
       fetchDoctors();

@@ -119,7 +119,7 @@ const LatestUpdateOffer = () => {
 
     for (let preview of validFiles) {
       try {
-        await axios.post("http://localhost:5000/api/latest-offers", {
+        await axios.post("https://dermatbackend.onrender.com/api/latest-offers", {
           imageBase64: preview.base64,
         });
       } catch (err) {
@@ -135,7 +135,7 @@ const LatestUpdateOffer = () => {
   // Delete offer
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`http://localhost:5000/api/latest-offers/${id}`);
+      await axios.delete(`https://dermatbackend.onrender.com/api/latest-offers/${id}`);
       fetchOffers();
     } catch (err) {
       console.error("Delete error:", err);
@@ -148,7 +148,7 @@ const LatestUpdateOffer = () => {
     if (!file) return;
 
     axios
-      .put(`http://localhost:5000/api/latest-offers/${id}`, { imageBase64: file })
+      .put(`https://dermatbackend.onrender.com/api/latest-offers/${id}`, { imageBase64: file })
       .then(() => fetchOffers())
       .catch((err) => console.error("Update error:", err));
   };

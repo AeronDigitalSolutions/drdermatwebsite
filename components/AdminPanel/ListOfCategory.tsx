@@ -24,7 +24,7 @@ const ListOfCategory = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/categories");
+      const res = await fetch("https://dermatbackend.onrender.com/api/categories");
       const data = await res.json();
 
       const validCategories = data

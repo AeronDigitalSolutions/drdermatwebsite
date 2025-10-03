@@ -33,7 +33,7 @@ const TreatmentShorts = () => {
     if (!videoUrl.trim()) return alert("Please enter a video URL");
 
     try {
-      await axios.post("http://localhost:5000/api/treatment-shorts", {
+      await axios.post("https://dermatbackend.onrender.com/api/treatment-shorts", {
         platform,
         videoUrl,
       });
@@ -48,7 +48,7 @@ const TreatmentShorts = () => {
   // ✅ Delete short
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`http://localhost:5000/api/treatment-shorts/${id}`);
+      await axios.delete(`https://dermatbackend.onrender.com/api/treatment-shorts/${id}`);
       fetchShorts();
     } catch (err) {
       console.error("Failed to delete treatment short", err);
@@ -61,7 +61,7 @@ const TreatmentShorts = () => {
     if (!newUrl) return;
 
     try {
-      await axios.put(`http://localhost:5000/api/treatment-shorts/${id}`, {
+      await axios.put(`https://dermatbackend.onrender.com/api/treatment-shorts/${id}`, {
         platform: newUrl.includes("instagram") ? "instagram" : "youtube",
         videoUrl: newUrl,
       });

@@ -39,7 +39,7 @@ const ProductCategory: React.FC<ProductCategoryProps> = ({
     const ac = new AbortController();
     const fetchCategories = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/categories", {
+        const res = await fetch("https://dermatbackend.onrender.com/api/categories", {
           signal: ac.signal,
         });
         if (!res.ok) throw new Error("Failed to fetch categories");

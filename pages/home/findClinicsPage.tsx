@@ -8,7 +8,6 @@ import styles from "@/styles/pages/findClinicsPage.module.css";
 import Footer from "@/components/Layout/Footer";
 import Topbar from "@/components/Layout/Topbar";
 import MobileNavbar from "@/components/Layout/MobileNavbar";
-import { X } from "lucide-react"; // Icon library
 
 const ITEMS_PER_PAGE = 6;
 
@@ -37,7 +36,6 @@ const FindClinicsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Sidebar toggle state
 
   useEffect(() => {
     fetchCategories();
@@ -99,28 +97,34 @@ const FindClinicsPage: React.FC = () => {
     <>
       <Topbar />
 
+      {/* Mobile Categories Slider */}
+      <div className={styles.mobileCategories}>
+        {categories.map((cat) => (
+          <div
+            key={cat._id}
+            className={`${styles.mobileCategoryItem} ${
+              selectedCategoryId === cat._id ? styles.activeCategory : ""
+            }`}
+            onClick={() => setSelectedCategoryId(cat._id)}
+          >
+            <img src={cat.imageUrl} alt={cat.name} />
+            <span>{cat.name}</span>
+          </div>
+        ))}
+      </div>
+
       <div className={styles.layout}>
-        {isSidebarOpen && (
-          <aside className={styles.sidebar}>
-            <div className={styles.closeIconWrapper}>
-              <X size={24} onClick={() => setIsSidebarOpen(false)} className={styles.closeIcon} />
-            </div>
-            <SideCategories
-              categories={categories}
-              selectedCategoryId={selectedCategoryId}
-              onCategorySelect={setSelectedCategoryId}
-            />
-          </aside>
-        )}
+        {/* Desktop Sidebar */}
+        <aside className={styles.sidebar}>
+          <SideCategories
+            categories={categories}
+            selectedCategoryId={selectedCategoryId}
+            onCategorySelect={setSelectedCategoryId}
+          />
+        </aside>
 
         <main className={styles.main}>
           <div className={styles.headerRow}>
-            {!isSidebarOpen && (
-              <button className={styles.openSidebarBtn} onClick={() => setIsSidebarOpen(true)}>
-                ☰ Categories
-              </button>
-            )}
-
             <div className={styles.searchWrapper}>
               <input
                 type="text"

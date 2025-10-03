@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
-import API from "../utils/axios";
 import Image from "next/image";
 import styles from "@/styles/components/forms/ModularForm.module.css";
 import Topbar from "@/components/Layout/Topbar";
 import Footer from "@/components/Layout/Footer";
 import illustration from "../public/form.png";
+
+// ✅ Use live backend URL
+const API_URL = "https://dermatbackend.onrender.com";
 
 export default function Login() {
   const router = useRouter();
@@ -25,18 +27,24 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const { data } = await API.post("/user/login", formData);
+      const res = await fetch(`${API_URL}/api/auth/user/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-      if (data?.token) {
-        Cookies.set("token", data.token, { expires: rememberMe ? 7 : undefined });
-        Cookies.set("username", data.user?.name || "", { expires: rememberMe ? 7 : undefined });
+      const data = await res.json();
 
-        router.push("/UserDashboard");
-      } else {
-        alert("No token received from server!");
-      }
+      if (!res.ok) throw new Error(data.message || "Login failed");
+
+      // ✅ Store token + username
+      Cookies.set("token", data.token, { expires: rememberMe ? 7 : undefined });
+      Cookies.set("username", data.user?.name || "", { expires: rememberMe ? 7 : undefined });
+
+      // ✅ Redirect on success
+      router.push("/UserDashboard");
     } catch (err: any) {
-      alert(err.response?.data?.message || "Login failed");
+      alert(err.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -55,6 +63,7 @@ export default function Login() {
 
           <h1 className={styles.head}>Login to your account</h1>
 
+          {/* Email Field */}
           <div className={styles.inputDiv}>
             <label htmlFor="email" className={styles.label}>Email</label>
             <input
@@ -69,6 +78,7 @@ export default function Login() {
             />
           </div>
 
+          {/* Password Field */}
           <div className={styles.inputDiv}>
             <label htmlFor="password" className={styles.label}>Password</label>
             <input
@@ -83,6 +93,7 @@ export default function Login() {
             />
           </div>
 
+          {/* Remember Me */}
           <div className={`${styles.inputDiv} ${styles.checkboxRow}`}>
             <label>
               <input
@@ -94,6 +105,7 @@ export default function Login() {
             <a href="/forgot-password">Forgot Password?</a>
           </div>
 
+          {/* Submit Button */}
           <div className={styles.buttonContainer}>
             <button type="submit" disabled={loading} className={styles.button}>
               {loading ? "Logging in..." : "Login"}

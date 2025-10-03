@@ -2,17 +2,20 @@
 
 import { useState } from "react";
 import { useRouter } from "next/router";
-import API from "../utils/axios";
 import Image from "next/image";
 import styles from "@/styles/components/forms/Signup.module.css";
 import illustration from "../public/register.png"; // adjust path if needed
 import Topbar from "@/components/Layout/Topbar";
 import Footer from "@/components/Layout/Footer";
 
+// ✅ Use live backend URL
+const API_URL = "https://dermatbackend.onrender.com";
+
 const Signup: React.FC = () => {
   const router = useRouter();
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [signupSuccess, setSignupSuccess] = useState(false); // ✅ track success
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -20,12 +23,23 @@ const Signup: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      const { data } = await API.post("/user/signup", formData);
+      const res = await fetch(`${API_URL}/api/auth/user/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message || "Signup failed");
 
       setSignupSuccess(true); // ✅ show login button
     } catch (err: any) {
-      alert(err.response?.data?.message || "Signup failed");
+      alert(err.message || "Signup failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -38,6 +52,7 @@ const Signup: React.FC = () => {
       <Topbar />
       <div className={styles.container}>
         <div className={styles.form}>
+          {/* Logo Section */}
           <div className={styles.imageContainer}>
             <div className={styles.logo}>
               <span>
@@ -46,12 +61,14 @@ const Signup: React.FC = () => {
             </div>
           </div>
 
+          {/* Illustration */}
           <div className={styles.imageContainer}>
             <Image src={illustration} alt="Illustration" className={styles.image} />
           </div>
 
           <div className={styles.head}>Add your information…</div>
 
+          {/* Signup Form */}
           <form onSubmit={handleSubmit}>
             <div className={styles.inputDiv}>
               <label htmlFor="name" className={styles.label}>
@@ -102,13 +119,17 @@ const Signup: React.FC = () => {
             </div>
 
             <div className={styles.buttonContainer}>
-              <button type="submit" className={styles.button}>
-                Register
+              <button
+                type="submit"
+                className={styles.button}
+                disabled={loading}
+              >
+                {loading ? "Registering..." : "Register"}
               </button>
             </div>
           </form>
 
-          {/* ✅ Show login button only after successful signup */}
+          {/* ✅ Show "Go to Login" button after successful signup */}
           {signupSuccess && (
             <div className={styles.buttonContainer} style={{ marginTop: "1rem" }}>
               <button

@@ -16,7 +16,7 @@ const OfferComponent = () => {
   // Fetch offers from backend
   const fetchOffers = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/offers");
+      const res = await fetch("${process.env.NEXT_PUBLIC_BACKEND_URL}/api/offers");
       const data: Offer[] = await res.json();
       setSlides(data);
     } catch (err) {

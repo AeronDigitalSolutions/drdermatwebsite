@@ -80,7 +80,7 @@ const CreateClinic = () => {
     if (!formData.category) return alert("Please select a category.");
 
     try {
-      const res = await fetch("dermatbackend.onrender.com/api/clinics", {
+      const res = await fetch("https://dermatbackend.onrender.com/api/clinics", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

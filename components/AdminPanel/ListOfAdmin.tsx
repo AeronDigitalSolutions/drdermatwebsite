@@ -23,7 +23,7 @@ function ListOfAdmin() {
 
   const fetchAdmins = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/admins");
+      const res = await fetch("https://dermatbackend.onrender.com/api/admins");
       const data = await res.json();
       setAdmins(data);
     } catch (error) {

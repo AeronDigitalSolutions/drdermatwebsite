@@ -52,7 +52,7 @@ function ListOfClinic() {
 
   const fetchClinics = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/clinics");
+      const response = await fetch("https://dermatbackend.onrender.com/api/clinics");
       const data = await response.json();
       setClinics(data);
     } catch (err: any) {
@@ -64,7 +64,7 @@ function ListOfClinic() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/clinic-categories");
+      const res = await fetch("https://dermatbackend.onrender.com/api/clinic-categories");
       const data = await res.json();
       setCategories(data);
     } catch (err) {
@@ -75,7 +75,7 @@ function ListOfClinic() {
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this clinic?")) return;
     try {
-      await fetch(`http://localhost:5000/api/clinics/${id}`, {
+      await fetch(`https://dermatbackend.onrender.com/api/clinics/${id}`, {
         method: "DELETE",
       });
       setClinics((prev) => prev.filter((c) => c._id !== id));
@@ -135,7 +135,7 @@ function ListOfClinic() {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/clinics/${editClinic._id}`,
+        `https://dermatbackend.onrender.com/api/clinics/${editClinic._id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

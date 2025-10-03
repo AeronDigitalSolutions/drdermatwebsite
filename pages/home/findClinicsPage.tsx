@@ -46,7 +46,7 @@ const FindClinicsPage: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/clinic-categories");
+      const res = await fetch("https://dermatbackend.onrender.com/api/clinic-categories");
       if (!res.ok) throw new Error("Failed to fetch categories");
       const data = await res.json();
       setCategories(data);
@@ -58,7 +58,7 @@ const FindClinicsPage: React.FC = () => {
   const fetchClinics = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/clinics");
+      const res = await fetch("https://dermatbackend.onrender.com/api/clinics");
       if (!res.ok) throw new Error("Failed to fetch clinics");
       const data = await res.json();
       setClinics(data);

@@ -44,7 +44,7 @@ const ListOfCategory = () => {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this category?")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/categories/${id}`, {
+      const res = await fetch(`https://dermatbackend.onrender.com/api/categories/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete category");
@@ -95,7 +95,7 @@ const ListOfCategory = () => {
       if (editImage) imageUrl = await convertToBase64(editImage);
 
       const res = await fetch(
-        `http://localhost:5000/api/categories/${editingCategory?.id}`,
+        `https://dermatbackend.onrender.com/api/categories/${editingCategory?.id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

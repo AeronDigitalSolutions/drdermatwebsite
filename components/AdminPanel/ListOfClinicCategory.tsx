@@ -23,7 +23,7 @@ const ListOfClinicCategory = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/clinic-categories");
+      const res = await fetch("https://dermatbackend.onrender.com/api/clinic-categories");
       const data = await res.json();
       setCategories(data);
     } catch (error) {

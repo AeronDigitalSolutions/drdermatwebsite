@@ -26,7 +26,7 @@ const ListOfDoctor: React.FC = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.get("http://localhost:5000/api/doctoradmin");
+      const res = await axios.get("https://dermatbackend.onrender.com/api/doctoradmin");
       console.log("Doctors fetched:", res.data);
       setDoctors(res.data);
     } catch (err: any) {

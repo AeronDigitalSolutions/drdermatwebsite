@@ -62,7 +62,7 @@ const ClinicDetailPage = () => {
     const fetchClinic = async () => {
       setLoadingClinic(true);
       try {
-        const res = await fetch(`http://localhost:5000/api/clinics/${clinicId}`);
+        const res = await fetch(`https://dermatbackend.onrender.com/api/clinics/${clinicId}`);
         if (!res.ok) throw new Error("Failed to fetch clinic details");
         const data = await res.json();
         setClinic(data);
@@ -81,7 +81,7 @@ const ClinicDetailPage = () => {
     const fetchServices = async () => {
       setLoadingServices(true);
       try {
-        const res = await fetch(`http://localhost:5000/api/services?clinic=${clinicId}`);
+        const res = await fetch(`https://dermatbackend.onrender.com/api/services?clinic=${clinicId}`);
         if (!res.ok) throw new Error("Failed to fetch services");
         const data: Service[] = await res.json();
 

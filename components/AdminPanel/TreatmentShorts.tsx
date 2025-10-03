@@ -17,7 +17,7 @@ const TreatmentShorts = () => {
   // ✅ Fetch shorts
   const fetchShorts = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/treatment-shorts");
+      const res = await axios.get("https://dermatbackend.onrender.com/api/treatment-shorts");
       setShorts(res.data);
     } catch (err) {
       console.error("Failed to fetch treatment shorts", err);

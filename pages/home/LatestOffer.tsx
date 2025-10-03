@@ -16,7 +16,7 @@ const LatestOfferComponent = () => {
   // Fetch offers from backend
   const fetchOffers = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/latest-offers");
+      const res = await fetch("https://dermatbackend.onrender.com/api/latest-offers");
       const data: LatestOffer[] = await res.json();
       setSlides(data);
     } catch (err) {

@@ -27,7 +27,7 @@ const LatestUpdateOffer = () => {
   // Fetch all offers
   const fetchOffers = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/latest-offers");
+      const res = await axios.get("https://dermatbackend.onrender.com/api/latest-offers");
       setOffers(res.data);
     } catch (err) {
       console.error("Fetch offers error:", err);

@@ -27,7 +27,7 @@ const UpdateOffer = () => {
   // Fetch all offers
   const fetchOffers = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/offers");
+      const res = await axios.get("https://dermatbackend.onrender.com/api/offers");
       setOffers(res.data);
     } catch (err) {
       console.error(err);
@@ -101,7 +101,7 @@ const UpdateOffer = () => {
 
     for (let preview of validFiles) {
       try {
-        await axios.post("http://localhost:5000/api/offers", {
+        await axios.post("https://dermatbackend.onrender.com/api/offers", {
           imageBase64: preview.base64,
         });
         fetchOffers();
@@ -116,7 +116,7 @@ const UpdateOffer = () => {
   // Delete offer
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`http://localhost:5000/api/offers/${id}`);
+      await axios.delete(`https://dermatbackend.onrender.com/api/offers/${id}`);
       fetchOffers();
     } catch (err) {
       console.error(err);
@@ -129,7 +129,7 @@ const UpdateOffer = () => {
     if (!file) return;
 
     axios
-      .put(`http://localhost:5000/api/offers/${id}`, { imageBase64: file })
+      .put(`https://dermatbackend.onrender.com/api/offers/${id}`, { imageBase64: file })
       .then(() => fetchOffers())
       .catch((err) => console.error(err));
   };

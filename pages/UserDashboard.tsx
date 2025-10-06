@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 
 import styles from "@/styles/userdashboard.module.css";
@@ -17,6 +17,9 @@ interface User {
   name?: string;
   email?: string;
 }
+
+// ✅ Use env variable for backend URL
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const UserDashboard = () => {
   const router = useRouter();
@@ -36,21 +39,19 @@ const UserDashboard = () => {
     }
 
     if (username) {
-      // ✅ Load username directly from cookie
       setUser({ name: username });
       setLoading(false);
     } else {
-      // ✅ Fallback: fetch from backend
       const fetchProfile = async () => {
         try {
-          const res = await fetch("https://dermatbackend.onrender.com/api/users/me", {
+          const res = await fetch(`${API_URL}/users/me`, {
             headers: { Authorization: `Bearer ${token}` },
           });
 
           if (res.ok) {
             const data = await res.json();
             setUser(data);
-            Cookies.set("username", data.name || ""); // cache for next time
+            Cookies.set("username", data.name || "");
           } else {
             console.error("Failed to fetch profile");
           }

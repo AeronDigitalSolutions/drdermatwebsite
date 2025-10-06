@@ -30,6 +30,9 @@ type Review = {
   date: string;
 };
 
+// ✅ Use environment variable for API base URL
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 function ClinicDashboard() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -37,15 +40,13 @@ function ClinicDashboard() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const BASE_URL = "https://dermatbackend.onrender.com/api";
-
   const fetchData = async () => {
     try {
       const [doctorsRes, apptsRes, servicesRes, reviewsRes] = await Promise.all([
-        fetch(`${BASE_URL}/doctors`),
-        fetch(`${BASE_URL}/appointments`),
-        fetch(`${BASE_URL}/services`),
-        fetch(`${BASE_URL}/reviews`),
+        fetch(`${API_URL}/doctors`),
+        fetch(`${API_URL}/appointments`),
+        fetch(`${API_URL}/services`),
+        fetch(`${API_URL}/reviews`),
       ]);
 
       setDoctors(await doctorsRes.json());

@@ -1,6 +1,11 @@
+"use client";
+
 import React, { useState } from "react";
 import styles from "@/styles/Dashboard/adminpages.module.css";
 import MobileNavbar from "../Layout/MobileNavbar";
+
+// ✅ Use environment variable for API base
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const CreateAdmin = () => {
   const [formData, setFormData] = useState({
@@ -35,7 +40,7 @@ const CreateAdmin = () => {
     console.log("🔍 Submitting admin data:", formData);
 
     try {
-      const res = await fetch("https://dermatbackend.onrender.com/api/admins", {
+      const res = await fetch(`${API_URL}/admins`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

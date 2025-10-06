@@ -1,22 +1,35 @@
-// components/CreateProduct.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import styles from "@/styles/Dashboard/createproduct.module.css";
 
-// ✅ Dynamically import ReactQuill (for rich text)
+// ✅ Dynamically import ReactQuill for rich text editor
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
 
 interface Category {
-  _id: string; // ✅ now using MongoDB _id
+  _id: string;
   name: string;
-  imageUrl: string;
+  imageUrl?: string;
 }
+
+interface Company {
+  _id: string;
+  name: string;
+}
+
+// Use environment variable for API base
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const CreateProduct = () => {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([
+    { _id: "dove", name: "Dove" },
+    { _id: "patanjali", name: "Patanjali" },
+    { _id: "himalaya", name: "Himalaya" },
+    { _id: "vlcc", name: "VLCC" },
+  ]);
   const [images, setImages] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     category: "",
@@ -28,81 +41,66 @@ const CreateProduct = () => {
     description: "",
   });
 
-  /** ✅ Fetch categories from backend */
+  // Fetch categories from backend
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("https://dermatbackend.onrender.com/api/categories");
+        const res = await fetch(`${API_URL}/categories`);
+        if (!res.ok) throw new Error("Failed to fetch categories");
         const data = await res.json();
-
-        // ✅ Expect categories with _id, name, imageUrl
         const validCategories = data
+          .filter((cat: any) => cat._id && cat.name)
           .map((cat: any) => ({
             _id: cat._id,
             name: cat.name,
             imageUrl: cat.imageUrl,
-          }))
-          .filter((cat: Category) => cat._id && cat.name);
-
+          }));
         setCategories(validCategories);
       } catch (err) {
         console.error("Failed to fetch categories:", err);
       }
     };
-
     fetchCategories();
   }, []);
 
-  /** ✅ Handle image uploads (Base64) */
+  // Handle image upload (convert to Base64)
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files) {
-      const fileArr = Array.from(files);
-      fileArr.forEach((file) => {
-        if (file.size > 1024 * 1024) {
-          alert("Image size should not exceed 1MB.");
-          return;
-        }
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setImages((prev) => [...prev, reader.result as string]);
-        };
-        reader.readAsDataURL(file);
-      });
-    }
+    if (!files) return;
+
+    Array.from(files).forEach((file) => {
+      if (file.size > 1024 * 1024) {
+        alert("Image size should not exceed 1MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => setImages((prev) => [...prev, reader.result as string]);
+      reader.readAsDataURL(file);
+    });
   };
 
-  /** ✅ Remove image from preview */
   const handleRemoveImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  /** ✅ Handle text and select changes */
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  // Handle input/select changes
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  /** ✅ Handle description (ReactQuill) */
+  // Handle rich text description
   const handleDescriptionChange = (value: string) => {
     setFormData((prev) => ({ ...prev, description: value }));
   };
 
-  /** ✅ Handle form submission */
+  // Submit form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (images.length === 0) {
-      alert("Please upload at least one image.");
-      return;
-    }
-
-    if (!formData.category) {
-      alert("Please select a category.");
-      return;
-    }
+    if (!formData.category) return alert("Please select a category");
+    if (!formData.company) return alert("Please select a company");
+    if (images.length === 0) return alert("Please upload at least one image");
 
     const productData = {
       ...formData,
@@ -113,19 +111,19 @@ const CreateProduct = () => {
     };
 
     try {
-      const response = await fetch("https://dermatbackend.onrender.com/api/products", {
+      const res = await fetch(`${API_URL}/products`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(productData),
       });
 
-      if (!response.ok) throw new Error("Failed to create product");
+      if (!res.ok) throw new Error("Failed to create product");
 
-      const result = await response.json();
+      const result = await res.json();
       alert("✅ Product created successfully!");
       console.log("Created product:", result);
 
-      // ✅ Reset form
+      // Reset form
       setFormData({
         category: "",
         company: "",
@@ -136,8 +134,8 @@ const CreateProduct = () => {
         description: "",
       });
       setImages([]);
-    } catch (error) {
-      console.error("Error creating product:", error);
+    } catch (err) {
+      console.error("Error creating product:", err);
       alert("❌ Failed to create product. Check console for details.");
     }
   };
@@ -146,7 +144,7 @@ const CreateProduct = () => {
     <form className={styles.form} onSubmit={handleSubmit}>
       <h2 className={styles.heading}>Add New Product</h2>
 
-      {/* ✅ Image Upload */}
+      {/* Image Upload */}
       <div className={styles.row}>
         <label className={styles.imageUpload}>
           <span>Upload Images</span>
@@ -160,34 +158,21 @@ const CreateProduct = () => {
         </label>
       </div>
 
-      {/* ✅ Image Preview */}
+      {/* Image Preview */}
       <div className={styles.previewContainer}>
         {images.map((img, index) => (
           <div key={index} className={styles.previewWrapper}>
-            <img
-              src={img}
-              alt={`Preview ${index}`}
-              className={styles.previewImage}
-            />
-            <button
-              type="button"
-              onClick={() => handleRemoveImage(index)}
-              className={styles.removeBtn}
-            >
+            <img src={img} alt={`Preview ${index}`} className={styles.previewImage} />
+            <button type="button" className={styles.removeBtn} onClick={() => handleRemoveImage(index)}>
               ✖
             </button>
           </div>
         ))}
       </div>
 
-      {/* ✅ Category & Company */}
+      {/* Category & Company */}
       <div className={styles.row}>
-        <select
-          name="category"
-          value={formData.category}
-          onChange={handleChange}
-          className={styles.select}
-        >
+        <select name="category" value={formData.category} onChange={handleChange} className={styles.select}>
           <option value="">Select Category</option>
           {categories.map((cat) => (
             <option key={cat._id} value={cat._id}>
@@ -196,21 +181,17 @@ const CreateProduct = () => {
           ))}
         </select>
 
-        <select
-          name="company"
-          value={formData.company}
-          onChange={handleChange}
-          className={styles.select}
-        >
+        <select name="company" value={formData.company} onChange={handleChange} className={styles.select}>
           <option value="">Select Company</option>
-          <option value="dove">Dove</option>
-          <option value="patanjali">Patanjali</option>
-          <option value="himalaya">Himalaya</option>
-          <option value="vlcc">VLCC</option>
+          {companies.map((c) => (
+            <option key={c._id} value={c._id}>
+              {c.name}
+            </option>
+          ))}
         </select>
       </div>
 
-      {/* ✅ Name & Quantity */}
+      {/* Name & Quantity */}
       <div className={styles.row}>
         <input
           type="text"
@@ -230,7 +211,7 @@ const CreateProduct = () => {
         />
       </div>
 
-      {/* ✅ Price & Discount */}
+      {/* Price & Discount */}
       <div className={styles.row}>
         <input
           type="number"
@@ -250,7 +231,7 @@ const CreateProduct = () => {
         />
       </div>
 
-      {/* ✅ Description */}
+      {/* Description */}
       <div className={styles.richTextWrapper}>
         <ReactQuill
           value={formData.description}
@@ -267,7 +248,7 @@ const CreateProduct = () => {
         />
       </div>
 
-      {/* ✅ Submit */}
+      {/* Submit */}
       <button type="submit" className={styles.button}>
         Add Product
       </button>

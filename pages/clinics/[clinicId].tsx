@@ -30,7 +30,7 @@ interface Service {
   description: string;
   price: number;
   discountedPrice?: number;
-  images: string[];
+  images?: string[];
   categories: { _id: string; name: string; image?: string }[];
   clinic: string;
 }
@@ -54,17 +54,19 @@ const ClinicDetailPage = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("All");
-
   const [categories, setCategories] = useState<Category[]>([]);
 
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
+  // Fetch clinic details
   useEffect(() => {
     if (!clinicId) return;
     const fetchClinic = async () => {
       setLoadingClinic(true);
       try {
-        const res = await fetch(`https://dermatbackend.onrender.com/api/clinics/${clinicId}`);
+        const res = await fetch(`${API_BASE}/clinics/${clinicId}`);
         if (!res.ok) throw new Error("Failed to fetch clinic details");
-        const data = await res.json();
+        const data: Clinic = await res.json();
         setClinic(data);
         setSelectedImage(data.images?.[0] || null);
       } catch (err: any) {
@@ -74,21 +76,22 @@ const ClinicDetailPage = () => {
       }
     };
     fetchClinic();
-  }, [clinicId]);
+  }, [clinicId, API_BASE]);
 
+  // Fetch services for this clinic
   useEffect(() => {
     if (!clinicId) return;
     const fetchServices = async () => {
       setLoadingServices(true);
       try {
-        const res = await fetch(`https://dermatbackend.onrender.com/api/services?clinic=${clinicId}`);
+        const res = await fetch(`${API_BASE}/services?clinic=${clinicId}`);
         if (!res.ok) throw new Error("Failed to fetch services");
         const data: Service[] = await res.json();
 
         const clinicServices = data.filter((s) => s.clinic === clinicId);
         setServices(clinicServices);
 
-        // ✅ Generate categories with images from first service in category
+        // Generate categories from services
         const catMap = new Map<string, Category>();
         clinicServices.forEach((service) => {
           service.categories.forEach((cat) => {
@@ -97,7 +100,7 @@ const ClinicDetailPage = () => {
                 name: cat.name,
                 image: service.images?.[0]?.startsWith("data")
                   ? service.images[0]
-                  : `/placeholder.png`, // fallback placeholder
+                  : "/placeholder.png",
               });
             }
           });
@@ -111,7 +114,7 @@ const ClinicDetailPage = () => {
       }
     };
     fetchServices();
-  }, [clinicId]);
+  }, [clinicId, API_BASE]);
 
   const filteredServices =
     activeCategory === "All"
@@ -214,7 +217,7 @@ const ClinicDetailPage = () => {
 
                       <div className={styles.serviceText}>
                         <h4>{service.serviceName}</h4>
-                        <p dangerouslySetInnerHTML={{ __html: service.description }}></p>
+                        <p dangerouslySetInnerHTML={{ __html: service.description }} />
                         {service.categories?.length > 0 && (
                           <p className={styles.categories}>
                             {service.categories.map((cat) => cat.name).join(", ")}
@@ -245,8 +248,7 @@ const ClinicDetailPage = () => {
                                   mrp: service.price,
                                   discount: service.discountedPrice
                                     ? `${Math.round(
-                                        ((service.price - service.discountedPrice) /
-                                          service.price) *
+                                        ((service.price - service.discountedPrice) / service.price) *
                                           100
                                       )}% OFF`
                                     : undefined,

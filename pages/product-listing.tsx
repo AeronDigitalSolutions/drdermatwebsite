@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "@/styles/ProductList.module.css";
@@ -30,6 +31,9 @@ interface ProductWithCategory extends RawProduct {
   categoryObj?: Category | null;
 }
 
+// ✅ Use environment variable for API base
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 const ProductListingPage: React.FC = () => {
   const router = useRouter();
   const [products, setProducts] = useState<ProductWithCategory[]>([]);
@@ -55,8 +59,8 @@ const ProductListingPage: React.FC = () => {
     setLoading(true);
     try {
       const [catRes, prodRes] = await Promise.all([
-        fetch("https://dermatbackend.onrender.com/api/categories"),
-        fetch("https://dermatbackend.onrender.com/api/products"),
+        fetch(`${API_BASE}/categories`),
+        fetch(`${API_BASE}/products`),
       ]);
 
       const catData: Category[] = await catRes.json();
@@ -161,7 +165,6 @@ const ProductListingPage: React.FC = () => {
                         <h3 className={styles.productName}>{product.name}</h3>
                         <p className={styles.productSize}>{product.company}</p>
 
-                        {/* Show category name under product */}
                         {product.categoryObj && (
                           <p className={styles.categoryName}>
                             Category: {product.categoryObj.name}

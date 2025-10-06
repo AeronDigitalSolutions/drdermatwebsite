@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import styles from "@/styles/Dashboard/listofcategory.module.css";
 
@@ -7,6 +9,9 @@ interface ClinicCategory {
   name: string;
   imageUrl: string; // base64 string
 }
+
+// ✅ Use environment variable for API base
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const ListOfClinicCategory = () => {
   const [categories, setCategories] = useState<ClinicCategory[]>([]);
@@ -23,7 +28,7 @@ const ListOfClinicCategory = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("https://dermatbackend.onrender.com/api/clinic-categories");
+      const res = await fetch(`${API_URL}/clinic-categories`);
       const data = await res.json();
       setCategories(data);
     } catch (error) {
@@ -35,7 +40,7 @@ const ListOfClinicCategory = () => {
     if (!confirm("Are you sure you want to delete this clinic category?")) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/clinic-categories/${id}`, {
+      const res = await fetch(`${API_URL}/clinic-categories/${id}`, {
         method: "DELETE",
       });
       const data = await res.json();
@@ -73,14 +78,13 @@ const ListOfClinicCategory = () => {
     }
   };
 
-  const convertToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
+  const convertToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = (err) => reject(err);
     });
-  };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,18 +110,15 @@ const ListOfClinicCategory = () => {
         imageUrl = await convertToBase64(editImage);
       }
 
-      const res = await fetch(
-        `http://localhost:5000/api/clinic-categories/${editingCategory?._id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            categoryId: editCategoryId.trim(),
-            name: editName.trim(),
-            imageUrl,
-          }),
-        }
-      );
+      const res = await fetch(`${API_URL}/clinic-categories/${editingCategory?._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          categoryId: editCategoryId.trim(),
+          name: editName.trim(),
+          imageUrl,
+        }),
+      });
 
       const data = await res.json();
 

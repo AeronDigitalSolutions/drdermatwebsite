@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import styles from "@/styles/clinicdashboard/test.module.css";
@@ -17,6 +19,9 @@ interface Question {
 
 const categories: ("Hair" | "Skin")[] = ["Hair", "Skin"];
 
+// ✅ Configurable API URL for localhost and server
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 const Test: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [activeCategory, setActiveCategory] = useState<"Hair" | "Skin">("Hair");
@@ -35,10 +40,10 @@ const Test: React.FC = () => {
 
   const fetchQuestions = async () => {
     try {
-      const res = await axios.get<Question[]>(`https://dermatbackend.onrender.com/api/quiz/${activeCategory}`);
+      const res = await axios.get<Question[]>(`${API_URL}/quiz/${activeCategory}`);
       setQuestions(res.data);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch questions:", err);
     }
   };
 
@@ -74,15 +79,15 @@ const Test: React.FC = () => {
 
     try {
       if (editId) {
-        const res = await axios.put<Question>(`http://localhost:5000/api/quiz/${editId}`, payload);
+        const res = await axios.put<Question>(`${API_URL}/quiz/${editId}`, payload);
         setQuestions((prev) => prev.map((q) => (q._id === editId ? res.data : q)));
       } else {
-        const res = await axios.post<Question>("http://localhost:5000/api/quiz", payload);
+        const res = await axios.post<Question>(`${API_URL}/quiz`, payload);
         setQuestions((prev) => [...prev, res.data]);
       }
       closeModal();
     } catch (err) {
-      console.error(err);
+      console.error("Failed to save question:", err);
       alert("Failed to save question");
     }
   };
@@ -90,10 +95,10 @@ const Test: React.FC = () => {
   const deleteQuestion = async (id: string) => {
     if (!confirm("Delete this question?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/quiz/${id}`);
+      await axios.delete(`${API_URL}/quiz/${id}`);
       setQuestions((prev) => prev.filter((q) => q._id !== id));
     } catch (err) {
-      console.error(err);
+      console.error("Failed to delete question:", err);
     }
   };
 
@@ -120,8 +125,8 @@ const Test: React.FC = () => {
 
       {/* Modal */}
       {showModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
+        <div className={styles.modalOverlay} onClick={closeModal}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <h2>{editId ? "Edit Question" : "Add Question"}</h2>
 
             {/* Question Type */}

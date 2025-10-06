@@ -7,6 +7,9 @@ interface LatestOffer {
   imageBase64: string;
 }
 
+// ✅ Use env variable for API base URL
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 const LatestOfferComponent = () => {
   const [slides, setSlides] = useState<LatestOffer[]>([]);
   const [current, setCurrent] = useState(0);
@@ -16,7 +19,8 @@ const LatestOfferComponent = () => {
   // Fetch offers from backend
   const fetchOffers = async () => {
     try {
-      const res = await fetch("https://dermatbackend.onrender.com/api/latest-offers");
+      const res = await fetch(`${API_BASE}/latest-offers`);
+      if (!res.ok) throw new Error("Failed to fetch latest offers");
       const data: LatestOffer[] = await res.json();
       setSlides(data);
     } catch (err) {
@@ -27,7 +31,7 @@ const LatestOfferComponent = () => {
   useEffect(() => {
     fetchOffers();
 
-    // Poll backend every 3 seconds to get updates dynamically
+    // Poll backend every 3 seconds for updates
     fetchIntervalRef.current = setInterval(fetchOffers, 3000);
 
     return () => {
@@ -52,7 +56,8 @@ const LatestOfferComponent = () => {
     return () => stopAutoScroll();
   }, [slides]);
 
-  if (slides.length === 0) return <p style={{ textAlign: "center", padding: 20 }}>No latest offers available</p>;
+  if (slides.length === 0)
+    return <p style={{ textAlign: "center", padding: 20 }}>No latest offers available</p>;
 
   return (
     <div

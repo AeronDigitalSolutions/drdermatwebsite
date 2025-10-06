@@ -8,6 +8,9 @@ interface ClinicCategory {
   name: string;
 }
 
+// ✅ Use environment variable or fallback
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 const CreateClinic = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -29,7 +32,7 @@ const CreateClinic = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("https://dermatbackend.onrender.com/api/clinic-categories");
+        const res = await fetch(`${API_URL}/clinic-categories`);
         const data = await res.json();
         setCategories(data);
       } catch {
@@ -50,7 +53,6 @@ const CreateClinic = () => {
     }
   };
 
-  // ✅ Multiple image upload
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
@@ -80,7 +82,7 @@ const CreateClinic = () => {
     if (!formData.category) return alert("Please select a category.");
 
     try {
-      const res = await fetch("https://dermatbackend.onrender.com/api/clinics", {
+      const res = await fetch(`${API_URL}/clinics`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

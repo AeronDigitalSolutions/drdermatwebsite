@@ -7,6 +7,9 @@ interface Offer {
   imageBase64: string;
 }
 
+// ✅ Use environment variable for backend URL
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 const OfferComponent = () => {
   const [slides, setSlides] = useState<Offer[]>([]);
   const [current, setCurrent] = useState(0);
@@ -16,7 +19,8 @@ const OfferComponent = () => {
   // Fetch offers from backend
   const fetchOffers = async () => {
     try {
-      const res = await fetch("https://dermatbackend.onrender.com/api/offers");
+      const res = await fetch(`${API_BASE}/offers`);
+      if (!res.ok) throw new Error("Failed to fetch offers");
       const data: Offer[] = await res.json();
       setSlides(data);
     } catch (err) {
@@ -52,7 +56,8 @@ const OfferComponent = () => {
     return () => stopAutoScroll();
   }, [slides]);
 
-  if (slides.length === 0) return <p style={{ textAlign: "center", padding: 20 }}>No offers available</p>;
+  if (slides.length === 0)
+    return <p style={{ textAlign: "center", padding: 20 }}>No offers available</p>;
 
   return (
     <div
@@ -60,10 +65,7 @@ const OfferComponent = () => {
       onMouseEnter={stopAutoScroll}
       onMouseLeave={startAutoScroll}
     >
-      <div
-        className={styles.slider}
-        style={{ transform: `translateX(-${current * 100}%)` }}
-      >
+      <div className={styles.slider} style={{ transform: `translateX(-${current * 100}%)` }}>
         {slides.map((slide) => (
           <div className={styles.slide} key={slide._id}>
             <img

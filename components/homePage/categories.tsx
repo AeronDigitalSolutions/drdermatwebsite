@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import styles from "@/styles/components/homePage/categories.module.css";
 import { useRouter } from "next/router";
@@ -15,6 +17,9 @@ interface ClinicCategoryProps {
   border?: string;
 }
 
+// ✅ API base from env variable
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 const ClinicCategories: React.FC<ClinicCategoryProps> = ({
   title,
   backgroundColor,
@@ -29,7 +34,7 @@ const ClinicCategories: React.FC<ClinicCategoryProps> = ({
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("https://dermatbackend.onrender.com/api/clinic-categories");
+        const res = await fetch(`${API_BASE}/clinic-categories`);
         if (!res.ok) throw new Error("Failed to fetch categories");
         const data: ClinicCategory[] = await res.json();
         setCategories(data);

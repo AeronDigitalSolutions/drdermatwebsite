@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Cookies from "js-cookie";
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 import styles from "@/styles/clinicdashboard/listofservices.module.css";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
@@ -30,6 +30,9 @@ interface JwtPayload {
   role: string;
 }
 
+// ✅ Use environment variable for API base URL
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 const ServiceList = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,17 +44,12 @@ const ServiceList = () => {
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
   const [notification, setNotification] = useState<string>("");
 
-  const BASE_URL = "https://dermatbackend.onrender.com/api/services";
-  const CATEGORY_URL = "https://dermatbackend.onrender.com/api/service-categories";
-
   // Get clinicId from token
   useEffect(() => {
     const token = Cookies.get("token");
-    console.log("Token:", token);
     if (token) {
       try {
         const decoded = jwtDecode<JwtPayload>(token);
-        console.log("Decoded token:", decoded);
         if (decoded?.id) setClinicId(decoded.id);
         else setNotification("Invalid token: Clinic ID missing");
       } catch (err) {
@@ -67,7 +65,7 @@ const ServiceList = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch(CATEGORY_URL);
+        const res = await fetch(`${API_BASE}/service-categories`);
         if (!res.ok) throw new Error("Failed to fetch categories");
         const data: Category[] = await res.json();
         setCategories(data);
@@ -84,37 +82,18 @@ const ServiceList = () => {
 
     const fetchServices = async () => {
       setLoading(true);
-
-      const urlsToTry = [
-        `${BASE_URL}?clinic=${clinicId}`,   // query param route
-        `${BASE_URL}/clinic/${clinicId}`,   // path param route
-      ];
-
-      let fetchedData: any = null;
-      for (const url of urlsToTry) {
-        try {
-          const res = await fetch(url);
-          console.log("Trying URL:", url, "Status:", res.status);
-          if (!res.ok) continue;
-          const data = await res.json();
-          if (Array.isArray(data) || data.services) {
-            fetchedData = Array.isArray(data) ? data : data.services;
-            break;
-          }
-        } catch (err) {
-          console.warn("Fetch failed for URL:", url, err);
-        }
-      }
-
-      if (!fetchedData) {
+      try {
+        const res = await fetch(`${API_BASE}/services?clinic=${clinicId}`);
+        if (!res.ok) throw new Error("Failed to fetch services");
+        const data = await res.json();
+        setServices(Array.isArray(data) ? data : data.services);
+      } catch (err) {
+        console.error(err);
         setNotification("Error fetching services ❌");
         setServices([]);
-      } else {
-        setServices(fetchedData);
-        if (fetchedData.length === 0) setNotification("No services found for this clinic.");
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
     fetchServices();
@@ -129,7 +108,7 @@ const ServiceList = () => {
     if (!confirm("Are you sure you want to delete this service?")) return;
 
     try {
-      const res = await fetch(`${BASE_URL}/${id}`, { method: "DELETE" });
+      const res = await fetch(`${API_BASE}/services/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to delete");
 
@@ -176,14 +155,13 @@ const ServiceList = () => {
 
     try {
       const base64NewImages = await Promise.all(newImages.map(toBase64));
-
       const payload = {
         ...editingService,
         categories: editingService.categories.map((c) => c._id),
         images: [...editingService.images, ...base64NewImages],
       };
 
-      const res = await fetch(`${BASE_URL}/${editingService._id}`, {
+      const res = await fetch(`${API_BASE}/services/${editingService._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

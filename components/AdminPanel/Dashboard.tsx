@@ -1,6 +1,11 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import styles from "@/styles/Dashboard/dashboard.module.css";
 import { FiUsers, FiHome, FiBox } from "react-icons/fi";
+
+// ✅ Use environment variable for API base
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -14,15 +19,18 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchCounts = async () => {
       try {
-        const resAdmins = await fetch("https://dermatbackend.onrender.com/api/admins");
+        // Fetch Admins
+        const resAdmins = await fetch(`${API_URL}/admins`);
         if (!resAdmins.ok) throw new Error("Failed to fetch admins");
         const admins = await resAdmins.json();
 
-        const resClinics = await fetch("https://dermatbackend.onrender.com/api/clinics");
+        // Fetch Clinics
+        const resClinics = await fetch(`${API_URL}/clinics`);
         if (!resClinics.ok) throw new Error("Failed to fetch clinics");
         const clinics = await resClinics.json();
 
-        const resProducts = await fetch("https://dermatbackend.onrender.com/api/products");
+        // Fetch Products
+        const resProducts = await fetch(`${API_URL}/products`);
         if (!resProducts.ok) throw new Error("Failed to fetch products");
         const products = await resProducts.json();
 

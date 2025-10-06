@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import styles from "@/styles/UpdateOffer.module.css";
@@ -19,6 +20,9 @@ const MAX_SIZE_MB = 5;
 const REQUIRED_WIDTH = 1600;
 const REQUIRED_HEIGHT = 350;
 
+// ✅ Use environment variable for API base
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 const LatestUpdateOffer = () => {
   const [offers, setOffers] = useState<LatestOffer[]>([]);
   const [previewFiles, setPreviewFiles] = useState<PreviewFile[]>([]);
@@ -27,7 +31,7 @@ const LatestUpdateOffer = () => {
   // Fetch all offers
   const fetchOffers = async () => {
     try {
-      const res = await axios.get("https://dermatbackend.onrender.com/api/latest-offers");
+      const res = await axios.get(`${API_URL}/latest-offers`);
       setOffers(res.data);
     } catch (err) {
       console.error("Fetch offers error:", err);
@@ -119,7 +123,7 @@ const LatestUpdateOffer = () => {
 
     for (let preview of validFiles) {
       try {
-        await axios.post("https://dermatbackend.onrender.com/api/latest-offers", {
+        await axios.post(`${API_URL}/latest-offers`, {
           imageBase64: preview.base64,
         });
       } catch (err) {
@@ -135,7 +139,7 @@ const LatestUpdateOffer = () => {
   // Delete offer
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`https://dermatbackend.onrender.com/api/latest-offers/${id}`);
+      await axios.delete(`${API_URL}/latest-offers/${id}`);
       fetchOffers();
     } catch (err) {
       console.error("Delete error:", err);
@@ -148,7 +152,7 @@ const LatestUpdateOffer = () => {
     if (!file) return;
 
     axios
-      .put(`https://dermatbackend.onrender.com/api/latest-offers/${id}`, { imageBase64: file })
+      .put(`${API_URL}/latest-offers/${id}`, { imageBase64: file })
       .then(() => fetchOffers())
       .catch((err) => console.error("Update error:", err));
   };
@@ -183,24 +187,16 @@ const LatestUpdateOffer = () => {
           {previewFiles.map((preview, idx) => (
             <div
               key={idx}
-              className={`${styles.previewCard} ${
-                preview.valid ? styles.valid : styles.invalid
-              }`}
+              className={`${styles.previewCard} ${preview.valid ? styles.valid : styles.invalid}`}
             >
               {preview.base64 && (
-                <img
-                  src={preview.base64}
-                  alt={preview.file.name}
-                  className={styles.previewImage}
-                />
+                <img src={preview.base64} alt={preview.file.name} className={styles.previewImage} />
               )}
               <p className={styles.fileName}>{preview.file.name}</p>
               <p className={styles.fileSize}>
                 {(preview.file.size / 1024 / 1024).toFixed(2)} MB
               </p>
-              {!preview.valid && (
-                <p className={styles.previewError}>{preview.error}</p>
-              )}
+              {!preview.valid && <p className={styles.previewError}>{preview.error}</p>}
             </div>
           ))}
         </div>

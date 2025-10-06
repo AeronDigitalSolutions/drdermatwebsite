@@ -10,6 +10,10 @@ type Appointment = {
   doctor: string;
 };
 
+// ✅ Use environment variable or fallback to localhost
+const BASE_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000/api/appointments";
+
 const ListOfAppointments = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [filteredAppointments, setFilteredAppointments] = useState<Appointment[]>([]);
@@ -29,7 +33,7 @@ const ListOfAppointments = () => {
   // Fetch appointments
   const fetchAppointments = async () => {
     try {
-      const res = await fetch("https://dermatbackend.onrender.com/api/appointments");
+      const res = await fetch(BASE_URL);
       const data = await res.json();
       setAppointments(data);
       setFilteredAppointments(data);
@@ -64,11 +68,11 @@ const ListOfAppointments = () => {
     setFilteredAppointments(results);
   }, [filterMode, searchQuery, selectedDoctor, appointments]);
 
-  // Delete
+  // Delete appointment
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this appointment?")) return;
     try {
-      await fetch(`https://dermatbackend.onrender.com/api/appointments/${id}`, { method: "DELETE" });
+      await fetch(`${BASE_URL}/${id}`, { method: "DELETE" });
       setAppointments(appointments.filter((appt) => appt._id !== id));
     } catch (err) {
       console.error("Error deleting appointment:", err);
@@ -88,11 +92,11 @@ const ListOfAppointments = () => {
 
   const closeModal = () => setEditingAppt(null);
 
-  // Update
+  // Update appointment
   const handleUpdate = async () => {
     if (!editingAppt) return;
     try {
-      const res = await fetch(`https://dermatbackend.onrender.com/api/appointments/${editingAppt._id}`, {
+      const res = await fetch(`${BASE_URL}/${editingAppt._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editForm),
@@ -125,9 +129,7 @@ const ListOfAppointments = () => {
           className={styles.filterSelect}
         >
           {doctors.map((doc, i) => (
-            <option key={i} value={doc}>
-              {doc}
-            </option>
+            <option key={i} value={doc}>{doc}</option>
           ))}
         </select>
       </div>

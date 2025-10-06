@@ -1,8 +1,13 @@
+"use client";
+
 import React, { useState } from "react";
 import { useRouter } from "next/router"; // ✅ use next/router for Pages Router
 import Cookies from "js-cookie";
 import styles from "@/styles/cliniclogin.module.css";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+
+// ✅ API base URL from environment variable
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 export default function ClinicLogin() {
   const router = useRouter();
@@ -22,7 +27,7 @@ export default function ClinicLogin() {
     try {
       console.log("📡 Sending login request:", form);
 
-      const res = await fetch("https://dermatbackend.onrender.com/api/clinics/login", {
+      const res = await fetch(`${API_URL}/clinics/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -41,9 +46,8 @@ export default function ClinicLogin() {
 
       // 🎯 Redirect after login success
       console.log("🎉 Login success, redirecting...");
-      router.replace("/ClinicDashboard"); 
-window.location.href = "/ClinicDashboard"; // ✅ forces middleware to run
- // ✅ must start with /
+      router.replace("/ClinicDashboard");
+      window.location.href = "/ClinicDashboard"; // ✅ forces middleware to run
     } catch (err: any) {
       console.error("❌ Login error:", err);
       setError(err.message || "Login failed");

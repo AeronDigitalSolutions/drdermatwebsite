@@ -1,7 +1,11 @@
 "use client";
+
 import React, { useState, useRef } from "react";
 import styles from "@/styles/Dashboard/createcategory.module.css";
 import MobileNavbar from "../Layout/MobileNavbar";
+
+// ✅ Use environment variable for API base
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const CreateServiceCategory = () => {
   const [categoryName, setCategoryName] = useState("");
@@ -10,26 +14,24 @@ const CreateServiceCategory = () => {
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const convertToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
+  const convertToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = reject;
     });
-  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
     if (file) {
       if (file.size > 1024 * 1024) {
-        setError("Image must be less than or equal to 1MB.");
+        setError("Image must be ≤ 1MB.");
         setCategoryImage(null);
         setPreviewUrl(null);
         return;
       }
-
       setError("");
       setCategoryImage(file);
       setPreviewUrl(URL.createObjectURL(file));
@@ -52,7 +54,7 @@ const CreateServiceCategory = () => {
     try {
       const base64Image = await convertToBase64(categoryImage);
 
-      const response = await fetch("https://dermatbackend.onrender.com/api/service-categories", {
+      const response = await fetch(`${API_URL}/service-categories`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

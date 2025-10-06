@@ -3,15 +3,15 @@ import React, { useEffect, useState } from "react";
 import styles from "@/styles/Dashboard/productlist.module.css";
 
 interface Category {
-  _id: string; // ✅ MongoDB _id
+  _id: string;
   name: string;
   imageUrl: string;
 }
 
 type RawProduct = {
-  _id: string; // ✅ MongoDB _id
+  _id: string;
   name: string;
-  category: string; // category _id
+  category: string;
   company: string;
   price: number;
   discountPrice: number;
@@ -23,6 +23,9 @@ type RawProduct = {
 interface ProductWithCategory extends RawProduct {
   categoryObj?: Category | null;
 }
+
+// ✅ Environment-aware API base URL
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const ListOfProduct: React.FC = () => {
   const [products, setProducts] = useState<ProductWithCategory[]>([]);
@@ -44,8 +47,8 @@ const ListOfProduct: React.FC = () => {
   const fetchCategoriesAndProducts = async () => {
     try {
       const [catRes, prodRes] = await Promise.all([
-        fetch("http://localhost:5000/api/categories"),
-        fetch("http://localhost:5000/api/products"),
+        fetch(`${API_URL}/categories`),
+        fetch(`${API_URL}/products`),
       ]);
 
       if (!catRes.ok) throw new Error("Failed to fetch categories");
@@ -74,12 +77,8 @@ const ListOfProduct: React.FC = () => {
     if (!confirm("Are you sure you want to delete this product?")) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/products/${_id}`, {
-        method: "DELETE",
-      });
-
+      const res = await fetch(`${API_URL}/products/${_id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Delete failed");
-
       setProducts((prev) => prev.filter((p) => p._id !== _id));
       alert("✅ Product deleted successfully.");
     } catch (error) {
@@ -117,7 +116,7 @@ const ListOfProduct: React.FC = () => {
         images: editingProduct.images,
       };
 
-      const res = await fetch(`https://dermatbackend.onrender.com/api/products/${editingProduct._id}`, {
+      const res = await fetch(`${API_URL}/products/${editingProduct._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -145,7 +144,6 @@ const ListOfProduct: React.FC = () => {
     }
   };
 
-  // ✅ Filter by search + category
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory =
@@ -194,15 +192,11 @@ const ListOfProduct: React.FC = () => {
             {filteredProducts.map((product) => (
               <div key={product._id} className={styles.card}>
                 <img
-                  src={
-                    mainImages[product._id] ||
-                    "https://via.placeholder.com/200?text=No+Image"
-                  }
+                  src={mainImages[product._id] || "https://via.placeholder.com/200?text=No+Image"}
                   alt={product.name}
                   className={styles.mainImage}
                 />
 
-                {/* Image Thumbnails */}
                 {product.images && product.images.length > 1 && (
                   <div className={styles.imageRow}>
                     {product.images.map((img, idx) => (
@@ -214,10 +208,7 @@ const ListOfProduct: React.FC = () => {
                           mainImages[product._id] === img ? styles.activeThumb : ""
                         }`}
                         onClick={() =>
-                          setMainImages((prev) => ({
-                            ...prev,
-                            [product._id]: img,
-                          }))
+                          setMainImages((prev) => ({ ...prev, [product._id]: img }))
                         }
                       />
                     ))}

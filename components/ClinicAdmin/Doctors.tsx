@@ -2,6 +2,9 @@
 import React, { useState } from "react";
 import styles from "@/styles/clinicdashboard/doctors.module.css";
 
+// ✅ Use environment variable for API base URL
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 const Doctor = () => {
   const [formData, setFormData] = useState({
     title: "",
@@ -35,7 +38,7 @@ const Doctor = () => {
     setMessage(null);
 
     try {
-      const res = await fetch("https://dermatbackend.onrender.com/api/doctors", {
+      const res = await fetch(`${API_URL}/doctors`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

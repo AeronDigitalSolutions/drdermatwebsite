@@ -19,18 +19,21 @@ const MAX_SIZE_MB = 5;
 const REQUIRED_WIDTH = 1600;
 const REQUIRED_HEIGHT = 350;
 
+// ✅ Use dynamic API URL
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 const UpdateOffer = () => {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [previewFiles, setPreviewFiles] = useState<PreviewFile[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
-  // Fetch all offers
+  // ✅ Fetch all offers
   const fetchOffers = async () => {
     try {
-      const res = await axios.get("https://dermatbackend.onrender.com/api/offers");
+      const res = await axios.get(`${API_URL}/api/offers`);
       setOffers(res.data);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch offers", err);
     }
   };
 
@@ -38,7 +41,7 @@ const UpdateOffer = () => {
     fetchOffers();
   }, []);
 
-  // Validate image (size + dimensions)
+  // ✅ Validate image (size + dimensions)
   const validateImage = (file: File): Promise<PreviewFile> => {
     return new Promise((resolve) => {
       if (file.size > MAX_SIZE_MB * 1024 * 1024) {
@@ -74,7 +77,7 @@ const UpdateOffer = () => {
     });
   };
 
-  // Handle file selection
+  // ✅ Handle file selection
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setErrorMessage("");
     if (!e.target.files) return;
@@ -90,7 +93,7 @@ const UpdateOffer = () => {
     setPreviewFiles(previews);
   };
 
-  // Upload valid images
+  // ✅ Upload valid images
   const handleUpload = async () => {
     const validFiles = previewFiles.filter((p) => p.valid);
 
@@ -101,37 +104,37 @@ const UpdateOffer = () => {
 
     for (let preview of validFiles) {
       try {
-        await axios.post("https://dermatbackend.onrender.com/api/offers", {
+        await axios.post(`${API_URL}/api/offers`, {
           imageBase64: preview.base64,
         });
         fetchOffers();
       } catch (err) {
-        console.error(err);
+        console.error("Failed to upload offer", err);
       }
     }
 
     setPreviewFiles([]);
   };
 
-  // Delete offer
+  // ✅ Delete offer
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`https://dermatbackend.onrender.com/api/offers/${id}`);
+      await axios.delete(`${API_URL}/api/offers/${id}`);
       fetchOffers();
     } catch (err) {
-      console.error(err);
+      console.error("Failed to delete offer", err);
     }
   };
 
-  // Update existing offer image
+  // ✅ Update existing offer image
   const handleUpdate = (id: string) => {
     const file = prompt("Enter image URL/Base64 string for update:")?.trim();
     if (!file) return;
 
     axios
-      .put(`https://dermatbackend.onrender.com/api/offers/${id}`, { imageBase64: file })
+      .put(`${API_URL}/api/offers/${id}`, { imageBase64: file })
       .then(() => fetchOffers())
-      .catch((err) => console.error(err));
+      .catch((err) => console.error("Failed to update offer", err));
   };
 
   return (

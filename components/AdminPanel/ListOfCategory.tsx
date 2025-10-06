@@ -1,4 +1,3 @@
-// components/ListOfCategory.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -9,6 +8,9 @@ interface Category {
   name: string;
   imageUrl: string;
 }
+
+// ✅ Use environment variable for API base
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const ListOfCategory = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -24,12 +26,12 @@ const ListOfCategory = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("https://dermatbackend.onrender.com/api/categories");
+      const res = await fetch(`${API_URL}/categories`);
       const data = await res.json();
 
       const validCategories = data
         .map((cat: any) => ({
-          id: cat.id,
+          id: cat.id || cat._id,
           name: cat.name,
           imageUrl: cat.imageUrl,
         }))
@@ -44,7 +46,7 @@ const ListOfCategory = () => {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this category?")) return;
     try {
-      const res = await fetch(`https://dermatbackend.onrender.com/api/categories/${id}`, {
+      const res = await fetch(`${API_URL}/categories/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete category");
@@ -95,7 +97,7 @@ const ListOfCategory = () => {
       if (editImage) imageUrl = await convertToBase64(editImage);
 
       const res = await fetch(
-        `https://dermatbackend.onrender.com/api/categories/${editingCategory?.id}`,
+        `${API_URL}/categories/${editingCategory?.id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -106,7 +108,7 @@ const ListOfCategory = () => {
 
       const updated = await res.json();
       setCategories((prev) =>
-        prev.map((cat) => (cat.id === updated.id ? updated : cat))
+        prev.map((cat) => (cat.id === updated.id || cat.id === updated._id ? updated : cat))
       );
 
       setEditingCategory(null);

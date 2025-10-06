@@ -13,6 +13,9 @@ interface Doctor {
   createdAt: string;
 }
 
+// ✅ Use environment variable for API base
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 const ListOfDoctor: React.FC = () => {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,8 +29,7 @@ const ListOfDoctor: React.FC = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.get("https://dermatbackend.onrender.com/api/doctoradmin");
-      console.log("Doctors fetched:", res.data);
+      const res = await axios.get(`${API_URL}/doctoradmin`);
       setDoctors(res.data);
     } catch (err: any) {
       console.error(err);
@@ -45,10 +47,11 @@ const ListOfDoctor: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this doctor?")) return;
     try {
-      await axios.delete(`https://dermatbackend.onrender.com/api/doctoradmin/${id}`);
+      await axios.delete(`${API_URL}/doctoradmin/${id}`);
       fetchDoctors();
     } catch (err) {
       console.error(err);
+      alert("Failed to delete doctor");
     }
   };
 
@@ -73,12 +76,13 @@ const ListOfDoctor: React.FC = () => {
     e.preventDefault();
     if (!editingDoctor) return;
     try {
-      await axios.put(`https://dermatbackend.onrender.com/api/doctoradmin/${editingDoctor._id}`, editForm);
+      await axios.put(`${API_URL}/doctoradmin/${editingDoctor._id}`, editForm);
       setModalOpen(false);
       setEditingDoctor(null);
       fetchDoctors();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      alert(err.response?.data?.msg || "Update failed");
     }
   };
 
@@ -127,23 +131,57 @@ const ListOfDoctor: React.FC = () => {
             <form onSubmit={handleEditSubmit} className={styles.form}>
               <label className={styles.label}>
                 Title
-                <input className={styles.input} type="text" name="title" value={editForm.title || ""} onChange={handleEditChange} />
+                <input
+                  className={styles.input}
+                  type="text"
+                  name="title"
+                  value={editForm.title || ""}
+                  onChange={handleEditChange}
+                />
               </label>
               <label className={styles.label}>
                 First Name
-                <input className={styles.input} type="text" name="firstName" value={editForm.firstName || ""} onChange={handleEditChange} required />
+                <input
+                  className={styles.input}
+                  type="text"
+                  name="firstName"
+                  value={editForm.firstName || ""}
+                  onChange={handleEditChange}
+                  required
+                />
               </label>
               <label className={styles.label}>
                 Last Name
-                <input className={styles.input} type="text" name="lastName" value={editForm.lastName || ""} onChange={handleEditChange} required />
+                <input
+                  className={styles.input}
+                  type="text"
+                  name="lastName"
+                  value={editForm.lastName || ""}
+                  onChange={handleEditChange}
+                  required
+                />
               </label>
               <label className={styles.label}>
                 Specialist
-                <input className={styles.input} type="text" name="specialist" value={editForm.specialist || ""} onChange={handleEditChange} required />
+                <input
+                  className={styles.input}
+                  type="text"
+                  name="specialist"
+                  value={editForm.specialist || ""}
+                  onChange={handleEditChange}
+                  required
+                />
               </label>
               <label className={styles.label}>
                 Email
-                <input className={styles.input} type="email" name="email" value={editForm.email || ""} onChange={handleEditChange} required />
+                <input
+                  className={styles.input}
+                  type="email"
+                  name="email"
+                  value={editForm.email || ""}
+                  onChange={handleEditChange}
+                  required
+                />
               </label>
               <div className={styles.modalButtons}>
                 <button type="submit" className={styles.editButton}>Save</button>

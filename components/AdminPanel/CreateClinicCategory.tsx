@@ -1,6 +1,10 @@
+"use client";
 import React, { useState, useRef } from "react";
 import styles from "@/styles/Dashboard/createcategory.module.css";
 import MobileNavbar from "../Layout/MobileNavbar";
+
+// ✅ Use environment variable or fallback to localhost
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const CreateClinicCategory = () => {
   const [categoryId, setCategoryId] = useState("");
@@ -56,7 +60,8 @@ const CreateClinicCategory = () => {
 
     try {
       const base64Image = await convertToBase64(categoryImage);
-      const response = await fetch("https://dermatbackend.onrender.com/api/clinic-categories", {
+
+      const response = await fetch(`${API_URL}/clinic-categories`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

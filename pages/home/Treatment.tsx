@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import styles from "@/styles/HappyStories.module.css";
@@ -15,6 +16,9 @@ declare global {
     onYouTubeIframeAPIReady: any;
   }
 }
+
+// ✅ Backend API base URL (local or deployed)
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const TreatmentStories = () => {
   const [shorts, setShorts] = useState<Short[]>([]);
@@ -46,8 +50,8 @@ const TreatmentStories = () => {
   // Fetch treatment shorts from backend
   const fetchShorts = async () => {
     try {
-      const res = await axios.get("https://dermatbackend.onrender.com/api/treatment-shorts");
-      setShorts(res.data);
+      const res = await axios.get(`${API_BASE}/treatment-shorts`);
+      setShorts(res.data || []);
     } catch (err) {
       console.error("Failed to fetch treatment shorts", err);
     }

@@ -11,7 +11,7 @@ import Footer from "@/components/Layout/Footer";
 
 interface Review {
   _id: string;
-  user: { name: string };
+  user?: { name: string };
   rating: number;
   comment: string;
   createdAt: string;
@@ -38,24 +38,22 @@ export default function ProductDetail() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState<"details" | "services" | "reviews">(
-    "details"
-  );
+  const [activeTab, setActiveTab] = useState<"details" | "services" | "reviews">("details");
   const [mainImage, setMainImage] = useState<string | null>(null);
 
-  // Review form state
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
-  // Zoom state
   const [zoomStyle, setZoomStyle] = useState<React.CSSProperties>({});
 
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
+  // Fetch product by ID
   useEffect(() => {
     if (!id) return;
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`https://dermatbackend.onrender.com/api/products/${id}`);
+        const res = await fetch(`${API_BASE}/products/${id}`);
         if (!res.ok) throw new Error("Failed to fetch product");
         const data: Product = await res.json();
         setProduct(data);
@@ -67,8 +65,9 @@ export default function ProductDetail() {
       }
     };
     fetchProduct();
-  }, [id]);
+  }, [id, API_BASE]);
 
+  // Submit a review
   const handleSubmitReview = async () => {
     if (!rating || !comment.trim()) {
       alert("Please provide rating and comment");
@@ -76,15 +75,13 @@ export default function ProductDetail() {
     }
     try {
       setSubmitting(true);
-      const res = await fetch(`http://localhost:5000/api/products/${id}/reviews`, {
+      const res = await fetch(`${API_BASE}/products/${id}/reviews`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ rating, comment }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rating, comment, user: "Guest User" }),
       });
       if (!res.ok) throw new Error("Failed to submit review");
-      const updated = await res.json();
+      const updated: Product = await res.json();
       setProduct(updated);
       setRating(0);
       setComment("");
@@ -96,10 +93,7 @@ export default function ProductDetail() {
     }
   };
 
-  if (loading) return <p style={{ padding: 20 }}>Loading...</p>;
-  if (!product) return <p style={{ padding: 20 }}>Product not found</p>;
-
-  // Zoom handler
+  // Image zoom handlers
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (!mainImage) return;
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
@@ -112,16 +106,18 @@ export default function ProductDetail() {
       backgroundSize: "200%",
     });
   };
-
   const handleMouseLeave = () => setZoomStyle({});
+
+  if (loading) return <p style={{ padding: 20 }}>Loading...</p>;
+  if (!product) return <p style={{ padding: 20 }}>Product not found</p>;
 
   return (
     <>
       <Topbar />
       <div className={styles.wrapper}>
-        {/* ----- Product Top Section (images + details) ----- */}
+        {/* ----- Product Top Section ----- */}
         <div className={styles.topSection}>
-          {/* LEFT COLUMN */}
+          {/* LEFT COLUMN: Thumbnails + Main Image */}
           <div className={styles.leftColumn}>
             {product.images && product.images.length > 1 && (
               <div className={styles.thumbnailList}>
@@ -152,7 +148,7 @@ export default function ProductDetail() {
             </div>
           </div>
 
-          {/* RIGHT COLUMN */}
+          {/* RIGHT COLUMN: Product Info */}
           <div className={styles.rightColumn}>
             <p className={styles.breadcrumb}>{product.category}</p>
             <h1 className={styles.title}>{product.name}</h1>
@@ -180,7 +176,7 @@ export default function ProductDetail() {
               <FiShare2 className={styles.icon} />
             </div>
 
-            {/* Price */}
+            {/* Price & Member Price */}
             <div className={styles.priceBox}>
               {product.price && (
                 <p className={styles.mrp}>
@@ -228,7 +224,7 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        {/* ----- Tabs ----- */}
+        {/* ----- Tabs: Details / Info / Reviews ----- */}
         <div className={styles.tabContainer}>
           <button
             className={`${styles.tabButton} ${
@@ -289,7 +285,6 @@ export default function ProductDetail() {
             </section>
           )}
 
-          {/* ----- Reviews Tab ----- */}
           {activeTab === "reviews" && (
             <section className={styles.reviewsSection}>
               <h2 className={styles.sectionTitle}>Customer Reviews</h2>
@@ -331,9 +326,7 @@ export default function ProductDetail() {
                     <FaStar
                       key={i}
                       onClick={() => setRating(i + 1)}
-                      className={`${styles.star} ${
-                        i < rating ? styles.filledStar : ""
-                      }`}
+                      className={`${styles.star} ${i < rating ? styles.filledStar : ""}`}
                     />
                   ))}
                 </div>

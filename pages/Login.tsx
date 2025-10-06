@@ -9,8 +9,8 @@ import Topbar from "@/components/Layout/Topbar";
 import Footer from "@/components/Layout/Footer";
 import illustration from "../public/form.png";
 
-// ✅ Use live backend URL
-const API_URL = "https://dermatbackend.onrender.com";
+// ✅ Use env variable for local/server
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 export default function Login() {
   const router = useRouter();
@@ -27,7 +27,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/user/login`, {
+      const res = await fetch(`${API_URL}/auth/user/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

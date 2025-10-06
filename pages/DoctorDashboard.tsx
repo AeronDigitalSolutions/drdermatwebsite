@@ -13,6 +13,9 @@ import ListOfAppointments from "@/components/DoctorAdmin/ListOfAppointments";
 import ProfileEdit from "@/components/DoctorAdmin/ProfileEdit";
 import Ratings from "@/components/DoctorAdmin/Ratings";
 
+// ✅ Use environment variable for API base URL
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 const DoctorDashboard = () => {
   const router = useRouter();
   const [activeSection, setActiveSection] = useState("dashBoard");
@@ -32,7 +35,7 @@ const DoctorDashboard = () => {
 
     const fetchProfile = async () => {
       try {
-        const res = await fetch("https://dermatbackend.onrender.com/api/doctors/me", {
+        const res = await fetch(`${API_URL}/doctors/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {

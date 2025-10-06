@@ -6,7 +6,8 @@ import Cookies from "js-cookie";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import styles from "@/styles/adminlogin.module.css";
 
-const API_URL = "https://dermatbackend.onrender.com"
+// ✅ Use environment variable for API URL
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -28,7 +29,7 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/admin/login`, {
+      const res = await fetch(`${API_URL}/auth/admin/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -47,11 +48,11 @@ export default function AdminLogin() {
       if (nextPath) {
         router.replace(nextPath);
       } else if (data.role?.toLowerCase() === "superadmin") {
-         router.replace("/Dashboard"); 
-window.location.href = "/Dashboard";
+        router.replace("/Dashboard");
+        window.location.href = "/Dashboard";
       } else if (data.role?.toLowerCase() === "admin") {
-         router.replace("/adminDashboard"); 
-window.location.href = "/adminDashboard";
+        router.replace("/adminDashboard");
+        window.location.href = "/adminDashboard";
       } else {
         router.push("/adminlogin");
       }

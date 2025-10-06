@@ -16,6 +16,9 @@ interface Props {
   onDoctorCreated?: () => void; // callback to refresh list
 }
 
+// ✅ Use environment variable or fallback to localhost
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 const CreateDoctor: React.FC<Props> = ({ onDoctorCreated }) => {
   const [form, setForm] = useState<DoctorForm>({
     title: "",
@@ -36,15 +39,26 @@ const CreateDoctor: React.FC<Props> = ({ onDoctorCreated }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setMessage("");
+
     try {
-      await axios.post("https://dermatbackend.onrender.com/api/doctoradmin", form);
-      setMessage("Doctor created successfully!");
-      setForm({ title: "", firstName: "", lastName: "", specialist: "", email: "", password: "" });
+      const res = await axios.post(`${API_URL}/doctoradmin`, form);
+      setMessage("✅ Doctor created successfully!");
+      setForm({
+        title: "",
+        firstName: "",
+        lastName: "",
+        specialist: "",
+        email: "",
+        password: "",
+      });
       if (onDoctorCreated) onDoctorCreated();
     } catch (err: any) {
-      setMessage(err.response?.data?.msg || "Error creating doctor");
+      console.error("Error creating doctor:", err);
+      setMessage(err.response?.data?.message || "❌ Error creating doctor");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

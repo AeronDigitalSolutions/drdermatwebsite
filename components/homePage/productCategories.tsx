@@ -18,6 +18,9 @@ interface ProductCategoryProps {
   border?: string;
 }
 
+// ✅ Use environment variable for API base
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 const ProductCategory: React.FC<ProductCategoryProps> = ({
   title,
   backgroundColor,
@@ -37,11 +40,10 @@ const ProductCategory: React.FC<ProductCategoryProps> = ({
   // fetch categories
   useEffect(() => {
     const ac = new AbortController();
+
     const fetchCategories = async () => {
       try {
-        const res = await fetch("https://dermatbackend.onrender.com/api/categories", {
-          signal: ac.signal,
-        });
+        const res = await fetch(`${API_BASE}/categories`, { signal: ac.signal });
         if (!res.ok) throw new Error("Failed to fetch categories");
         const data = await res.json();
 

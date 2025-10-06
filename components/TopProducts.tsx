@@ -18,12 +18,16 @@ interface Product {
   images?: string[];
 }
 
+// ✅ API base from env variable
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 const TopProducts: React.FC = () => {
   const [topProducts, setTopProducts] = useState<(Product | null)[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mainImages, setMainImages] = useState<Record<string, string>>({});
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
   const router = useRouter();
   const { addToCart } = useCart();
 
@@ -38,7 +42,7 @@ const TopProducts: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch("https://dermatbackend.onrender.com/api/top-products");
+        const res = await fetch(`${API_BASE}/top-products`);
         if (!res.ok) throw new Error("Failed to fetch top products");
         const data: (Product | null)[] = await res.json();
         setTopProducts(data);

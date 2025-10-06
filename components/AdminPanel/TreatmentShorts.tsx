@@ -9,7 +9,10 @@ interface Short {
   videoUrl: string;
 }
 
-const TreatmentShorts = () => {
+// ✅ Use environment variable for API base URL
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
+const TreatmentShorts: React.FC = () => {
   const [shorts, setShorts] = useState<Short[]>([]);
   const [platform, setPlatform] = useState<"youtube" | "instagram">("youtube");
   const [videoUrl, setVideoUrl] = useState("");
@@ -17,7 +20,7 @@ const TreatmentShorts = () => {
   // ✅ Fetch shorts
   const fetchShorts = async () => {
     try {
-      const res = await axios.get("https://dermatbackend.onrender.com/api/treatment-shorts");
+      const res = await axios.get<Short[]>(`${API_URL}/treatment-shorts`);
       setShorts(res.data);
     } catch (err) {
       console.error("Failed to fetch treatment shorts", err);
@@ -33,7 +36,7 @@ const TreatmentShorts = () => {
     if (!videoUrl.trim()) return alert("Please enter a video URL");
 
     try {
-      await axios.post("https://dermatbackend.onrender.com/api/treatment-shorts", {
+      await axios.post(`${API_URL}/treatment-shorts`, {
         platform,
         videoUrl,
       });
@@ -48,7 +51,7 @@ const TreatmentShorts = () => {
   // ✅ Delete short
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`https://dermatbackend.onrender.com/api/treatment-shorts/${id}`);
+      await axios.delete(`${API_URL}/treatment-shorts/${id}`);
       fetchShorts();
     } catch (err) {
       console.error("Failed to delete treatment short", err);
@@ -61,7 +64,7 @@ const TreatmentShorts = () => {
     if (!newUrl) return;
 
     try {
-      await axios.put(`https://dermatbackend.onrender.com/api/treatment-shorts/${id}`, {
+      await axios.put(`${API_URL}/treatment-shorts/${id}`, {
         platform: newUrl.includes("instagram") ? "instagram" : "youtube",
         videoUrl: newUrl,
       });
@@ -125,10 +128,16 @@ const TreatmentShorts = () => {
             )}
 
             <div className={styles.actions}>
-              <button onClick={() => handleUpdate(short._id)} className={styles.updateBtn}>
+              <button
+                onClick={() => handleUpdate(short._id)}
+                className={styles.updateBtn}
+              >
                 Update
               </button>
-              <button onClick={() => handleDelete(short._id)} className={styles.deleteBtn}>
+              <button
+                onClick={() => handleDelete(short._id)}
+                className={styles.deleteBtn}
+              >
                 Delete
               </button>
             </div>

@@ -8,6 +8,9 @@ interface ServiceCategory {
   imageUrl: string; // base64
 }
 
+// ✅ Use environment variable for API
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 const ListOfServiceCategory = () => {
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [editingCategory, setEditingCategory] = useState<ServiceCategory | null>(null);
@@ -22,7 +25,7 @@ const ListOfServiceCategory = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("https://dermatbackend.onrender.com/api/service-categories");
+      const res = await fetch(`${API_URL}/service-categories`);
       const data = await res.json();
       setCategories(data);
     } catch (error) {
@@ -34,7 +37,7 @@ const ListOfServiceCategory = () => {
     if (!confirm("Are you sure you want to delete this service category?")) return;
 
     try {
-      const res = await fetch(`https://dermatbackend.onrender.com/api/service-categories/${id}`, {
+      const res = await fetch(`${API_URL}/service-categories/${id}`, {
         method: "DELETE",
       });
       const data = await res.json();
@@ -98,7 +101,7 @@ const ListOfServiceCategory = () => {
       }
 
       const res = await fetch(
-        `https://dermatbackend.onrender.com/api/service-categories/${editingCategory?._id}`,
+        `${API_URL}/service-categories/${editingCategory?._id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import styles from "@/styles/clinicdashboard/editprofile.module.css";
 import MobileNavbar from "../Layout/MobileNavbar";
 
-const CLINIC_ID = "replace_with_real_id"; // TODO: Replace with actual clinic id
-const BASE_URL = "https://dermatbackend.onrender.com/api/clinics";
+// ✅ Use environment variable for API base URL
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const EditClinic = () => {
   const [formData, setFormData] = useState({
@@ -22,11 +22,22 @@ const EditClinic = () => {
   const [imageError, setImageError] = useState("");
   const [isEditable, setIsEditable] = useState(false);
 
-  // ✅ Fetch clinic data from backend
+  // ✅ Replace with actual clinic ID from token or props
+  const [clinicId, setClinicId] = useState<string | null>(null);
+
+  // Example: Get clinicId from localStorage, cookies, or props
   useEffect(() => {
+    const storedId = localStorage.getItem("clinicId"); // Or get from token
+    if (storedId) setClinicId(storedId);
+  }, []);
+
+  // Fetch clinic data from backend
+  useEffect(() => {
+    if (!clinicId) return;
     const fetchClinicData = async () => {
       try {
-        const res = await fetch(`${BASE_URL}/${CLINIC_ID}`);
+        const res = await fetch(`${API_URL}/clinics/${clinicId}`);
+        if (!res.ok) throw new Error("Failed to fetch clinic data");
         const data = await res.json();
         setFormData((prev) => ({
           ...prev,
@@ -39,7 +50,7 @@ const EditClinic = () => {
     };
 
     fetchClinicData();
-  }, []);
+  }, [clinicId]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -72,6 +83,7 @@ const EditClinic = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!clinicId) return;
 
     let base64Image = formData.imagePreview;
 
@@ -79,7 +91,6 @@ const EditClinic = () => {
       const reader = new FileReader();
       reader.onloadend = async () => {
         base64Image = reader.result as string;
-
         await updateClinic(base64Image);
       };
       reader.readAsDataURL(formData.image);
@@ -89,8 +100,9 @@ const EditClinic = () => {
   };
 
   const updateClinic = async (base64Image: string) => {
+    if (!clinicId) return;
     try {
-      const res = await fetch(`${BASE_URL}/${CLINIC_ID}`, {
+      const res = await fetch(`${API_URL}/clinics/${clinicId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, image: base64Image }),

@@ -49,13 +49,14 @@ export default function ProductDetail() {
   // New review form
   const [newComment, setNewComment] = useState("");
   const [newRating, setNewRating] = useState(0);
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
   // Fetch product with reviews
   useEffect(() => {
     if (!productid) return;
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`https://dermatbackend.onrender.com/api/products/${productid}`);
+        const res = await axios.get(`${API_BASE}/products/${productid}`);
         setProduct(res.data);
         setMainImage(res.data.images?.[0] || null);
       } catch (err) {
@@ -81,7 +82,7 @@ export default function ProductDetail() {
   const handleReviewSubmit = async () => {
     if (!newComment.trim() || newRating === 0 || !productid) return;
     try {
-      const res = await axios.post(`http://localhost:5000/api/products/${productid}/reviews`, {
+      const res = await axios.post(`${API_BASE}/products/${productid}/reviews`, {
         rating: newRating,
         comment: newComment,
         user: "Guest User", // Replace with logged-in user if available

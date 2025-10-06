@@ -11,6 +11,9 @@ import MobileNavbar from "@/components/Layout/MobileNavbar";
 
 const ITEMS_PER_PAGE = 6;
 
+// ✅ Backend API base (local or deployed)
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 interface ClinicCategory {
   _id: string;
   name: string;
@@ -37,40 +40,45 @@ const FindClinicsPage: React.FC = () => {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    fetchCategories();
-    fetchClinics();
-  }, []);
-
+  // Fetch categories
   const fetchCategories = async () => {
     try {
-      const res = await fetch("https://dermatbackend.onrender.com/api/clinic-categories");
+      const res = await fetch(`${API_BASE}/clinic-categories`);
       if (!res.ok) throw new Error("Failed to fetch categories");
       const data = await res.json();
       setCategories(data);
     } catch (err) {
       console.error("Failed to fetch categories:", err);
+      setError("Failed to load categories");
     }
   };
 
+  // Fetch clinics
   const fetchClinics = async () => {
     setLoading(true);
     try {
-      const res = await fetch("https://dermatbackend.onrender.com/api/clinics");
+      const res = await fetch(`${API_BASE}/clinics`);
       if (!res.ok) throw new Error("Failed to fetch clinics");
       const data = await res.json();
       setClinics(data);
     } catch (err) {
-      setError("Failed to load clinics.");
+      console.error("Failed to fetch clinics:", err);
+      setError("Failed to load clinics");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    fetchCategories();
+    fetchClinics();
+  }, []);
+
+  useEffect(() => {
     setSelectedCategoryId(categoryQuery);
   }, [categoryQuery]);
 
+  // Filter clinics by category and search
   const filteredClinics = useMemo(() => {
     return clinics.filter((clinic) => {
       const matchCategory = selectedCategoryId

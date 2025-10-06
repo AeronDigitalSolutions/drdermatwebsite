@@ -21,6 +21,9 @@ type Clinic = {
   category?: ClinicCategory;
 };
 
+// ✅ Use environment variable for API base
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 function ListOfClinic() {
   const [clinics, setClinics] = useState<Clinic[]>([]);
   const [filteredClinics, setFilteredClinics] = useState<Clinic[]>([]);
@@ -33,7 +36,7 @@ function ListOfClinic() {
   const [showModal, setShowModal] = useState(false);
   const [editClinic, setEditClinic] = useState<Clinic | null>(null);
 
-  // ✅ Lightbox state
+  // Lightbox state
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showGallery, setShowGallery] = useState(false);
@@ -52,7 +55,7 @@ function ListOfClinic() {
 
   const fetchClinics = async () => {
     try {
-      const response = await fetch("https://dermatbackend.onrender.com/api/clinics");
+      const response = await fetch(`${API_URL}/clinics`);
       const data = await response.json();
       setClinics(data);
     } catch (err: any) {
@@ -64,7 +67,7 @@ function ListOfClinic() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("https://dermatbackend.onrender.com/api/clinic-categories");
+      const res = await fetch(`${API_URL}/clinic-categories`);
       const data = await res.json();
       setCategories(data);
     } catch (err) {
@@ -75,9 +78,7 @@ function ListOfClinic() {
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this clinic?")) return;
     try {
-      await fetch(`https://dermatbackend.onrender.com/api/clinics/${id}`, {
-        method: "DELETE",
-      });
+      await fetch(`${API_URL}/clinics/${id}`, { method: "DELETE" });
       setClinics((prev) => prev.filter((c) => c._id !== id));
     } catch (err) {
       alert("Failed to delete clinic.");
@@ -85,7 +86,7 @@ function ListOfClinic() {
   };
 
   const openEditModal = (clinic: Clinic) => {
-    setEditClinic(JSON.parse(JSON.stringify(clinic))); // deep copy
+    setEditClinic(JSON.parse(JSON.stringify(clinic)));
     setShowModal(true);
   };
 
@@ -134,14 +135,11 @@ function ListOfClinic() {
     if (!editClinic) return;
 
     try {
-      const res = await fetch(
-        `https://dermatbackend.onrender.com/api/clinics/${editClinic._id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(editClinic),
-        }
-      );
+      const res = await fetch(`${API_URL}/clinics/${editClinic._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editClinic),
+      });
 
       const result = await res.json();
       if (!res.ok) throw new Error(result.message || "Failed to update clinic");
@@ -156,7 +154,7 @@ function ListOfClinic() {
     }
   };
 
-  // ✅ Open lightbox gallery
+  // Lightbox
   const openGallery = (images: string[], index: number = 0) => {
     setGalleryImages(images);
     setCurrentImageIndex(index);
@@ -206,7 +204,6 @@ function ListOfClinic() {
 
             return (
               <div key={clinic._id} className={styles.card}>
-                {/* ✅ Image Gallery with +N overlay */}
                 <div className={styles.imageGallery}>
                   <div className={styles.thumbnails}>
                     {thumbnails.map((img, i) => {
@@ -219,15 +216,13 @@ function ListOfClinic() {
                           onClick={() => openGallery(images, i + 1)}
                         >
                           <img
-                            src={
-                              img || "https://via.placeholder.com/80?text=No+Image"
-                            }
+                            src={img || "https://via.placeholder.com/80?text=No+Image"}
                             alt={`thumb-${i}`}
                             className={styles.thumbnail}
-                            onError={(e) => {
-                              e.currentTarget.src =
-                                "https://via.placeholder.com/80?text=No+Image";
-                            }}
+                            onError={(e) =>
+                              (e.currentTarget.src =
+                                "https://via.placeholder.com/80?text=No+Image")
+                            }
                           />
                           {isLastThumb && (
                             <div
@@ -249,20 +244,18 @@ function ListOfClinic() {
                       src={mainImage}
                       alt={clinic.name}
                       className={styles.mainImage}
-                      onError={(e) => {
-                        e.currentTarget.src =
-                          "https://via.placeholder.com/200?text=No+Image";
-                      }}
+                      onError={(e) =>
+                        (e.currentTarget.src =
+                          "https://via.placeholder.com/200?text=No+Image")
+                      }
                     />
                   </div>
                 </div>
 
-                {/* ✅ Clinic Info */}
                 <div className={styles.content}>
                   <h3>{clinic.name}</h3>
                   <p>
-                    <strong>Category:</strong>{" "}
-                    {clinic.category?.name || "Not assigned"}
+                    <strong>Category:</strong> {clinic.category?.name || "Not assigned"}
                   </p>
                   <p>
                     <strong>Mobile:</strong> {clinic.mobile}
@@ -276,17 +269,13 @@ function ListOfClinic() {
                   <p>
                     <strong>Status:</strong>{" "}
                     <span
-                      className={
-                        clinic.verified ? styles.verified : styles.unverified
-                      }
+                      className={clinic.verified ? styles.verified : styles.unverified}
                     >
                       {clinic.verified ? "Verified" : "Unverified"}
                     </span>
                     ,{" "}
                     <span
-                      className={
-                        clinic.trusted ? styles.trusted : styles.notTrusted
-                      }
+                      className={clinic.trusted ? styles.trusted : styles.notTrusted}
                     >
                       {clinic.trusted ? "Trusted" : "Not Trusted"}
                     </span>
@@ -323,7 +312,6 @@ function ListOfClinic() {
         </div>
       )}
 
-      {/* ✅ Lightbox Modal */}
       {showGallery && (
         <div className={styles.lightboxOverlay} onClick={closeGallery}>
           <div
@@ -348,7 +336,6 @@ function ListOfClinic() {
         </div>
       )}
 
-      {/* ✅ Edit Clinic Modal */}
       {showModal && editClinic && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
@@ -413,7 +400,6 @@ function ListOfClinic() {
                 </select>
               </label>
 
-              {/* ✅ Image Management */}
               <label>
                 Clinic Images:
                 <input

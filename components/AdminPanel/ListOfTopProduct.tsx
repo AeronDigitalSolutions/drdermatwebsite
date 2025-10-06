@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import styles from "@/styles/Dashboard/listoftopproducts.module.css";
 // @ts-ignore
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+import styles from "@/styles/Dashboard/listoftopproducts.module.css";
 
 interface Product {
   _id: string;
@@ -12,8 +12,11 @@ interface Product {
   company?: string;
   price?: number | string;
   discountPrice?: number | string;
-  images?: string[]; // ✅ multiple images
+  images?: string[];
 }
+
+// ✅ Use environment variable for API base URL
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const ListOfTopProduct: React.FC = () => {
   const [topProducts, setTopProducts] = useState<(Product | null)[]>(Array(8).fill(null));
@@ -22,21 +25,21 @@ const ListOfTopProduct: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [mainImages, setMainImages] = useState<Record<string, string>>({}); // ✅ store selected main image
+  const [mainImages, setMainImages] = useState<Record<string, string>>({});
 
-  // Fetch products + top products
+  // Fetch all products + top products
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const resAll = await fetch("https://dermatbackend.onrender.com/api/products");
+        const resAll = await fetch(`${API_URL}/products`);
         if (!resAll.ok) throw new Error("Failed to fetch all products");
         const allData: Product[] = await resAll.json();
         setAllProducts(allData);
 
-        const resTop = await fetch("https://dermatbackend.onrender.com/api/top-products");
+        const resTop = await fetch(`${API_URL}/top-products`);
         if (!resTop.ok) throw new Error("Failed to fetch top products");
         const topData: (Product | null)[] = await resTop.json();
 
@@ -44,7 +47,7 @@ const ListOfTopProduct: React.FC = () => {
         while (padded.length < 8) padded.push(null);
         setTopProducts(padded);
 
-        // ✅ set default main image for each product
+        // Set default main image for each product
         const initial: Record<string, string> = {};
         allData.forEach((p) => {
           if (p._id && p.images?.length) {
@@ -64,7 +67,7 @@ const ListOfTopProduct: React.FC = () => {
   // Save top products to backend
   const saveTopProducts = async (products: (Product | null)[]) => {
     try {
-      await fetch("https://dermatbackend.onrender.com/api/top-products", {
+      await fetch(`${API_URL}/top-products`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(products),
@@ -86,7 +89,7 @@ const ListOfTopProduct: React.FC = () => {
     setTopProducts(newTopProducts);
     saveTopProducts(newTopProducts);
 
-    // ✅ initialize main image if not already set
+    // Initialize main image
     if (product._id && product.images?.length) {
       setMainImages((prev) => ({ ...prev, [product._id]: product.images![0] }));
     }
@@ -117,7 +120,6 @@ const ListOfTopProduct: React.FC = () => {
     <div className={styles.topProductContainer}>
       <h2>Top Products</h2>
 
-      {/* Drag & Drop Grid */}
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="topProducts" direction="horizontal">
           {(provided) => (
@@ -138,18 +140,12 @@ const ListOfTopProduct: React.FC = () => {
                     >
                       {product ? (
                         <div className={styles.productItem}>
-                          {/* ✅ Main image */}
                           <img
-                            src={
-                              mainImages[product._id] ||
-                              product.images?.[0] ||
-                              "/fallback.png"
-                            }
+                            src={mainImages[product._id] || product.images?.[0] || "/fallback.png"}
                             alt={product.name}
                             className={styles.mainImage}
                           />
 
-                          {/* ✅ Thumbnails */}
                           {product.images && product.images.length > 1 && (
                             <div className={styles.imageRow}>
                               {product.images.slice(0, 4).map((img, i) => (
@@ -158,16 +154,11 @@ const ListOfTopProduct: React.FC = () => {
                                   src={img}
                                   alt={`${product.name}-thumb-${i}`}
                                   className={`${styles.imageThumb} ${
-                                    mainImages[product._id] === img
-                                      ? styles.activeThumb
-                                      : ""
+                                    mainImages[product._id] === img ? styles.activeThumb : ""
                                   }`}
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    setMainImages((prev) => ({
-                                      ...prev,
-                                      [product._id]: img,
-                                    }));
+                                    setMainImages((prev) => ({ ...prev, [product._id]: img }));
                                   }}
                                 />
                               ))}
@@ -204,7 +195,6 @@ const ListOfTopProduct: React.FC = () => {
         Add Product
       </button>
 
-      {/* Modal with all products */}
       {showModal && (
         <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>

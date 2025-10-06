@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import styles from "@/styles/HappyStories.module.css";
@@ -9,19 +10,22 @@ interface Short {
   videoUrl: string;
 }
 
+// ✅ Backend API base URL (local or deployed)
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 const HappyStories = () => {
   const [shorts, setShorts] = useState<Short[]>([]);
   const [current, setCurrent] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const playersRef = useRef<any[]>([]); // ✅ use any for YT players
+  const playersRef = useRef<any[]>([]); // ✅ YouTube players
 
   // ✅ Fetch shorts from backend
   useEffect(() => {
     const fetchShorts = async () => {
       try {
-        const res = await axios.get("https://dermatbackend.onrender.com/api/latest-shorts");
+        const res = await axios.get(`${API_BASE}/latest-shorts`);
         setShorts(res.data || []);
       } catch (err) {
         console.error("Failed to fetch shorts", err);
@@ -30,7 +34,7 @@ const HappyStories = () => {
     fetchShorts();
   }, []);
 
-  // ✅ Load YouTube API and init players
+  // ✅ Initialize YouTube API players
   useEffect(() => {
     if (!shorts.length) return;
 
@@ -44,13 +48,7 @@ const HappyStories = () => {
             `yt-player-happy-${i}`,
             {
               videoId,
-              playerVars: {
-                autoplay: 0,
-                controls: 0,
-                modestbranding: 1,
-                rel: 0,
-                mute: 1,
-              },
+              playerVars: { autoplay: 0, controls: 0, modestbranding: 1, rel: 0, mute: 1 },
               events: {
                 onReady: (event: any) => {
                   if (isMuted) event.target.mute();
@@ -77,7 +75,7 @@ const HappyStories = () => {
     }
   }, [shorts, isMuted]);
 
-  // ✅ Auto-scroll every 5s
+  // ✅ Auto-scroll every 5 seconds
   useEffect(() => {
     if (!shorts.length) return;
     const interval = setInterval(() => {
@@ -103,7 +101,7 @@ const HappyStories = () => {
     });
   };
 
-  // ✅ Hover play only hovered video
+  // ✅ Hover play/pause for YouTube
   const handleHover = (index: number, action: "enter" | "leave") => {
     playersRef.current.forEach((player, i) => {
       if (player && typeof player.playVideo === "function") {
@@ -139,13 +137,11 @@ const HappyStories = () => {
               }
             >
               {short.platform === "youtube" ? (
-                // ✅ YouTube video (controlled by API)
                 <div
                   id={`yt-player-happy-${index}`}
                   className={styles.youtubeIframe}
                 />
               ) : (
-                // ✅ Instagram reel embed
                 <iframe
                   src={
                     short.videoUrl.includes("embed")
@@ -171,14 +167,11 @@ const HappyStories = () => {
         ))}
       </div>
 
-      {/* ✅ Dots navigation */}
       <div className={styles.dots}>
         {shorts.map((_, i) => (
           <span
             key={i}
-            className={`${styles.dot} ${
-              i === current ? styles.activeDot : ""
-            }`}
+            className={`${styles.dot} ${i === current ? styles.activeDot : ""}`}
             onClick={() => {
               setCurrent(i);
               containerRef.current?.scrollTo({

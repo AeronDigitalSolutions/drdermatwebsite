@@ -1,9 +1,11 @@
-// components/CreateCategory.tsx
 "use client";
 
 import React, { useState, useRef } from "react";
 import styles from "@/styles/Dashboard/createcategory.module.css";
 import MobileNavbar from "../Layout/MobileNavbar";
+
+// ✅ Use environment variable for API base
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState("");
@@ -51,7 +53,7 @@ const CreateCategory = () => {
     try {
       const base64Image = await convertToBase64(categoryImage);
 
-      const response = await fetch("https://dermatbackend.onrender.com/api/categories", {
+      const response = await fetch(`${API_URL}/categories`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

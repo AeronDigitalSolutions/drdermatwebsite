@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import styles from "@/styles/clinicdashboard/clinicservices.module.css";
 import Cookies from "js-cookie";
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 import "react-quill/dist/quill.snow.css";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
@@ -21,6 +21,8 @@ interface JwtPayload {
   role: string;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 const CreateServices = () => {
   const [serviceName, setServiceName] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -33,17 +35,12 @@ const CreateServices = () => {
   const [clinicId, setClinicId] = useState<string | null>(null);
   const [notification, setNotification] = useState<string>("");
 
-  const SERVICE_URL = "https://dermatbackend.onrender.com/api/services";
-  const CATEGORY_URL = "https://dermatbackend.onrender.com/api/clinic-categories";
-
   // Get clinicId from token
   useEffect(() => {
     const token = Cookies.get("token");
-    console.log("Token:", token);
     if (token) {
       try {
         const decoded = jwtDecode<JwtPayload>(token);
-        console.log("Decoded token:", decoded);
         if (decoded?.id) setClinicId(decoded.id);
         else setNotification("Invalid token: Clinic ID missing");
       } catch (err) {
@@ -59,7 +56,7 @@ const CreateServices = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch(CATEGORY_URL);
+        const res = await fetch(`${API_URL}/clinic-categories`);
         if (!res.ok) throw new Error("Failed to fetch categories");
         const data: ClinicCategory[] = await res.json();
         setCategories(data);
@@ -111,42 +108,26 @@ const CreateServices = () => {
         discountedPrice: discountedPrice ? Number(discountedPrice) : undefined,
       };
 
-      // Try both backend routes (query param and path param)
-      const urlsToTry = [
-        SERVICE_URL, // POST normally works on main endpoint
-      ];
+      const res = await fetch(`${API_URL}/services`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-      let created = false;
-      for (const url of urlsToTry) {
-        try {
-          const res = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-
-          const data = await res.json();
-          if (res.ok) {
-            created = true;
-            setNotification("✅ Service created successfully!");
-            // Reset form
-            setServiceName("");
-            setSelectedCategories([]);
-            setImages([]);
-            setImagePreviews([]);
-            setDescription("");
-            setPrice("");
-            setDiscountedPrice("");
-            break;
-          } else {
-            console.warn("Backend error:", data.message);
-          }
-        } catch (err) {
-          console.warn("Failed to POST to URL:", url, err);
-        }
+      const data = await res.json();
+      if (res.ok) {
+        setNotification("✅ Service created successfully!");
+        // Reset form
+        setServiceName("");
+        setSelectedCategories([]);
+        setImages([]);
+        setImagePreviews([]);
+        setDescription("");
+        setPrice("");
+        setDiscountedPrice("");
+      } else {
+        setNotification(data.message || "Failed to create service ❌");
       }
-
-      if (!created) setNotification("Failed to create service ❌");
     } catch (err) {
       console.error("Error creating service:", err);
       setNotification("Error creating service ❌");

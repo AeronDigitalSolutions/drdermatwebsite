@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import styles from "@/styles/clinicdashboard/doctors.module.css";
 
+// ✅ Use environment variable for API base URL
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 const LoginDoctor = () => {
   const [formData, setFormData] = useState({
     email: "",
@@ -24,7 +27,7 @@ const LoginDoctor = () => {
     setMessage(null);
 
     try {
-      const res = await fetch("https://dermatbackend.onrender.com/api/doctors/login", {
+      const res = await fetch(`${API_URL}/doctors/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

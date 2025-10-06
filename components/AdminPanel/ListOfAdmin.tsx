@@ -7,9 +7,12 @@ interface Admin {
   name: string;
   email: string;
   number: string;
-  role: "admin" | "superadmin"; // ✅ added role
+  role: "admin" | "superadmin";
   createdAt: string;
 }
+
+// ✅ Use environment variable for API base
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 function ListOfAdmin() {
   const [admins, setAdmins] = useState<Admin[]>([]);
@@ -23,7 +26,7 @@ function ListOfAdmin() {
 
   const fetchAdmins = async () => {
     try {
-      const res = await fetch("https://dermatbackend.onrender.com/api/admins");
+      const res = await fetch(`${API_URL}/admins`);
       const data = await res.json();
       setAdmins(data);
     } catch (error) {
@@ -37,7 +40,7 @@ function ListOfAdmin() {
     if (!window.confirm("Are you sure you want to delete this admin?")) return;
 
     try {
-      await fetch(`https://dermatbackend.onrender.com/api/admins/${id}`, {
+      await fetch(`${API_URL}/admins/${id}`, {
         method: "DELETE",
       });
       fetchAdmins();
@@ -63,14 +66,11 @@ function ListOfAdmin() {
     if (!currentAdmin) return;
 
     try {
-      const res = await fetch(
-        `https://dermatbackend.onrender.com/api/admins/${currentAdmin._id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(currentAdmin),
-        }
-      );
+      const res = await fetch(`${API_URL}/admins/${currentAdmin._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(currentAdmin),
+      });
 
       if (res.ok) {
         setEditModal(false);
@@ -98,7 +98,7 @@ function ListOfAdmin() {
               <th>Name</th>
               <th>Email</th>
               <th>Phone</th>
-              <th>Role</th> {/* ✅ Added role column */}
+              <th>Role</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -109,7 +109,7 @@ function ListOfAdmin() {
                 <td>{admin.name}</td>
                 <td>{admin.email}</td>
                 <td>{admin.number}</td>
-                <td>{admin.role}</td> {/* ✅ Display role */}
+                <td>{admin.role}</td>
                 <td className={styles.actions}>
                   <button
                     onClick={() => handleEdit(admin)}
@@ -168,7 +168,6 @@ function ListOfAdmin() {
                 placeholder="Phone Number"
               />
 
-              {/* ✅ Dropdown for Role */}
               <select
                 name="role"
                 value={currentAdmin.role}

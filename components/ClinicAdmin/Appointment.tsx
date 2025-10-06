@@ -2,7 +2,10 @@
 import React, { useState } from "react";
 import styles from "@/styles/clinicdashboard/appointments.module.css";
 
-const Appointment = () => {
+// ✅ Use environment variable for API base URL
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
+const Appointment: React.FC = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -17,41 +20,39 @@ const Appointment = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const response = await fetch("https://dermatbackend.onrender.com/api/appointments", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      console.log("Appointment Created:", data);
-
-      alert("Appointment booked successfully ✅");
-
-      // Reset form after successful submit
-      setFormData({
-        firstName: "",
-        lastName: "",
-        date: "",
-        doctor: "",
+    try {
+      const response = await fetch(`${API_URL}/appointments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
-    } else {
-      const errorData = await response.json();
-      console.error("Error creating appointment:", errorData);
-      alert(`Error: ${errorData.message || "Something went wrong"}`);
-    }
-  } catch (error) {
-    console.error("Network Error:", error);
-    alert("Failed to connect to server 🚨");
-  }
-};
 
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Appointment Created:", data);
+        alert("Appointment booked successfully ✅");
+
+        // Reset form after successful submit
+        setFormData({
+          firstName: "",
+          lastName: "",
+          date: "",
+          doctor: "",
+        });
+      } else {
+        const errorData = await response.json();
+        console.error("Error creating appointment:", errorData);
+        alert(`Error: ${errorData.message || "Something went wrong"}`);
+      }
+    } catch (error) {
+      console.error("Network Error:", error);
+      alert("Failed to connect to server 🚨");
+    }
+  };
 
   return (
     <div className={styles.appointmentContainer}>

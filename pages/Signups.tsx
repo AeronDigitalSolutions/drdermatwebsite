@@ -9,7 +9,7 @@ import Topbar from "@/components/Layout/Topbar";
 import Footer from "@/components/Layout/Footer";
 
 // ✅ Use live backend URL
-const API_URL = "https://dermatbackend.onrender.com";
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const Signup: React.FC = () => {
   const router = useRouter();

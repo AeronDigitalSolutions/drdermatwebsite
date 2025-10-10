@@ -4,12 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import Image from "next/image";
-import styles from "@/styles/components/forms/ModularForm.module.css";
 import Topbar from "@/components/Layout/Topbar";
 import Footer from "@/components/Layout/Footer";
+import styles from "@/styles/components/forms/ModularForm.module.css";
 import illustration from "../public/form.png";
 
-// ✅ Use env variable for local/server
 const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 export default function Login() {
@@ -37,12 +36,12 @@ export default function Login() {
 
       if (!res.ok) throw new Error(data.message || "Login failed");
 
-      // ✅ Store token + username
+      // ✅ Save cookies
       Cookies.set("token", data.token, { expires: rememberMe ? 7 : undefined });
-      Cookies.set("username", data.user?.name || "", { expires: rememberMe ? 7 : undefined });
+      Cookies.set("email", data.user.email, { expires: rememberMe ? 7 : undefined });
+      Cookies.set("username", data.user.name, { expires: rememberMe ? 7 : undefined });
 
-      // ✅ Redirect on success
-      router.push("/UserDashboard");
+      router.push("/UserDashboard"); // redirect to profile page
     } catch (err: any) {
       alert(err.message || "Login failed");
     } finally {
@@ -56,14 +55,12 @@ export default function Login() {
       <div className={styles.container}>
         <form onSubmit={handleSubmit} className={styles.form}>
           <img src="/logo.png" alt="Logo" className={styles.logo} />
-
           <div className={styles.imageContainer}>
             <Image src={illustration} alt="Illustration" className={styles.image} />
           </div>
 
           <h1 className={styles.head}>Login to your account</h1>
 
-          {/* Email Field */}
           <div className={styles.inputDiv}>
             <label htmlFor="email" className={styles.label}>Email</label>
             <input
@@ -78,7 +75,6 @@ export default function Login() {
             />
           </div>
 
-          {/* Password Field */}
           <div className={styles.inputDiv}>
             <label htmlFor="password" className={styles.label}>Password</label>
             <input
@@ -93,7 +89,6 @@ export default function Login() {
             />
           </div>
 
-          {/* Remember Me */}
           <div className={`${styles.inputDiv} ${styles.checkboxRow}`}>
             <label>
               <input
@@ -105,7 +100,6 @@ export default function Login() {
             <a href="/forgot-password">Forgot Password?</a>
           </div>
 
-          {/* Submit Button */}
           <div className={styles.buttonContainer}>
             <button type="submit" disabled={loading} className={styles.button}>
               {loading ? "Logging in..." : "Login"}

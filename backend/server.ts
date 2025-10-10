@@ -24,6 +24,8 @@ import latestOfferRoutes from "./src/routes/latestofferRoutes";
 import latestShortRoutes from "./src/routes/latestshortsRoutes";
 import quizRoutes from "./src/routes/quizRoutes";
 import treatmentShortsRoutes from "./src/routes/treatmentshortsRoutes";
+import userProfileRoutes from "./src/routes/userinformationRoutes";
+import orderRoutes from "./src/routes/orderRoutes";
 
 dotenv.config();
 
@@ -31,7 +33,7 @@ const server = express();
 
 // Middleware
 server.use(cors());
-server.use(express.json({ limit: "20mb" }));
+server.use(express.json({ limit: "100mb" }));
 
 // Static uploads
 server.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
@@ -56,6 +58,8 @@ server.use("/api/latest-offers", latestOfferRoutes);
 server.use("/api/latest-shorts", latestShortRoutes);
 server.use("/api/quiz", quizRoutes);
 server.use("/api/treatment-shorts", treatmentShortsRoutes);
+server.use("/api/userprofile", userProfileRoutes);
+server.use("/api/orders", orderRoutes);
 
 // MongoDB connect
 mongoose

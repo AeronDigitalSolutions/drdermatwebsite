@@ -130,7 +130,13 @@ const Topbar: React.FC<TopbarProps> = ({ hideHamburgerOnMobile }) => {
 
         {username ? (
           <div className={styles.userSection}>
-            <span className={styles.userName}>{username.toUpperCase()}</span>
+            <span
+              className={styles.userName}
+              title="Go to Dashboard"
+              onClick={() => router.push("/UserDashboard")}
+            >
+              {username.toUpperCase()}
+            </span>
             <button onClick={handleLogout} className={styles.logoutBtn}>
               Logout
             </button>

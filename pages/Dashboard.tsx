@@ -39,6 +39,7 @@ import {
 import Topbar from "@/components/Layout/Topbar";
 import Footer from "@/components/Layout/Footer";
 import MobileNavbar from "@/components/Layout/MobileNavbar";
+import UserOrderHistory from "@/components/AdminPanel/UserOrderHistory";
 
 type JwtPayload = { id: string; role: string; exp: number };
 
@@ -367,6 +368,18 @@ export default function SuperAdminDashboard() {
                   >
                     Treatment Shorts Update
                   </li>
+
+
+                  <li
+                    onClick={() =>
+                      handleSectionChange("userorderhistory", "list")
+                    }
+                    className={`${styles.menuItem} ${
+                      activeSection === "userorderhistory" ? styles.active : ""
+                    }`}
+                  >
+                     User Order History
+                  </li>
                 </div>
               )}
             </ul>
@@ -399,6 +412,7 @@ export default function SuperAdminDashboard() {
             {activeSection === "latestofferupdate" && <LatestUpdateOffer />}
             {activeSection === "latestshorts" && <LatestShorts />}
             {activeSection === "treatmentshorts" && <TreatmentShorts />}
+                        {activeSection === "userorderhistory" && <UserOrderHistory/>}
           </div>
         </div>
       </div>

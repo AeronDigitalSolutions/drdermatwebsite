@@ -8,6 +8,7 @@ interface ClinicCategory {
   _id: string;
   name: string;
   imageUrl: string;
+  exploreImage?: string;
 }
 
 interface ClinicCategoryProps {
@@ -17,8 +18,8 @@ interface ClinicCategoryProps {
   border?: string;
 }
 
-// ✅ API base from env variable
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// ✅ API base URL
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const ClinicCategories: React.FC<ClinicCategoryProps> = ({
   title,
@@ -28,18 +29,40 @@ const ClinicCategories: React.FC<ClinicCategoryProps> = ({
 }) => {
   const router = useRouter();
   const [categories, setCategories] = useState<ClinicCategory[]>([]);
+  const [exploreImage, setExploreImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch(`${API_BASE}/clinic-categories`);
+        const res = await fetch(`${API_URL}/clinic-categories`);
         if (!res.ok) throw new Error("Failed to fetch categories");
         const data: ClinicCategory[] = await res.json();
-        setCategories(data);
+
+        if (Array.isArray(data)) {
+          // ⚠️ Check minimum category count
+          if (data.length < 7) {
+            setError("Please add at least 7 clinic categories to display.");
+          } else {
+            setError("");
+          }
+
+          // ✅ Take first 7 categories
+          setCategories(data.slice(0, 7));
+
+          // ✅ Find category with exploreImage for the 8th tile
+          const exploreCat = data.find((cat) => !!cat.exploreImage);
+          if (exploreCat?.exploreImage) {
+            setExploreImage(exploreCat.exploreImage);
+          }
+        } else {
+          setError("Invalid response from server.");
+        }
       } catch (err) {
         console.error("Error fetching clinic categories:", err);
+        setError("Failed to load categories. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -52,6 +75,10 @@ const ClinicCategories: React.FC<ClinicCategoryProps> = ({
     router.push(`/home/findClinicsPage?category=${category._id}`);
   };
 
+  const handleExploreClick = () => {
+    router.push("/ClinicCategoryList"); // ✅ Redirect to ClinicCategoryList page
+  };
+
   if (loading) return <p>Loading categories...</p>;
 
   return (
@@ -60,7 +87,10 @@ const ClinicCategories: React.FC<ClinicCategoryProps> = ({
       style={{ backgroundColor: backgroundColor || "#f0f0f0" }}
     >
       <h2 className={styles.clinicTitle}>{title}</h2>
+      {error && <p className={styles.error}>{error}</p>}
+
       <div className={styles.gridContainer}>
+        {/* 🧩 First 7 categories */}
         {categories.map((category, index) => (
           <div
             key={category._id}
@@ -95,6 +125,33 @@ const ClinicCategories: React.FC<ClinicCategoryProps> = ({
             </div>
           </div>
         ))}
+
+        {/* 🧩 8th Tile — Explore Image */}
+        {exploreImage && (
+          <div
+            className={styles.categoryCard}
+            style={{
+              backgroundColor: textBg || "#D9EBFD",
+              border: border || "none",
+              cursor: "pointer",
+            }}
+            onClick={handleExploreClick} // ✅ Redirect on click
+          >
+            <div className={styles.imageWrapper}>
+              <img
+                src={exploreImage}
+                alt="Explore More"
+                className={styles.categoryImg}
+              />
+              <div className={styles.overlay}>
+                <div className={styles.overlayContent}>
+                  <span className={styles.categoryText}>Explore More</span>
+                  <span className={styles.arrow}>&rarr;</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

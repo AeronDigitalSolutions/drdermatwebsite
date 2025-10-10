@@ -25,7 +25,7 @@ const Signup: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/auth/user/signup`, {
+      const res = await fetch(`${API_URL}/auth/user/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

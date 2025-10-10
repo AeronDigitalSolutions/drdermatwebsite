@@ -97,3 +97,115 @@
     padding: 0.6rem 1rem;
   }
 }
+.subtitle {
+  margin-top: 2rem;
+  text-align: center;
+  color: #333;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.exploreSection {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.noImage {
+  color: #888;
+  margin: 10px 0;
+}
+
+.fileInput {
+  display: block;
+  margin: 10px auto;
+}
+
+.preview {
+  margin: 10px auto;
+  max-width: 250px;
+  border-radius: 10px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.15);
+}
+
+.button {
+  background-color: #007bff;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+.container {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form {
+  width: 100%;
+  max-width: 450px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.subHeading {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.input,
+.fileInput {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.button,
+.buttonSecondary {
+  width: 100%;
+  background-color: #0070f3;
+  color: #fff;
+  padding: 0.8rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.buttonSecondary {
+  background-color: #00b894;
+}
+
+.preview {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  border: 2px solid #ddd;
+}
+
+.error {
+  color: red;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}

@@ -11,7 +11,7 @@ interface Short {
 }
 
 // ✅ Backend API base URL (local or deployed)
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 const HappyStories = () => {
   const [shorts, setShorts] = useState<Short[]>([]);
@@ -27,7 +27,7 @@ useEffect(() => {
   useEffect(() => {
     const fetchShorts = async () => {
       try {
-        const res = await axios.get(`https://dermatbackend.onrender.com/latest-shorts`);
+        const res = await axios.get(`${API_BASE}/latest-shorts`);
         setShorts(res.data || []);
       } catch (err) {
         console.error("Failed to fetch shorts", err);

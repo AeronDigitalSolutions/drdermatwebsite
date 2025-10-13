@@ -8,7 +8,7 @@ interface LatestOffer {
 }
 
 // ✅ Use env variable for API base URL
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_BASE = "https://dermatbackend.onrender.com";
 
 const LatestOfferComponent = () => {
   const [slides, setSlides] = useState<LatestOffer[]>([]);

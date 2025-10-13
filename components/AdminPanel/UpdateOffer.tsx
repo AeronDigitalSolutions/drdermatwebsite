@@ -20,7 +20,7 @@ const REQUIRED_WIDTH = 1600;
 const REQUIRED_HEIGHT = 350;
 
 // ✅ Use dynamic API URL
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = "https://dermatbackend.onrender.com";
 
 const UpdateOffer = () => {
   const [offers, setOffers] = useState<Offer[]>([]);

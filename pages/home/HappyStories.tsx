@@ -20,12 +20,14 @@ const HappyStories = () => {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const playersRef = useRef<any[]>([]); // ✅ YouTube players
-
+useEffect(() => {
+  console.log("Backend URL:", process.env.NEXT_PUBLIC_API_URL);
+}, []);
   // ✅ Fetch shorts from backend
   useEffect(() => {
     const fetchShorts = async () => {
       try {
-        const res = await axios.get(`${API_BASE}/latest-shorts`);
+        const res = await axios.get(`https://dermatbackend.onrender.com/latest-shorts`);
         setShorts(res.data || []);
       } catch (err) {
         console.error("Failed to fetch shorts", err);

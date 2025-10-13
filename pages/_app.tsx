@@ -20,6 +20,9 @@ export default function App({
       setIsDesktop(window.innerWidth >= 768);
     };
 
+
+
+   
     checkScreen();
     window.addEventListener("resize", checkScreen);
 

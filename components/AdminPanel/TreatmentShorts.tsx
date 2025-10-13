@@ -10,7 +10,7 @@ interface Short {
 }
 
 // ✅ Use environment variable for API base URL
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 const TreatmentShorts: React.FC = () => {
   const [shorts, setShorts] = useState<Short[]>([]);

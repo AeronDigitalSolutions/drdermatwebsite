@@ -21,7 +21,7 @@ const REQUIRED_WIDTH = 1600;
 const REQUIRED_HEIGHT = 350;
 
 // ✅ Use environment variable for API base
-const API_URL = "https://dermatbackend.onrender.com";
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const LatestUpdateOffer = () => {
   const [offers, setOffers] = useState<LatestOffer[]>([]);

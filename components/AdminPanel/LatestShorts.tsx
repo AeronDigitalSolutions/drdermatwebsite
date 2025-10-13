@@ -5,7 +5,7 @@ import axios from "axios";
 import styles from "@/styles/LatestUpdateShorts.module.css";
 
 // ✅ Use environment variable for API base
-const API_URL = "https://dermatbackend.onrender.com";
+const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 interface Short {
   _id: string;

@@ -1,10 +1,17 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
-
 import styles from "@/styles/userdashboard.module.css";
-import { FiUsers, FiUserPlus, FiLogOut, FiMenu, FiX } from "react-icons/fi";
+import {
+  FiUsers,
+  FiUserPlus,
+  FiLogOut,
+  FiMenu,
+  FiX,
+  FiClipboard,
+} from "react-icons/fi";
 
 import Topbar from "@/components/Layout/Topbar";
 import Footer from "@/components/Layout/Footer";
@@ -18,59 +25,85 @@ interface User {
   email?: string;
 }
 
-// ✅ Use env variable for backend URL
 const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
-const UserDashboard = () => {
+const UserDashboard: React.FC = () => {
   const router = useRouter();
   const [activeSection, setActiveSection] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [user, setUser] = useState<User>({});
   const [loading, setLoading] = useState(true);
+  const [hasProfile, setHasProfile] = useState(false);
 
+  // ✅ Fetch user info & profile check
   useEffect(() => {
     const token = Cookies.get("token");
     const username = Cookies.get("username");
+    const email = Cookies.get("email");
 
     if (!token) {
       router.replace("/Login");
       return;
     }
 
-    if (username) {
-      setUser({ name: username });
+    const checkProfile = async (userEmail: string) => {
+      try {
+        const res = await fetch(`${API_URL}/userprofile/${userEmail}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data._id) {
+            setHasProfile(true);
+            Cookies.set("userId", data._id);
+          } else {
+            setHasProfile(false);
+          }
+        } else {
+          setHasProfile(false);
+        }
+      } catch (err) {
+        console.error("Error checking profile:", err);
+        setHasProfile(false);
+      }
+    };
+
+    if (username && email) {
+      setUser({ name: username, email });
+      checkProfile(email);
       setLoading(false);
     } else {
-      const fetchProfile = async () => {
+      const fetchFromToken = async () => {
         try {
           const res = await fetch(`${API_URL}/users/me`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-
           if (res.ok) {
             const data = await res.json();
-            setUser(data);
+            setUser({ name: data.name, email: data.email });
             Cookies.set("username", data.name || "");
-          } else {
-            console.error("Failed to fetch profile");
+            Cookies.set("email", data.email || "");
+            checkProfile(data.email);
           }
-        } catch (error) {
-          console.error("Error fetching user profile:", error);
+        } catch (err) {
+          console.error(err);
         } finally {
           setLoading(false);
         }
       };
-      fetchProfile();
+      fetchFromToken();
     }
   }, [router]);
 
+  // ✅ Logout
   const handleLogout = () => {
     Cookies.remove("token");
     Cookies.remove("username");
+    Cookies.remove("email");
+    Cookies.remove("userId");
     router.replace("/Login");
   };
 
+  // ✅ Responsive sidebar
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     handleResize();
@@ -97,7 +130,10 @@ const UserDashboard = () => {
 
       {isMobile && (
         <div className={styles.mobileTopbar}>
-          <button className={styles.menuToggle} onClick={() => setSidebarOpen(!sidebarOpen)}>
+          <button
+            className={styles.menuToggle}
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
             {sidebarOpen ? <FiX size={22} /> : <FiMenu size={22} />}
           </button>
         </div>
@@ -105,9 +141,14 @@ const UserDashboard = () => {
 
       <div className={styles.wrapper}>
         <div className={styles.mainArea}>
+          {/* Sidebar */}
           <aside
             className={`${styles.sidebar} ${
-              isMobile ? (sidebarOpen ? styles.sidebarMobile : styles.sidebarHidden) : ""
+              isMobile
+                ? sidebarOpen
+                  ? styles.sidebarMobile
+                  : styles.sidebarHidden
+                : ""
             }`}
           >
             <p className={styles.sectionTitle}>Menu</p>
@@ -117,26 +158,27 @@ const UserDashboard = () => {
                   setActiveSection("dashboard");
                   setSidebarOpen(false);
                 }}
-                className={styles.menuItem}
+                className={`${styles.menuItem} ${
+                  activeSection === "dashboard" ? styles.active : ""
+                }`}
               >
-                <span className={styles.iconLabel}>
-                  <FiUsers className={styles.icon} />
-                  <span className={styles.label}>Dashboard</span>
-                </span>
+                <FiUsers className={styles.icon} />
+                <span className={styles.label}>Dashboard</span>
               </li>
 
               <p className={styles.sectionTitle}>List</p>
+
               <li
                 onClick={() => {
                   setActiveSection("userprofile");
                   setSidebarOpen(false);
                 }}
-                className={styles.menuItem}
+                className={`${styles.menuItem} ${
+                  activeSection === "userprofile" ? styles.active : ""
+                }`}
               >
-                <span className={styles.iconLabel}>
-                  <FiUserPlus className={styles.icon} />
-                  <span className={styles.label}>User Profile</span>
-                </span>
+                <FiUserPlus className={styles.icon} />
+                <span className={styles.label}>User Profile</span>
               </li>
 
               <li
@@ -144,12 +186,12 @@ const UserDashboard = () => {
                   setActiveSection("orderhistory");
                   setSidebarOpen(false);
                 }}
-                className={styles.menuItem}
+                className={`${styles.menuItem} ${
+                  activeSection === "orderhistory" ? styles.active : ""
+                }`}
               >
-                <span className={styles.iconLabel}>
-                  <FiUserPlus className={styles.icon} />
-                  <span className={styles.label}>Order History</span>
-                </span>
+                <FiClipboard className={styles.icon} />
+                <span className={styles.label}>Order History</span>
               </li>
 
               <li
@@ -157,31 +199,50 @@ const UserDashboard = () => {
                   setActiveSection("appointmenthistory");
                   setSidebarOpen(false);
                 }}
-                className={styles.menuItem}
+                className={`${styles.menuItem} ${
+                  activeSection === "appointmenthistory" ? styles.active : ""
+                }`}
               >
-                <span className={styles.iconLabel}>
-                  <FiUserPlus className={styles.icon} />
-                  <span className={styles.label}>Appointment History</span>
-                </span>
+                <FiClipboard className={styles.icon} />
+                <span className={styles.label}>Appointment History</span>
               </li>
             </ul>
 
             <button className={styles.logoutButton} onClick={handleLogout}>
-              <span className={styles.iconLabel}>
-                <FiLogOut className={styles.icon} />
-                <span className={styles.label}>Logout</span>
-              </span>
+              <FiLogOut className={styles.icon} />
+              <span className={styles.label}>Logout</span>
             </button>
           </aside>
 
+          {/* Main Content */}
           <div className={styles.mainContent}>
             {activeSection === "dashboard" && (
               <div className={styles.welcomeBox}>
                 <h2>Welcome, {user.name || "User"} 👋</h2>
+
+                {/* If profile not filled */}
+                {!hasProfile && (
+                  <p className={styles.fillDetails}>
+                    It looks like you haven’t filled your profile details yet.{" "}
+                    <button
+                      className={styles.linkButton}
+                      onClick={() => setActiveSection("userprofile")}
+                    >
+                      Click here to fill your details
+                    </button>
+                  </p>
+                )}
               </div>
             )}
 
-            {activeSection === "userprofile" && <UserProfile />}
+            {activeSection === "userprofile" && (
+              <UserProfile
+                showFormInitially={!hasProfile}
+                userEmail={user.email || ""}
+                onProfileSaved={() => setHasProfile(true)} // ✅ update dashboard
+              />
+            )}
+
             {activeSection === "orderhistory" && <OrderHistory />}
             {activeSection === "appointmenthistory" && <AppointmentHistory />}
           </div>

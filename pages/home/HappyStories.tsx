@@ -27,7 +27,7 @@ useEffect(() => {
   useEffect(() => {
     const fetchShorts = async () => {
       try {
-        const res = await axios.get(`${API_BASE}/latest-shorts`);
+        const res = await axios.get(`${API_BASE}/api/latest-shorts`);
         setShorts(res.data || []);
       } catch (err) {
         console.error("Failed to fetch shorts", err);

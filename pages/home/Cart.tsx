@@ -18,7 +18,8 @@ interface IUserProfile {
   addresses: { type: string; address: string }[];
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const CartPage: React.FC = () => {
   const router = useRouter();
@@ -26,17 +27,17 @@ const CartPage: React.FC = () => {
   const [user, setUser] = useState<IUserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Synchronously check if logged in
   const email = Cookies.get("email");
   const token = Cookies.get("token");
 
-  if (!email || !token) {
-    clearCart && clearCart();
-    router.replace("/Login");
-    return null; // render nothing immediately
-  }
-
+  // ✅ Move login redirect logic inside useEffect
   useEffect(() => {
+    if (!email || !token) {
+      clearCart && clearCart();
+      router.replace("/Login");
+      return;
+    }
+
     const fetchUser = async () => {
       try {
         const res = await fetch(`${API_BASE}/userprofile/${email}`);
@@ -44,7 +45,6 @@ const CartPage: React.FC = () => {
           const data: IUserProfile = await res.json();
           setUser(data);
         } else {
-          // Profile fetch failed → logout
           clearCart && clearCart();
           Cookies.remove("email");
           Cookies.remove("userId");
@@ -62,26 +62,24 @@ const CartPage: React.FC = () => {
     };
 
     fetchUser();
-  }, [email, router, clearCart]);
+  }, [email, token, router, clearCart]);
 
   if (loading) return <p className={styles.message}>Loading...</p>;
-  if (!user) return null; // should never happen
+  if (!user) return null;
 
   const totalMRP = cartItems.reduce(
     (acc, item) => acc + (item.mrp ?? item.price) * item.quantity,
     0
   );
-
   const totalPrice = cartItems.reduce(
     (acc, item) => acc + (item.price ?? 0) * item.quantity,
     0
   );
-
   const discount = totalMRP - totalPrice;
 
   return (
     <>
-      {/* Cart Header and Steps */}
+      {/* Header */}
       <div className={styles.header}>
         <Image
           className={styles.logo}
@@ -115,7 +113,7 @@ const CartPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Cart Items & Summary */}
+      {/* Main Content */}
       <div className={styles.container}>
         <div className={styles.left}>
           <h2 className={styles.title}>Shopping Cart</h2>
@@ -134,23 +132,51 @@ const CartPage: React.FC = () => {
                   <div className={styles.name}>{item.name}</div>
                   <div className={styles.priceRow}>
                     <span className={styles.price}>₹{item.price}</span>
-                    {item.discount && <span className={styles.discount}>{item.discount} OFF</span>}
+                    {item.discount && (
+                      <span className={styles.discount}>
+                        {item.discount} OFF
+                      </span>
+                    )}
                   </div>
-                  {item.mrp && <div className={styles.mrp}>MRP: <s>₹{item.mrp}</s></div>}
+                  {item.mrp && (
+                    <div className={styles.mrp}>
+                      MRP: <s>₹{item.mrp}</s>
+                    </div>
+                  )}
                   <div className={styles.qtyRow}>
-                    <button onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))} className={styles.qtyBtn}>−</button>
+                    <button
+                      onClick={() =>
+                        updateQuantity(item.id, Math.max(1, item.quantity - 1))
+                      }
+                      className={styles.qtyBtn}
+                    >
+                      −
+                    </button>
                     <span className={styles.qty}>{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className={styles.qtyBtn}>+</button>
+                    <button
+                      onClick={() =>
+                        updateQuantity(item.id, item.quantity + 1)
+                      }
+                      className={styles.qtyBtn}
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
                 <div className={styles.actions}>
-                  <FaTrashAlt className={styles.icon} onClick={() => removeFromCart(item.id)} />
+                  <FaTrashAlt
+                    className={styles.icon}
+                    onClick={() => removeFromCart(item.id)}
+                  />
                   <FiHeart className={styles.icon} />
                 </div>
               </div>
             ))
           )}
-          <div className={styles.continue} onClick={() => router.push("/home")}>
+          <div
+            className={styles.continue}
+            onClick={() => router.push("/home")}
+          >
             Continue Shopping
           </div>
         </div>
@@ -158,11 +184,23 @@ const CartPage: React.FC = () => {
         <div className={styles.right}>
           <div className={styles.summaryBox}>
             <h3 className={styles.summaryTitle}>Order Summary</h3>
-            <div className={styles.summaryRow}><span>Total MRP</span><span>₹{totalMRP}</span></div>
-            <div className={styles.summaryRow}><span>Total Discounts</span><span className={styles.green}>- ₹{discount}</span></div>
-            <div className={styles.summaryRow}><span>Convenience Fee</span><span>₹0</span></div>
+            <div className={styles.summaryRow}>
+              <span>Total MRP</span>
+              <span>₹{totalMRP}</span>
+            </div>
+            <div className={styles.summaryRow}>
+              <span>Total Discounts</span>
+              <span className={styles.green}>- ₹{discount}</span>
+            </div>
+            <div className={styles.summaryRow}>
+              <span>Convenience Fee</span>
+              <span>₹0</span>
+            </div>
             <hr />
-            <div className={styles.totalPay}><span>Payable Amount</span><span>₹{totalPrice}</span></div>
+            <div className={styles.totalPay}>
+              <span>Payable Amount</span>
+              <span>₹{totalPrice}</span>
+            </div>
           </div>
           <button
             className={styles.payBtn}

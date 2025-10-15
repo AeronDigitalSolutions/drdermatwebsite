@@ -259,3 +259,8 @@
   background-color: #b71c1c;
   transform: scale(0.95);
 }
+@media (max-width: 480px) {
+  .hamburger {
+    display: none; /* hide hamburger on mobile */
+  }
+}

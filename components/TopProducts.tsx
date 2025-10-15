@@ -150,18 +150,19 @@ const TopProducts: React.FC = () => {
                   </span>
                 )}
 
-                {hoveredIndex === idx && (
-                  <div className={styles.overlay}>
-                    <div className={styles.iconContainer}>
-                      <FaCartPlus
-                        className={styles.icon}
-                        onClick={(e) => handleAddToCart(e, product)}
-                      />
-                      <FaHeart className={styles.icon} />
-                      <FaSearch className={styles.icon} />
-                    </div>
-                  </div>
-                )}
+{hoveredIndex === idx && window.innerWidth > 640 && (
+  <div className={styles.overlay}>
+    <div className={styles.iconContainer}>
+      <FaCartPlus
+        className={styles.icon}
+        onClick={(e) => handleAddToCart(e, product)}
+      />
+      <FaHeart className={styles.icon} />
+      <FaSearch className={styles.icon} />
+    </div>
+  </div>
+)}
+
               </div>
 
               <h3 className={styles.name}>{product.name}</h3>

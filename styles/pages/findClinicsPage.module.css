@@ -368,3 +368,66 @@
     width: 100%;
   }
 }
+/* Grid container for cards */
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* flexible columns */
+  gap: 20px;
+}
+
+/* Individual card styling */
+.card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+/* Card image */
+.card img {
+  width: 100%;
+  height: 150px; /* fixed height for uniformity */
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+/* Card title */
+.card .cardTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+/* Card description/text */
+.card .cardDesc {
+  font-size: 14px;
+  color: #555;
+}
+
+/* ---------- Mobile adjustments ---------- */
+@media (max-width: 768px) {
+  .cardsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+
+  .card img {
+    height: 100px;
+  }
+
+  .card .cardTitle {
+    font-size: 14px;
+  }
+
+  .card .cardDesc {
+    font-size: 12px;
+  }
+}

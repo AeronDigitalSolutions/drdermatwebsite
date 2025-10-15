@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import styles from "@/styles/components/Layout/Topbar.module.css";
 import Image from "next/image";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation"; // use next/navigation for Next.js 13+
 import { ShoppingCart, MapPin, Menu } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import Cookies from "js-cookie";
@@ -14,14 +14,14 @@ interface TopbarProps {
 
 const Topbar: React.FC<TopbarProps> = ({ hideHamburgerOnMobile }) => {
   const router = useRouter();
-  const { cartItems } = useCart();
+  const { cartItems, clearCart } = useCart(); // make sure clearCart is exposed
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [location, setLocation] = useState<string>("");
   const [username, setUsername] = useState<string | null>(null);
 
-  // ✅ Load username from cookies when component mounts
+  // Load username from cookies when component mounts
   useEffect(() => {
     const storedUsername = Cookies.get("username");
     if (storedUsername) {
@@ -29,11 +29,11 @@ const Topbar: React.FC<TopbarProps> = ({ hideHamburgerOnMobile }) => {
     }
   }, []);
 
-  const handleClick = () => {
+  const handleClickCart = () => {
     router.push("/home/Cart");
   };
 
-  // 📍 Handle user location fetch
+  // Fetch user location
   const fetchLocation = () => {
     if (!navigator.geolocation) {
       alert("Geolocation is not supported by your browser");
@@ -43,7 +43,6 @@ const Topbar: React.FC<TopbarProps> = ({ hideHamburgerOnMobile }) => {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
-
         try {
           const res = await fetch(
             `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
@@ -76,11 +75,26 @@ const Topbar: React.FC<TopbarProps> = ({ hideHamburgerOnMobile }) => {
     );
   };
 
+  // ✅ Full logout implementation
   const handleLogout = () => {
+    // Remove all cookies related to user
     Cookies.remove("token");
     Cookies.remove("username");
+    Cookies.remove("email");
+    Cookies.remove("userId");
+
+    // Clear localStorage
+    localStorage.removeItem("userId");
+
+    // Clear cart
+    clearCart && clearCart();
+
+    // Reset local state
     setUsername(null);
-    router.push("/Login");
+    setLocation("");
+
+    // Redirect to login page
+    router.replace("/Login");
   };
 
   return (
@@ -149,7 +163,7 @@ const Topbar: React.FC<TopbarProps> = ({ hideHamburgerOnMobile }) => {
           </div>
         )}
 
-        <div className={styles.cartInfo} onClick={handleClick}>
+        <div className={styles.cartInfo} onClick={handleClickCart}>
           <ShoppingCart size={18} />
           {cartCount > 0 && (
             <span className={styles.cartBadge}>{cartCount}</span>

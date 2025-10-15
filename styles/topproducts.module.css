@@ -437,3 +437,68 @@
     transform: translateX(100%);
   }
 }
+/* Mobile view adjustments (Flipkart/Amazon style) */
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .card {
+    padding: 0.5rem;
+  }
+
+  .image {
+    width: 100%;
+    height: 150px; /* smaller image */
+    object-fit: contain;
+    border-radius: 0.25rem;
+    transform: none !important; /* remove zoom on mobile */
+  }
+
+  .overlay {
+    display: none; /* hide hover overlay on mobile */
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+  }
+
+  .addToCart,
+  .buyNow {
+    flex: 1;
+    padding: 0.25rem 0.4rem;
+    font-size: 0.7rem;
+    transform: none !important; /* remove slide animation */
+    opacity: 1 !important; /* always visible */
+  }
+
+  .badge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.35rem;
+  }
+
+  .priceRow {
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .discountPrice {
+    font-size: 0.85rem;
+  }
+
+  .originalPrice {
+    font-size: 0.7rem;
+  }
+
+  .name {
+    font-size: 0.85rem;
+  }
+
+  .company,
+  .category {
+    font-size: 0.65rem;
+  }
+}

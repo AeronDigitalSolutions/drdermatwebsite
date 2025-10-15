@@ -136,7 +136,7 @@ const Index = () => {
 
         <div
           style={{
-            padding: "16px 20px",
+            padding: "16px 0px",
             backgroundColor: "#ffffff",
             marginTop: "1rem",
           }}
@@ -165,7 +165,7 @@ const Index = () => {
           </Link>
           <div
             style={{
-              padding: "0px 20px",
+              padding: "0px 0px",
               backgroundColor: "#ffffff",
               marginTop: "0px",
             }}
@@ -212,7 +212,7 @@ const Index = () => {
 
       <div
         style={{
-          padding: "10px 20px",
+          padding: "10px 0px",
           backgroundColor: "#ffffff",
           marginTop: "-40px",
         }}

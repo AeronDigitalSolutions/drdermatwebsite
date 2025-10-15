@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 import styles from "@/styles/adminpanel/userprofile.module.css";
 
 interface IAddress {
@@ -20,11 +21,10 @@ interface IUserProfile {
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
-// ✅ Updated props interface
 interface UserProfileProps {
   showFormInitially?: boolean;
   userEmail?: string;
-  onProfileSaved?: () => void; // callback to update dashboard
+  onProfileSaved?: () => void;
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({
@@ -32,6 +32,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
   userEmail,
   onProfileSaved,
 }) => {
+  const router = useRouter();
   const [user, setUser] = useState<IUserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(showFormInitially);
@@ -44,14 +45,19 @@ const UserProfile: React.FC<UserProfileProps> = ({
     addresses: [{ type: "Home", address: "" }],
   });
 
-  // ✅ Prefer prop email → fallback to cookie
+  // Use prop email or fallback to cookie
   const email = userEmail || Cookies.get("email") || "";
 
+  // Redirect if not logged in
   useEffect(() => {
     if (!email) {
-      setLoading(false);
-      return;
+      router.replace("/Login");
     }
+  }, [email, router]);
+
+  // Fetch user profile
+  useEffect(() => {
+    if (!email) return;
 
     const fetchProfile = async () => {
       try {
@@ -132,9 +138,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
       localStorage.setItem("userId", data._id || "");
       setShowForm(false);
 
-      // ✅ trigger dashboard update
       if (onProfileSaved) onProfileSaved();
-
       alert("✅ Profile saved successfully!");
     } catch (err: any) {
       console.error(err);
@@ -150,7 +154,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
   };
 
   if (loading) return <p className={styles.message}>Loading...</p>;
-  if (!email) return <p className={styles.message}>Please log in to view your profile.</p>;
 
   return (
     <div className={styles.container}>
@@ -172,7 +175,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 readOnly
                 className={styles.readOnly}
               />
-
               <input
                 name="name"
                 placeholder="Name"
@@ -233,9 +235,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
         </div>
       ) : user ? (
         <div className={styles.profileCard}>
-          {user.image && (
-            <img src={user.image} alt="Profile" className={styles.image} />
-          )}
+          {user.image && <img src={user.image} alt="Profile" className={styles.image} />}
           <p><strong>User ID:</strong> {user._id}</p>
           <p><strong>Email:</strong> {user.email}</p>
           <p><strong>Name:</strong> {user.name}</p>

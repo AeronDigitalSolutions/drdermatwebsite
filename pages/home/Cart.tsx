@@ -7,7 +7,7 @@ import { FaTrashAlt, FaShoppingCart, FaCreditCard } from "react-icons/fa";
 import { FiHeart } from "react-icons/fi";
 import { GoLocation } from "react-icons/go";
 import Image from "next/image";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import MobileNavbar from "@/components/Layout/MobileNavbar";
 
@@ -22,33 +22,50 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api"
 
 const CartPage: React.FC = () => {
   const router = useRouter();
-  const { cartItems, removeFromCart, updateQuantity } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart();
   const [user, setUser] = useState<IUserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const email = Cookies.get("email");
-    if (!email) {
-      setLoading(false);
-      return;
-    }
+  // ✅ Synchronously check if logged in
+  const email = Cookies.get("email");
+  const token = Cookies.get("token");
 
+  if (!email || !token) {
+    clearCart && clearCart();
+    router.replace("/Login");
+    return null; // render nothing immediately
+  }
+
+  useEffect(() => {
     const fetchUser = async () => {
       try {
         const res = await fetch(`${API_BASE}/userprofile/${email}`);
         if (res.ok) {
           const data: IUserProfile = await res.json();
           setUser(data);
+        } else {
+          // Profile fetch failed → logout
+          clearCart && clearCart();
+          Cookies.remove("email");
+          Cookies.remove("userId");
+          Cookies.remove("token");
+          localStorage.removeItem("userId");
+          router.replace("/Login");
         }
       } catch (err) {
         console.error(err);
+        clearCart && clearCart();
+        router.replace("/Login");
       } finally {
         setLoading(false);
       }
     };
 
     fetchUser();
-  }, []);
+  }, [email, router, clearCart]);
+
+  if (loading) return <p className={styles.message}>Loading...</p>;
+  if (!user) return null; // should never happen
 
   const totalMRP = cartItems.reduce(
     (acc, item) => acc + (item.mrp ?? item.price) * item.quantity,
@@ -62,11 +79,9 @@ const CartPage: React.FC = () => {
 
   const discount = totalMRP - totalPrice;
 
-  if (loading) return <p className={styles.message}>Loading...</p>;
-  if (!user) return <p className={styles.message}>Please log in to view your cart.</p>;
-
   return (
     <>
+      {/* Cart Header and Steps */}
       <div className={styles.header}>
         <Image
           className={styles.logo}
@@ -100,6 +115,7 @@ const CartPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Cart Items & Summary */}
       <div className={styles.container}>
         <div className={styles.left}>
           <h2 className={styles.title}>Shopping Cart</h2>

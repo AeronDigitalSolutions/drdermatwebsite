@@ -172,3 +172,145 @@
     grid-template-columns: repeat(1, 1fr);
   }
 }
+@media (max-width: 480px) {
+  .cliniContainer {
+    padding: 1rem 10px; /* adds margin inside container */
+  }
+
+  .gridContainer {
+    grid-template-columns: repeat(3, 1fr); /* show 3 items in a row */
+    gap: 10px; /* spacing between items */
+    padding: 0 10px; /* margin on both sides */
+  }
+
+  .categoryCard {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+  }
+}
+.cliniContainer {
+  background-color: white;
+  padding: 1rem 4rem;
+}
+
+.clinicTitle {
+  font-size: 26px;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 20px;
+  padding-bottom: 20px;
+}
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  justify-content: center;
+  padding: 20px 40px;
+  max-width: 1151px;
+  margin: 0 auto;
+}
+
+.categoryCard {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  background: none;
+  border: none;
+  position: relative;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.categoryImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s ease;
+}
+
+/* Image slide animations */
+@keyframes slideImageFromLeftFull {
+  from { transform: translateX(-100%); opacity: 0.9; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideImageToLeftFull {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-100%); opacity: 0.9; }
+}
+
+@keyframes slideOverlayFromRightFull {
+  from { right: -100%; }
+  to { right: 0; }
+}
+
+@keyframes slideOverlayToRightFull {
+  from { right: 0; }
+  to { right: -100%; }
+}
+
+.categoryCard:hover .categoryImg { animation: slideImageFromLeftFull 0.6s ease forwards; }
+.categoryCard .categoryImg.reverse { animation: slideImageToLeftFull 0.6s ease forwards; }
+
+.overlay {
+  position: absolute;
+  top: 0;
+  right: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(225, 223, 223, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #155e95;
+  border-radius: 10px;
+}
+
+.categoryCard:hover .overlay { animation: slideOverlayFromRightFull 0.5s ease forwards; }
+.categoryCard .overlay.reverse { animation: slideOverlayToRightFull 0.5s ease forwards; }
+
+.overlayContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #155e95;
+  font-weight: bold;
+  opacity: 0;
+  animation: fadeInText 0.5s ease forwards;
+  animation-delay: 0.5s;
+}
+
+@keyframes fadeInText {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.categoryText {
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.arrow {
+  font-size: 24px;
+  color: #155e95;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) { .gridContainer { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px) { .gridContainer { grid-template-columns: repeat(2, 1fr); } }
+
+
+@media (max-width: 480px) {
+  .cliniContainer { padding: 1rem 10px; }
+  .gridContainer { grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 10px; }
+  .categoryCard { width: 100%; aspect-ratio: 1 / 1; }
+}

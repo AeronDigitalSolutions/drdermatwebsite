@@ -18,7 +18,6 @@ interface ClinicCategoryProps {
   border?: string;
 }
 
-// ✅ API base URL
 const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const ClinicCategories: React.FC<ClinicCategoryProps> = ({
@@ -33,6 +32,15 @@ const ClinicCategories: React.FC<ClinicCategoryProps> = ({
   const [loading, setLoading] = useState(true);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [error, setError] = useState<string>("");
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 480);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -42,32 +50,20 @@ const ClinicCategories: React.FC<ClinicCategoryProps> = ({
         const data: ClinicCategory[] = await res.json();
 
         if (Array.isArray(data)) {
-          // ⚠️ Check minimum category count
-          if (data.length < 7) {
-            setError("Please add at least 7 clinic categories to display.");
-          } else {
-            setError("");
-          }
-
-          // ✅ Take first 7 categories
-          setCategories(data.slice(0, 7));
-
-          // ✅ Find category with exploreImage for the 8th tile
+          setError(data.length < 7 ? "Please add at least 7 clinic categories." : "");
+          setCategories(data); // store all fetched categories
           const exploreCat = data.find((cat) => !!cat.exploreImage);
-          if (exploreCat?.exploreImage) {
-            setExploreImage(exploreCat.exploreImage);
-          }
+          if (exploreCat?.exploreImage) setExploreImage(exploreCat.exploreImage);
         } else {
           setError("Invalid response from server.");
         }
       } catch (err) {
-        console.error("Error fetching clinic categories:", err);
+        console.error(err);
         setError("Failed to load categories. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchCategories();
   }, []);
 
@@ -76,10 +72,25 @@ const ClinicCategories: React.FC<ClinicCategoryProps> = ({
   };
 
   const handleExploreClick = () => {
-    router.push("/ClinicCategoryList"); // ✅ Redirect to ClinicCategoryList page
+    router.push("/ClinicCategoryList");
   };
 
   if (loading) return <p>Loading categories...</p>;
+
+  // Decide number of categories based on screen size
+  let displayCategories: ClinicCategory[] = [];
+  if (isMobile) {
+    displayCategories = [...categories.slice(0, 8)];
+    while (displayCategories.length < 8) {
+      displayCategories.push({
+        _id: `placeholder-${displayCategories.length}`,
+        name: "Coming Soon",
+        imageUrl: "/placeholder.jpg",
+      });
+    }
+  } else {
+    displayCategories = categories.slice(0, 7); // desktop: 7 categories
+  }
 
   return (
     <div
@@ -90,8 +101,7 @@ const ClinicCategories: React.FC<ClinicCategoryProps> = ({
       {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.gridContainer}>
-        {/* 🧩 First 7 categories */}
-        {categories.map((category, index) => (
+        {displayCategories.map((category, index) => (
           <div
             key={category._id}
             className={styles.categoryCard}
@@ -126,7 +136,7 @@ const ClinicCategories: React.FC<ClinicCategoryProps> = ({
           </div>
         ))}
 
-        {/* 🧩 8th Tile — Explore Image */}
+        {/* Explore More card */}
         {exploreImage && (
           <div
             className={styles.categoryCard}
@@ -135,14 +145,10 @@ const ClinicCategories: React.FC<ClinicCategoryProps> = ({
               border: border || "none",
               cursor: "pointer",
             }}
-            onClick={handleExploreClick} // ✅ Redirect on click
+            onClick={handleExploreClick}
           >
             <div className={styles.imageWrapper}>
-              <img
-                src={exploreImage}
-                alt="Explore More"
-                className={styles.categoryImg}
-              />
+              <img src={exploreImage} alt="Explore More" className={styles.categoryImg} />
               <div className={styles.overlay}>
                 <div className={styles.overlayContent}>
                   <span className={styles.categoryText}>Explore More</span>

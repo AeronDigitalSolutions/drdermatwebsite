@@ -22,21 +22,29 @@ const UserOrderHistory: React.FC = () => {
   const [fetching, setFetching] = useState(false);
   const [error, setError] = useState<string>("");
 
+  // Fetch orders when a valid user is available
   useEffect(() => {
-    if (!user?._id) return;
+    // If still loading or no user yet, do nothing
+    if (loading) return;
+
+    // If user logs out or is null, clear orders
+    if (!user?._id) {
+      setOrders([]);
+      return;
+    }
 
     const fetchOrders = async () => {
-      setFetching(true);
-      setError("");
-
       try {
+        setFetching(true);
+        setError("");
+        setOrders([]); // clear old data before fetching
+
         const res = await axios.get(`${API_BASE}/orders/my`, {
           headers: {
-            "x-user-id": user._id, // pass only the current user id
+            "x-user-id": user._id,
           },
         });
 
-        // Ensure backend returns only current user's orders
         if (Array.isArray(res.data)) {
           setOrders(res.data);
         } else {
@@ -51,8 +59,9 @@ const UserOrderHistory: React.FC = () => {
     };
 
     fetchOrders();
-  }, [user]);
+  }, [user?._id, loading]); // 👈 run only when user._id actually changes
 
+  // UI states
   if (loading) return <p>Loading user data...</p>;
   if (!user?._id) return <p>Please log in to view your orders.</p>;
   if (fetching) return <p>Loading orders...</p>;
@@ -61,6 +70,7 @@ const UserOrderHistory: React.FC = () => {
   return (
     <div className={styles.container}>
       <h2>🧾 Order History for {user.name}</h2>
+
       {orders.length === 0 ? (
         <p>No past orders yet.</p>
       ) : (

@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import styles from "@/styles/Dashboard/createproduct.module.css";
 
-// ✅ Dynamically import ReactQuill for rich text editor
+// ✅ Load ReactQuill dynamically
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
 
@@ -19,12 +19,11 @@ interface Company {
   name: string;
 }
 
-// Use environment variable for API base
 const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
-const CreateProduct = () => {
+const CreateProduct: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [companies, setCompanies] = useState<Company[]>([
+  const [companies] = useState<Company[]>([
     { _id: "dove", name: "Dove" },
     { _id: "patanjali", name: "Patanjali" },
     { _id: "himalaya", name: "Himalaya" },
@@ -41,29 +40,29 @@ const CreateProduct = () => {
     description: "",
   });
 
-  // Fetch categories from backend
+  // ✅ Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const res = await fetch(`${API_URL}/categories`);
         if (!res.ok) throw new Error("Failed to fetch categories");
         const data = await res.json();
-        const validCategories = data
+        const valid = data
           .filter((cat: any) => cat._id && cat.name)
           .map((cat: any) => ({
             _id: cat._id,
             name: cat.name,
             imageUrl: cat.imageUrl,
           }));
-        setCategories(validCategories);
+        setCategories(valid);
       } catch (err) {
-        console.error("Failed to fetch categories:", err);
+        console.error("Error fetching categories:", err);
       }
     };
     fetchCategories();
   }, []);
 
-  // Handle image upload (convert to Base64)
+  // ✅ Gallery image upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
@@ -74,27 +73,81 @@ const CreateProduct = () => {
         return;
       }
       const reader = new FileReader();
-      reader.onloadend = () => setImages((prev) => [...prev, reader.result as string]);
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setImages((prev) => [...prev, base64]);
+      };
       reader.readAsDataURL(file);
     });
   };
 
-  const handleRemoveImage = (index: number) => {
+  const handleRemoveImage = (index: number) =>
     setImages((prev) => prev.filter((_, i) => i !== index));
-  };
 
-  // Handle input/select changes
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle rich text description
-  const handleDescriptionChange = (value: string) => {
+  const handleDescriptionChange = (value: string) =>
     setFormData((prev) => ({ ...prev, description: value }));
-  };
 
-  // Submit form
+  // ✅ ReactQuill modules with Base64 image upload & auto styling
+  const modules = useMemo(() => {
+    return {
+      toolbar: {
+        container: [
+          ["bold", "italic", "underline"],
+          [{ list: "ordered" }, { list: "bullet" }],
+          ["link", "image"],
+          ["clean"],
+        ],
+        handlers: {
+          image: function handleImage(this: any) {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = "image/*";
+            input.click();
+
+            input.onchange = () => {
+              const file = input.files?.[0];
+              if (!file) return;
+              if (file.size > 1024 * 1024) {
+                alert("Image size should not exceed 1MB.");
+                return;
+              }
+
+              const reader = new FileReader();
+              reader.onload = () => {
+                const base64 = reader.result as string;
+                const quill = this.quill;
+                const range = quill.getSelection(true);
+
+                // ✅ Insert image
+                quill.insertEmbed(range.index, "image", base64);
+
+                // ✅ Add class after insertion
+                setTimeout(() => {
+                  const [leaf] = quill.getLeaf(range.index);
+                  const imgNode = leaf?.domNode as HTMLImageElement | undefined;
+                  if (imgNode && imgNode.tagName === "IMG") {
+                    imgNode.classList.add(styles.descriptionImage); // add CSS module class
+                  }
+                }, 100);
+
+                quill.setSelection(range.index + 1);
+              };
+              reader.readAsDataURL(file);
+            };
+          },
+        },
+      },
+    };
+  }, []);
+
+  // ✅ Submit product
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -123,7 +176,6 @@ const CreateProduct = () => {
       alert("✅ Product created successfully!");
       console.log("Created product:", result);
 
-      // Reset form
       setFormData({
         category: "",
         company: "",
@@ -144,10 +196,10 @@ const CreateProduct = () => {
     <form className={styles.form} onSubmit={handleSubmit}>
       <h2 className={styles.heading}>Add New Product</h2>
 
-      {/* Image Upload */}
+      {/* Gallery Upload */}
       <div className={styles.row}>
         <label className={styles.imageUpload}>
-          <span>Upload Images</span>
+          <span>Upload Product Images</span>
           <input
             type="file"
             accept="image/*"
@@ -158,12 +210,16 @@ const CreateProduct = () => {
         </label>
       </div>
 
-      {/* Image Preview */}
+      {/* Gallery Preview */}
       <div className={styles.previewContainer}>
         {images.map((img, index) => (
           <div key={index} className={styles.previewWrapper}>
             <img src={img} alt={`Preview ${index}`} className={styles.previewImage} />
-            <button type="button" className={styles.removeBtn} onClick={() => handleRemoveImage(index)}>
+            <button
+              type="button"
+              className={styles.removeBtn}
+              onClick={() => handleRemoveImage(index)}
+            >
               ✖
             </button>
           </div>
@@ -172,7 +228,12 @@ const CreateProduct = () => {
 
       {/* Category & Company */}
       <div className={styles.row}>
-        <select name="category" value={formData.category} onChange={handleChange} className={styles.select}>
+        <select
+          name="category"
+          value={formData.category}
+          onChange={handleChange}
+          className={styles.select}
+        >
           <option value="">Select Category</option>
           {categories.map((cat) => (
             <option key={cat._id} value={cat._id}>
@@ -181,7 +242,12 @@ const CreateProduct = () => {
           ))}
         </select>
 
-        <select name="company" value={formData.company} onChange={handleChange} className={styles.select}>
+        <select
+          name="company"
+          value={formData.company}
+          onChange={handleChange}
+          className={styles.select}
+        >
           <option value="">Select Company</option>
           {companies.map((c) => (
             <option key={c._id} value={c._id}>
@@ -234,21 +300,26 @@ const CreateProduct = () => {
       {/* Description */}
       <div className={styles.richTextWrapper}>
         <ReactQuill
+          theme="snow"
           value={formData.description}
           onChange={handleDescriptionChange}
+          modules={modules}
           className={styles.richText}
-          modules={{
-            toolbar: [
-              ["bold", "italic", "underline"],
-              [{ list: "ordered" }, { list: "bullet" }],
-              ["clean"],
-            ],
-          }}
-          placeholder="Enter product description..."
+          placeholder="Enter product description... (you can add images)"
         />
       </div>
 
-      {/* Submit */}
+      {/* Live Description Preview */}
+      {formData.description && (
+        <div className={styles.previewSection}>
+          <h3 className={styles.previewTitle}>Live Description Preview:</h3>
+          <div
+            className={styles.descriptionPreview}
+            dangerouslySetInnerHTML={{ __html: formData.description }}
+          />
+        </div>
+      )}
+
       <button type="submit" className={styles.button}>
         Add Product
       </button>

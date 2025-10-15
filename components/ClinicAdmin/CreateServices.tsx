@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import styles from "@/styles/clinicdashboard/clinicservices.module.css";
 import Cookies from "js-cookie";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import "react-quill/dist/quill.snow.css";
 
+// ✅ Load ReactQuill dynamically (Next.js SSR safe)
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 interface ClinicCategory {
@@ -17,7 +18,7 @@ interface ClinicCategory {
 }
 
 interface JwtPayload {
-  id: string; // clinicId from token
+  id: string;
   role: string;
 }
 
@@ -35,7 +36,7 @@ const CreateServices = () => {
   const [clinicId, setClinicId] = useState<string | null>(null);
   const [notification, setNotification] = useState<string>("");
 
-  // Get clinicId from token
+  // ✅ Decode token to get clinic ID
   useEffect(() => {
     const token = Cookies.get("token");
     if (token) {
@@ -52,7 +53,7 @@ const CreateServices = () => {
     }
   }, []);
 
-  // Fetch clinic categories
+  // ✅ Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -68,7 +69,7 @@ const CreateServices = () => {
     fetchCategories();
   }, []);
 
-  // Convert file to Base64
+  // ✅ Convert file to Base64
   const toBase64 = (file: File): Promise<string> =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -77,6 +78,7 @@ const CreateServices = () => {
       reader.onerror = (err) => reject(err);
     });
 
+  // ✅ Handle service image upload
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
@@ -84,6 +86,48 @@ const CreateServices = () => {
     setImagePreviews(files.map((file) => URL.createObjectURL(file)));
   };
 
+  // ✅ Handle description image upload (inside Quill editor)
+  const modules = useMemo(() => {
+    return {
+      toolbar: {
+        container: [
+          ["bold", "italic", "underline"],
+          [{ list: "ordered" }, { list: "bullet" }],
+          ["link", "image"],
+          ["clean"],
+        ],
+        handlers: {
+          image: function handleImage(this: any) {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = "image/*";
+            input.click();
+
+            input.onchange = () => {
+              const file = input.files?.[0];
+              if (!file) return;
+              if (file.size > 1024 * 1024) {
+                alert("Image size should not exceed 1MB.");
+                return;
+              }
+
+              const reader = new FileReader();
+              reader.onload = () => {
+                const base64 = reader.result as string;
+                const quill = this.quill; // direct access to editor instance
+                const range = quill.getSelection(true);
+                quill.insertEmbed(range.index, "image", base64);
+                quill.setSelection(range.index + 1);
+              };
+              reader.readAsDataURL(file);
+            };
+          },
+        },
+      },
+    };
+  }, []);
+
+  // ✅ Submit new service
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!clinicId) {
@@ -139,7 +183,9 @@ const CreateServices = () => {
       {notification && <div className={styles.notification}>{notification}</div>}
 
       <h2 className={styles.title}>Create New Service</h2>
+
       <form onSubmit={handleSubmit} className={styles.form}>
+        {/* ✅ Service Name */}
         <label className={styles.label}>Service Name</label>
         <input
           type="text"
@@ -149,6 +195,7 @@ const CreateServices = () => {
           required
         />
 
+        {/* ✅ Selected categories */}
         {selectedCategories.length > 0 && (
           <div className={styles.selectedList}>
             {selectedCategories.map((id) => {
@@ -159,7 +206,9 @@ const CreateServices = () => {
                   <button
                     type="button"
                     onClick={() =>
-                      setSelectedCategories((prev) => prev.filter((cid) => cid !== id))
+                      setSelectedCategories((prev) =>
+                        prev.filter((cid) => cid !== id)
+                      )
                     }
                     className={styles.removeBtn}
                   >
@@ -171,6 +220,7 @@ const CreateServices = () => {
           </div>
         )}
 
+        {/* ✅ Category selection */}
         <label className={styles.label}>Categories</label>
         <select
           multiple
@@ -189,6 +239,7 @@ const CreateServices = () => {
           ))}
         </select>
 
+        {/* ✅ Upload service images */}
         <label className={styles.label}>Service Images</label>
         <input
           type="file"
@@ -199,15 +250,39 @@ const CreateServices = () => {
         />
         <div className={styles.imagePreviewContainer}>
           {imagePreviews.map((src, idx) => (
-            <img key={idx} src={src} alt={`preview-${idx}`} className={styles.imagePreview} />
+            <img
+              key={idx}
+              src={src}
+              alt={`preview-${idx}`}
+              className={styles.imagePreview}
+            />
           ))}
         </div>
 
+        {/* ✅ Description with image upload */}
         <label className={styles.label}>Description</label>
         <div className={styles.quillContainer}>
-          <ReactQuill value={description} onChange={setDescription} />
+          <ReactQuill
+            theme="snow"
+            value={description}
+            onChange={setDescription}
+            modules={modules}
+            placeholder="Enter service description... You can add text, bullets, and images."
+          />
         </div>
 
+        {/* ✅ Live description preview */}
+        {description && (
+          <div className={styles.previewSection}>
+            <h3 className={styles.previewTitle}>Live Description Preview:</h3>
+            <div
+              className={styles.descriptionPreview}
+              dangerouslySetInnerHTML={{ __html: description }}
+            />
+          </div>
+        )}
+
+        {/* ✅ Price fields */}
         <label className={styles.label}>Price</label>
         <input
           type="number"

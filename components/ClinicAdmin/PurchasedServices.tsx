@@ -2,21 +2,57 @@
 
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
-const API_BASE = "https://dermatbackend.onrender.com/api";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 export default function PurchasedServices() {
+  const router = useRouter();
+
   const [items, setItems] = useState<any[]>([]);
   const [doctors, setDoctors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const clinicId = Cookies.get("clinicId");
+  /* -------------------------
+     GET CLINIC ID (SAFE WAY)
+  -------------------------- */
+  let clinicId = Cookies.get("clinicId");
 
-  /* Fetch purchased services */
+  // fallback check for localStorage
+  if (!clinicId && typeof window !== "undefined") {
+    clinicId = localStorage.getItem("clinicId") || "";
+  }
+
+  /* If STILL missing → redirect to login */
+  useEffect(() => {
+    if (!clinicId) {
+      setError("Clinic session expired. Please login again.");
+      router.replace("/ClinicLogin");
+    }
+  }, [clinicId, router]);
+
+  /* -------------------------
+     Fetch purchased services
+  -------------------------- */
   const loadServices = async () => {
+    if (!clinicId) return;
+
     try {
-      const res = await fetch(`${API_BASE}/clinics/${clinicId}/purchased-services`);
+      const url = `${API_BASE}/clinics/${clinicId}/purchased-services`;
+
+      const res = await fetch(url, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!res.ok) {
+        console.error("API failed:", res.status);
+        setError("Failed to load purchased services.");
+        return;
+      }
+
       const data = await res.json();
       setItems(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -25,7 +61,9 @@ export default function PurchasedServices() {
     }
   };
 
-  /* Fetch doctors */
+  /* -------------------------
+     Fetch doctors
+  -------------------------- */
   const loadDoctors = async () => {
     try {
       const res = await fetch(`${API_BASE}/doctors`);
@@ -41,8 +79,12 @@ export default function PurchasedServices() {
     loadServices().finally(() => setLoading(false));
   }, []);
 
-  /* Assign doctor */
+  /* -------------------------
+     Assign Doctor
+  -------------------------- */
   const assignDoctor = async (serviceEntryId: string, doctorId: string) => {
+    if (!doctorId) return;
+
     try {
       const res = await fetch(
         `${API_BASE}/clinics/purchased-services/${serviceEntryId}/assign-doctor`,
@@ -62,12 +104,21 @@ export default function PurchasedServices() {
     }
   };
 
+  /* -------------------------
+     UI Rendering
+  -------------------------- */
+
+  if (!clinicId) {
+    return <p style={{ color: "red" }}>Clinic session expired. Redirecting...</p>;
+  }
+
   if (loading) return <p>Loading purchased services...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   return (
     <div style={styles.container}>
       <h2 style={styles.heading}>Purchased Services</h2>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
       {items.length === 0 ? (
         <p style={styles.noData}>No purchased services found.</p>
@@ -92,7 +143,7 @@ export default function PurchasedServices() {
                 <td style={styles.td}>{p.quantity}</td>
                 <td style={styles.td}>₹{p.totalPrice}</td>
 
-                {/* Already assigned doctor */}
+                {/* Assigned doctor */}
                 <td style={styles.td}>
                   {p.assignedDoctor
                     ? `${p.assignedDoctor.title} ${p.assignedDoctor.firstName}`

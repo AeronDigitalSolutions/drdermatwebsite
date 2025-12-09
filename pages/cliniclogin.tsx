@@ -24,31 +24,29 @@ export default function ClinicLogin() {
     setLoading(true);
 
     try {
-      console.log("📡 Sending login request:", form);
-
       const res = await fetch(`${API_URL}/clinics/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
 
-      const data = await res.json().catch(() => null);
-
-      console.log("📦 Response data:", data);
+      const data = await res.json();
 
       if (!res.ok) throw new Error(data?.message || "Login failed");
 
-      // ⭐ SAVE LOGIN COOKIES
-      Cookies.set("token", data.token, { expires: 1 });
-      Cookies.set("role", "clinic", { expires: 1 });
+      // ⭐ FIX: Cookies with proper flags for HTTPS
+      const cookieOptions = {
+        expires: 1,
+        secure: true,
+        sameSite: "None" as const,
+      };
 
-      // ⭐ MOST IMPORTANT — SAVE CLINIC ID
-      Cookies.set("clinicId", data.clinic.id, { expires: 1 });
-
-      console.log("🎉 Login success, redirecting...");
+      Cookies.set("token", data.token, cookieOptions);
+      Cookies.set("role", "clinic", cookieOptions);
+      Cookies.set("clinicId", data.clinic.id, cookieOptions);
 
       router.replace("/ClinicDashboard");
-      window.location.href = "/ClinicDashboard"; // Force refresh
+      window.location.href = "/ClinicDashboard"; // Force redirect
     } catch (err: any) {
       console.error("❌ Login error:", err);
       setError(err.message || "Login failed");

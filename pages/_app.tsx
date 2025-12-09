@@ -4,10 +4,13 @@ import type { AppProps } from "next/app";
 import { useEffect, useState } from "react";
 import AnimatedCursor from "react-animated-cursor";
 
-// ✅ Contexts
+// Contexts
 import { CartProvider } from "@/context/CartContext";
 import { UserProvider } from "@/context/UserContext";
 import { OrderProvider } from "@/context/OrderContext";
+
+// ⭐ NEW IMPORT
+import { LoaderProvider } from "@/components/global/LoderProvider";
 
 export default function App({
   Component,
@@ -20,9 +23,6 @@ export default function App({
       setIsDesktop(window.innerWidth >= 768);
     };
 
-
-
-   
     checkScreen();
     window.addEventListener("resize", checkScreen);
 
@@ -34,18 +34,21 @@ export default function App({
       <UserProvider>
         <CartProvider>
           <OrderProvider>
-            <Component {...pageProps} />
+            {/* ⭐ WRAP EVERYTHING IN GLOBAL LOADER */}
+            <LoaderProvider>
+              <Component {...pageProps} />
 
-            {isDesktop && (
-              <AnimatedCursor
-                innerSize={12}
-                outerSize={20}
-                color="79, 70, 229"
-                outerAlpha={0.3}
-                innerScale={0.7}
-                outerScale={2}
-              />
-            )}
+              {isDesktop && (
+                <AnimatedCursor
+                  innerSize={12}
+                  outerSize={20}
+                  color="79, 70, 229"
+                  outerAlpha={0.3}
+                  innerScale={0.7}
+                  outerScale={2}
+                />
+              )}
+            </LoaderProvider>
           </OrderProvider>
         </CartProvider>
       </UserProvider>

@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/router"; // ✅ use next/router for Pages Router
+import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import styles from "@/styles/cliniclogin.module.css";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
-// ✅ API base URL from environment variable
 const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 export default function ClinicLogin() {
@@ -33,21 +32,23 @@ export default function ClinicLogin() {
         body: JSON.stringify(form),
       });
 
-      console.log("✅ Response status:", res.status);
-
       const data = await res.json().catch(() => null);
+
       console.log("📦 Response data:", data);
 
       if (!res.ok) throw new Error(data?.message || "Login failed");
 
-      // 🎯 Save cookies (token + role)
-      Cookies.set("token", data.token, { expires: 1 }); // valid for 1 day
+      // ⭐ SAVE LOGIN COOKIES
+      Cookies.set("token", data.token, { expires: 1 });
       Cookies.set("role", "clinic", { expires: 1 });
 
-      // 🎯 Redirect after login success
+      // ⭐ MOST IMPORTANT — SAVE CLINIC ID
+      Cookies.set("clinicId", data.clinic.id, { expires: 1 });
+
       console.log("🎉 Login success, redirecting...");
+
       router.replace("/ClinicDashboard");
-      window.location.href = "/ClinicDashboard"; // ✅ forces middleware to run
+      window.location.href = "/ClinicDashboard"; // Force refresh
     } catch (err: any) {
       console.error("❌ Login error:", err);
       setError(err.message || "Login failed");

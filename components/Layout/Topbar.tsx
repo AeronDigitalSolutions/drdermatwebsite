@@ -1,9 +1,10 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import styles from "@/styles/components/Layout/Topbar.module.css";
 import Image from "next/image";
-import { useRouter } from "next/navigation"; // use next/navigation for Next.js 13+
+import { useRouter, usePathname } from "next/navigation"; // ✅ added usePathname
 import { ShoppingCart, MapPin, Menu } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import Cookies from "js-cookie";
@@ -14,14 +15,15 @@ interface TopbarProps {
 
 const Topbar: React.FC<TopbarProps> = ({ hideHamburgerOnMobile }) => {
   const router = useRouter();
-  const { cartItems, clearCart } = useCart(); // make sure clearCart is exposed
+  const pathname = usePathname(); // ✅ get current route
+  const { cartItems, clearCart } = useCart();
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [location, setLocation] = useState<string>("");
   const [username, setUsername] = useState<string | null>(null);
 
-  // Load username from cookies when component mounts
+  // Load username from cookies
   useEffect(() => {
     const storedUsername = Cookies.get("username");
     if (storedUsername) {
@@ -29,11 +31,17 @@ const Topbar: React.FC<TopbarProps> = ({ hideHamburgerOnMobile }) => {
     }
   }, []);
 
+  // 🚫 Hide right section on dashboards
+  const isDashboard =
+    pathname.startsWith("/ClinicDashboard") ||
+    pathname.startsWith("/DoctorDashboard") ||
+    pathname.startsWith("/AdminDashboard") ||
+    pathname.includes("Dashboard");
+
   const handleClickCart = () => {
     router.push("/home/Cart");
   };
 
-  // Fetch user location
   const fetchLocation = () => {
     if (!navigator.geolocation) {
       alert("Geolocation is not supported by your browser");
@@ -55,17 +63,14 @@ const Topbar: React.FC<TopbarProps> = ({ hideHamburgerOnMobile }) => {
               data.address.town ||
               data.address.village;
             const state = data.address.state;
+
             setLocation(`${city || "Unknown"}, ${state || ""}`);
           } else {
-            setLocation(
-              `Lat: ${latitude.toFixed(2)}, Lng: ${longitude.toFixed(2)}`
-            );
+            setLocation(`Lat: ${latitude.toFixed(2)}, Lng: ${longitude.toFixed(2)}`);
           }
         } catch (err) {
           console.error("Error fetching location:", err);
-          setLocation(
-            `Lat: ${latitude.toFixed(2)}, Lng: ${longitude.toFixed(2)}`
-          );
+          setLocation(`Lat: ${latitude.toFixed(2)}, Lng: ${longitude.toFixed(2)}`);
         }
       },
       (error) => {
@@ -75,31 +80,24 @@ const Topbar: React.FC<TopbarProps> = ({ hideHamburgerOnMobile }) => {
     );
   };
 
-  // ✅ Full logout implementation
+  // Logout
   const handleLogout = () => {
-    // Remove all cookies related to user
     Cookies.remove("token");
     Cookies.remove("username");
     Cookies.remove("email");
     Cookies.remove("userId");
 
-    // Clear localStorage
     localStorage.removeItem("userId");
-
-    // Clear cart
     clearCart && clearCart();
-
-    // Reset local state
     setUsername(null);
     setLocation("");
 
-    // Redirect to login page
     router.replace("/Login");
   };
 
   return (
     <div className={styles.topbar}>
-      {/* Left section: Logo + Nav links */}
+      {/* Left section */}
       <div className={styles.leftSection}>
         <Image
           className={styles.logo}
@@ -135,41 +133,43 @@ const Topbar: React.FC<TopbarProps> = ({ hideHamburgerOnMobile }) => {
         </nav>
       </div>
 
-      {/* Right section: Icons + Auth */}
-      <div className={styles.rightSection}>
-        <div className={styles.location} onClick={fetchLocation}>
-          <MapPin size={18} />
-          {location && <span className={styles.locationText}>{location}</span>}
-        </div>
-
-        {username ? (
-          <div className={styles.userSection}>
-            <span
-              className={styles.userName}
-              title="Go to Dashboard"
-              onClick={() => router.push("/UserDashboard")}
-            >
-              {username.toUpperCase()}
-            </span>
-            <button onClick={handleLogout} className={styles.logoutBtn}>
-              Logout
-            </button>
+      {/* Right section — only visible for USER pages */}
+      {!isDashboard && (
+        <div className={styles.rightSection}>
+          <div className={styles.location} onClick={fetchLocation}>
+            <MapPin size={18} />
+            {location && <span className={styles.locationText}>{location}</span>}
           </div>
-        ) : (
-          <div className={styles.authLinks}>
-            <Link href="/Login">Login</Link>
-            <span className={styles.separator}>|</span>
-            <Link href="/Signups">Sign Up</Link>
-          </div>
-        )}
 
-        <div className={styles.cartInfo} onClick={handleClickCart}>
-          <ShoppingCart size={18} />
-          {cartCount > 0 && (
-            <span className={styles.cartBadge}>{cartCount}</span>
+          {username ? (
+            <div className={styles.userSection}>
+              <span
+                className={styles.userName}
+                title="Go to Dashboard"
+                onClick={() => router.push("/UserDashboard")}
+              >
+                {username.toUpperCase()}
+              </span>
+              <button onClick={handleLogout} className={styles.logoutBtn}>
+                Logout
+              </button>
+            </div>
+          ) : (
+            <div className={styles.authLinks}>
+              <Link href="/Login">Login</Link>
+              <span className={styles.separator}>|</span>
+              <Link href="/Signups">Sign Up</Link>
+            </div>
           )}
+
+          <div className={styles.cartInfo} onClick={handleClickCart}>
+            <ShoppingCart size={18} />
+            {cartCount > 0 && (
+              <span className={styles.cartBadge}>{cartCount}</span>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

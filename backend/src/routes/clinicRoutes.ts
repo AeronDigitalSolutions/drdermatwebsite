@@ -6,7 +6,9 @@ import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
-// ✅ Create Clinic
+/* --------------------------------------
+   CREATE CLINIC
+----------------------------------------- */
 router.post("/", async (req: Request, res: Response) => {
   try {
     const {
@@ -65,7 +67,9 @@ router.post("/", async (req: Request, res: Response) => {
   }
 });
 
-// ✅ Clinic Login
+/* --------------------------------------
+   CLINIC LOGIN
+----------------------------------------- */
 router.post("/login", async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -97,32 +101,41 @@ router.post("/login", async (req: Request, res: Response) => {
   }
 });
 
-// ✅ Get all clinics
+/* --------------------------------------
+   GET ALL CLINICS
+----------------------------------------- */
 router.get("/", async (_req: Request, res: Response) => {
   try {
     const clinics = await Clinic.find()
       .select("-password")
       .populate("category", "name");
+
     res.status(200).json(clinics);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch clinics.", error: err });
   }
 });
 
-// ✅ Get single clinic
+/* --------------------------------------
+   GET SINGLE CLINIC
+----------------------------------------- */
 router.get("/:id", async (req: Request, res: Response) => {
   try {
     const clinic = await Clinic.findById(req.params.id)
       .select("-password")
       .populate("category", "name");
+
     if (!clinic) return res.status(404).json({ message: "Clinic not found" });
+
     res.status(200).json(clinic);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch clinic.", error: err });
   }
 });
 
-// ✅ Update clinic
+/* --------------------------------------
+   UPDATE CLINIC
+----------------------------------------- */
 router.put("/:id", async (req: Request, res: Response) => {
   try {
     const {
@@ -163,15 +176,128 @@ router.put("/:id", async (req: Request, res: Response) => {
   }
 });
 
-// ✅ Delete clinic
+/* --------------------------------------
+   DELETE CLINIC
+----------------------------------------- */
 router.delete("/:id", async (req: Request, res: Response) => {
   try {
     const deletedClinic = await Clinic.findByIdAndDelete(req.params.id);
+
     if (!deletedClinic) return res.status(404).json({ message: "Clinic not found" });
+
     res.status(200).json({ message: "Clinic deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: "Failed to delete clinic.", error: err });
   }
 });
+
+/* --------------------------------------
+   GET PURCHASED SERVICES (UPDATED)
+----------------------------------------- */
+router.get("/:id/purchased-services", async (req, res) => {
+  try {
+    const clinic = await Clinic.findById(req.params.id)
+      .populate("purchasedServices.serviceId", "serviceName price images")
+      .populate("purchasedServices.userId", "name email")
+      .populate(
+        "purchasedServices.assignedDoctor",
+        "title firstName lastName specialist"
+      ); // ⭐ NEW
+
+    if (!clinic) return res.status(404).json({ message: "Clinic not found" });
+
+    res.json(clinic.purchasedServices || []);
+  } catch (err) {
+    console.error("❌ Error fetching purchased services:", err);
+    res.status(500).json({ message: "Failed to fetch purchased services" });
+  }
+});
+
+/* --------------------------------------
+   ASSIGN DOCTOR TO PURCHASED SERVICE (UPDATED)
+----------------------------------------- */
+router.put(
+  "/purchased-services/:serviceEntryId/assign-doctor",
+  async (req, res) => {
+    try {
+      const { doctorId } = req.body;
+
+      if (!doctorId)
+        return res.status(400).json({ message: "Doctor ID is required" });
+
+      const clinic = await Clinic.findOne({
+        "purchasedServices._id": req.params.serviceEntryId,
+      });
+
+      if (!clinic)
+        return res.status(404).json({ message: "Purchased service not found" });
+
+      const serviceEntry = clinic.purchasedServices.id(req.params.serviceEntryId);
+      serviceEntry.assignedDoctor = doctorId;
+
+      await clinic.save();
+
+      const refreshed = await Clinic.findById(clinic._id)
+        .populate("purchasedServices.serviceId", "serviceName")
+        .populate("purchasedServices.userId", "name")
+        .populate(
+          "purchasedServices.assignedDoctor",
+          "title firstName lastName specialist"
+        );
+
+      const updatedEntry = refreshed!.purchasedServices.id(req.params.serviceEntryId);
+
+      res.json({
+        message: "Doctor assigned successfully",
+        updatedEntry,
+      });
+    } catch (error) {
+      console.error("❌ Assign doctor error:", error);
+      res.status(500).json({ message: "Failed to assign doctor", error });
+    }
+  }
+);
+// ⭐ GET assigned services for a doctor
+router.get("/doctor/:doctorId/assigned-services", async (req, res) => {
+  try {
+    const doctorId = req.params.doctorId;
+
+    if (!doctorId) {
+      return res.status(400).json({ message: "Doctor ID is required" });
+    }
+
+    // Find all clinics that have assigned services
+    const clinics = await Clinic.find({
+      "purchasedServices.assignedDoctor": doctorId,
+    })
+      .populate("purchasedServices.serviceId", "serviceName price")
+      .populate("purchasedServices.userId", "name")
+      .select("name purchasedServices");
+
+    let results: any[] = [];
+
+    clinics.forEach((clinic) => {
+      clinic.purchasedServices.forEach((srv: any) => {
+        if (srv.assignedDoctor?.toString() === doctorId) {
+          results.push({
+            _id: srv._id,
+            serviceName: srv.serviceId?.serviceName,
+            userName: srv.userId?.name,
+            quantity: srv.quantity,
+            totalPrice: srv.totalPrice,
+            purchasedAt: srv.purchasedAt,
+            clinicName: clinic.name,
+          });
+        }
+      });
+    });
+
+    res.json(results);
+  } catch (error) {
+    console.error("❌ Error fetching assigned services:", error);
+    res.status(500).json({ message: "Failed to fetch assigned services" });
+  }
+});
+
 
 export default router;

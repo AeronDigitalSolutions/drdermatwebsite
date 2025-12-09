@@ -47,7 +47,7 @@ const ClinicSchema = new mongoose_1.Schema({
     address: { type: String, required: true },
     verified: { type: Boolean, default: false },
     trusted: { type: Boolean, default: false },
-    images: { type: [String], required: true }, // ✅ array of image URLs
+    images: { type: [String], required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     category: {
@@ -55,6 +55,17 @@ const ClinicSchema = new mongoose_1.Schema({
         ref: "ClinicCategory",
         required: true,
     },
+    // models/clinic.ts (only show purchasedServices part)
+    purchasedServices: [
+        {
+            serviceId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Service" },
+            userId: { type: mongoose_1.Schema.Types.ObjectId, ref: "UserProfile" },
+            quantity: Number,
+            totalPrice: Number,
+            purchasedAt: { type: Date, default: Date.now },
+            assignedDoctor: { type: mongoose_1.Schema.Types.ObjectId, ref: "Doctor", default: null } // <- added
+        },
+    ],
 }, { timestamps: true });
 ClinicSchema.pre("save", async function (next) {
     if (!this.isModified("password"))

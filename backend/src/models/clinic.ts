@@ -10,10 +10,19 @@ export interface IClinic extends Document {
   address: string;
   verified: boolean;
   trusted: boolean;
-  images: string[]; // ✅ multiple images
+  images: string[];
   email: string;
   password: string;
   category: mongoose.Types.ObjectId;
+
+  purchasedServices: {
+    serviceId: mongoose.Types.ObjectId;
+    userId: mongoose.Types.ObjectId;
+    quantity: number;
+    totalPrice: number;
+    purchasedAt: Date;
+  }[];
+
   comparePassword(candidate: string): Promise<boolean>;
 }
 
@@ -26,14 +35,29 @@ const ClinicSchema: Schema = new Schema(
     address: { type: String, required: true },
     verified: { type: Boolean, default: false },
     trusted: { type: Boolean, default: false },
-    images: { type: [String], required: true }, // ✅ array of image URLs
+    images: { type: [String], required: true },
+
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+
     category: {
       type: Schema.Types.ObjectId,
       ref: "ClinicCategory",
       required: true,
     },
+
+    // models/clinic.ts (only show purchasedServices part)
+purchasedServices: [
+  {
+    serviceId: { type: Schema.Types.ObjectId, ref: "Service" },
+    userId: { type: Schema.Types.ObjectId, ref: "UserProfile" },
+    quantity: Number,
+    totalPrice: Number,
+    purchasedAt: { type: Date, default: Date.now },
+    assignedDoctor: { type: Schema.Types.ObjectId, ref: "Doctor", default: null } // <- added
+  },
+],
+
   },
   { timestamps: true }
 );

@@ -18,6 +18,7 @@ import ListOfAppointments from "@/components/ClinicAdmin/ListOfAppointments";
 import ListOfDoctors from "@/components/ClinicAdmin/ListOfDoctors";
 import ListOfServices from "@/components/ClinicAdmin/ListOfServices";
 import ClinicDasboardList from "@/components/ClinicAdmin/ClinicDashboardList";
+import PurchasedServices from "@/components/ClinicAdmin/PurchasedServices";
 
 const ClinicDashboard = () => {
   const router = useRouter();
@@ -187,6 +188,22 @@ const ClinicDashboard = () => {
                   <span className={styles.label}>Services List</span>
                 </span>
               </li>
+
+
+
+              <li
+  onClick={() => {
+    setActiveSection("purchasedservices");
+    setSidebarOpen(false);
+  }}
+  className={styles.menuItem}
+>
+  <span className={styles.iconLabel}>
+    <FiUsers className={styles.icon} />
+    <span className={styles.label}>Purchased Services</span>
+  </span>
+</li>
+
             </ul>
 
             {/* ✅ Logout Button */}
@@ -208,6 +225,8 @@ const ClinicDashboard = () => {
             {activeSection === "listofappointments" && <ListOfAppointments />}
             {activeSection === "listofdoctors" && <ListOfDoctors />}
             {activeSection === "serviceslist" && <ListOfServices />}
+            {activeSection === "purchasedservices" && <PurchasedServices />}
+
           </div>
         </div>
       </div>

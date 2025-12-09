@@ -8,7 +8,11 @@ import { CartItem } from "./CartContext";
 export interface IOrder {
   _id?: string;
   userId?: string;
-  products: CartItem[];
+  products: {
+    id: string;
+    quantity: number;
+    price: number;
+  }[];
   totalAmount: number;
   address: { type: string; address: string };
   createdAt?: string;
@@ -16,28 +20,49 @@ export interface IOrder {
 
 interface OrderContextType {
   orders: IOrder[];
-  createOrder: (items: CartItem[], total: number, address: { type: string; address: string }) => Promise<void>;
+  createOrder: (
+    items: CartItem[],
+    total: number,
+    address: { type: string; address: string }
+  ) => Promise<void>;
   setOrders: React.Dispatch<React.SetStateAction<IOrder[]>>;
 }
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
-export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
+export const OrderProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [orders, setOrders] = useState<IOrder[]>([]);
 
-  const createOrder = async (items: CartItem[], total: number, address: { type: string; address: string }) => {
+  const createOrder = async (
+    items: CartItem[],
+    total: number,
+    address: { type: string; address: string }
+  ) => {
     const userId = Cookies.get("userId") || localStorage.getItem("userId");
     if (!userId) throw new Error("User not logged in");
 
     try {
+     const formattedProducts = items.map((item) => ({
+  id: item.id,
+  name: item.name,          // ⭐ REQUIRED
+  price: item.price,
+  quantity: item.quantity,
+  image: item.image,        // optional but useful
+}));
+
       const res = await axios.post(`${API_BASE}/orders`, {
         userId,
-        products: items,
+        products: formattedProducts,
         totalAmount: total,
         address,
       });
-      setOrders(prev => [...prev, res.data]);
+
+      setOrders((prev) => [...prev, res.data]);
     } catch (err) {
       console.error("❌ Failed to create order:", err);
       throw err;

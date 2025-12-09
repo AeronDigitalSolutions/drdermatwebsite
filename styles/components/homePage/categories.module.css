@@ -1,3 +1,4 @@
+/* 🔥 MAIN CONTAINER */
 .cliniContainer {
   background-color: white;
   padding: 1rem 4rem;
@@ -11,27 +12,38 @@
   padding-bottom: 20px;
 }
 
+/* 🔥 GRID LAYOUT */
 .gridContainer {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: 22px;
   justify-content: center;
   padding: 20px 40px;
   max-width: 1151px;
   margin: 0 auto;
 }
 
+/* 🔥 CATEGORY CARD (new soft hover effect + 3D depth) */
 .categoryCard {
   width: 100%;
   aspect-ratio: 1 / 1;
-  border-radius: 10px;
+  border-radius: 16px;
   overflow: hidden;
   cursor: pointer;
   background: none;
   border: none;
   position: relative;
+
+  transition: transform 0.4s cubic-bezier(.13,.45,.21,1.02), 
+              box-shadow 0.4s ease;
 }
 
+.categoryCard:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0px 14px 32px rgba(0, 0, 0, 0.25);
+}
+
+/* 🔥 IMAGE WRAPPER */
 .imageWrapper {
   position: relative;
   width: 100%;
@@ -39,122 +51,98 @@
   overflow: hidden;
 }
 
+/* 🔥 IMAGE — enhanced zoom + depth + shine */
 .categoryImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.6s ease;
+
+  transition: transform 0.65s ease, 
+              filter 0.4s ease,
+              opacity 0.3s ease;
+  will-change: transform;
 }
 
-/* Full slide animation for image from left */
-@keyframes slideImageFromLeftFull {
-  from {
-    transform: translateX(-100%);
-    opacity: 0.9;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-/* Reverse slide animation for image to left */
-@keyframes slideImageToLeftFull {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(-100%);
-    opacity: 0.9;
-  }
-}
-
-/* Full slide animation for overlay from right */
-@keyframes slideOverlayFromRightFull {
-  from {
-    right: -100%;
-  }
-  to {
-    right: 0;
-  }
-}
-
-/* Reverse slide animation for overlay to right */
-@keyframes slideOverlayToRightFull {
-  from {
-    right: 0;
-  }
-  to {
-    right: -100%;
-  }
-}
-
+/* ZOOM + DEPTH + SHINE */
 .categoryCard:hover .categoryImg {
-  animation: slideImageFromLeftFull 0.6s ease forwards;
+  transform: scale(1.18) translateZ(0);
+  filter: brightness(1.2) contrast(1.05);
+  opacity: 0.96;
 }
 
-.categoryCard .categoryImg.reverse {
-  animation: slideImageToLeftFull 0.6s ease forwards;
+/* ✨ SHINE OVERLAY (premium highlight) */
+.categoryCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+  transform: skewX(-20deg);
+  transition: all 0.8s ease;
 }
 
+.categoryCard:hover::before {
+  left: 130%;
+}
+
+/* 🔥 OVERLAY (smoothest possible slide — fixed version) */
 .overlay {
   position: absolute;
   top: 0;
   right: -100%;
   width: 100%;
   height: 100%;
-  background: rgba(225, 223, 223, 0.75);
+
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid #c9dff2;
+  border-radius: 16px;
+
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 1px solid #155e95;
-  border-radius: 10px;
-  transition: none;
+
+  /* smooth-performance GPU animation */
+  transition: transform 0.55s cubic-bezier(.13,.45,.21,1.02);
+  transform: translateX(100%);
 }
 
 .categoryCard:hover .overlay {
-  animation: slideOverlayFromRightFull 0.5s ease forwards;
+  transform: translateX(0%);
 }
 
-.categoryCard .overlay.reverse {
-  animation: slideOverlayToRightFull 0.5s ease forwards;
-}
-
+/* 🔥 TEXT FADE + SLIDE IN */
 .overlayContent {
   display: flex;
   flex-direction: column;
   align-items: center;
   color: #155e95;
-  font-weight: bold;
+  font-weight: 700;
   opacity: 0;
-  animation: fadeInText 0.5s ease forwards;
-  animation-delay: 0.5s;
+  transform: translateY(8px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
 }
 
-@keyframes fadeInText {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* fade in text AFTER overlay arrives */
+.categoryCard:hover .overlayContent {
+  opacity: 1;
+  transform: translateY(0px);
 }
 
 .categoryText {
   font-size: 18px;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
 .arrow {
-  font-size: 24px;
+  font-size: 26px;
   color: #155e95;
 }
 
-/* Responsive adjustments */
+/* 🔥 RESPONSIVE ADJUSTMENTS */
 @media (max-width: 1024px) {
   .gridContainer {
     grid-template-columns: repeat(3, 1fr);
@@ -167,150 +155,19 @@
   }
 }
 
-@media (max-width: 480px) {
-  .gridContainer {
-    grid-template-columns: repeat(1, 1fr);
-  }
-}
+/* Mobile optimized */
 @media (max-width: 480px) {
   .cliniContainer {
-    padding: 1rem 10px; /* adds margin inside container */
+    padding: 1rem 10px;
   }
 
   .gridContainer {
-    grid-template-columns: repeat(3, 1fr); /* show 3 items in a row */
-    gap: 10px; /* spacing between items */
-    padding: 0 10px; /* margin on both sides */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    padding: 0 10px;
   }
 
   .categoryCard {
-    width: 100%;
     aspect-ratio: 1 / 1;
   }
-}
-.cliniContainer {
-  background-color: white;
-  padding: 1rem 4rem;
-}
-
-.clinicTitle {
-  font-size: 26px;
-  font-weight: 700;
-  text-align: center;
-  margin-top: 20px;
-  padding-bottom: 20px;
-}
-
-.gridContainer {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  justify-content: center;
-  padding: 20px 40px;
-  max-width: 1151px;
-  margin: 0 auto;
-}
-
-.categoryCard {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  border-radius: 10px;
-  overflow: hidden;
-  cursor: pointer;
-  background: none;
-  border: none;
-  position: relative;
-}
-
-.imageWrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.categoryImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.6s ease;
-}
-
-/* Image slide animations */
-@keyframes slideImageFromLeftFull {
-  from { transform: translateX(-100%); opacity: 0.9; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes slideImageToLeftFull {
-  from { transform: translateX(0); opacity: 1; }
-  to { transform: translateX(-100%); opacity: 0.9; }
-}
-
-@keyframes slideOverlayFromRightFull {
-  from { right: -100%; }
-  to { right: 0; }
-}
-
-@keyframes slideOverlayToRightFull {
-  from { right: 0; }
-  to { right: -100%; }
-}
-
-.categoryCard:hover .categoryImg { animation: slideImageFromLeftFull 0.6s ease forwards; }
-.categoryCard .categoryImg.reverse { animation: slideImageToLeftFull 0.6s ease forwards; }
-
-.overlay {
-  position: absolute;
-  top: 0;
-  right: -100%;
-  width: 100%;
-  height: 100%;
-  background: rgba(225, 223, 223, 0.75);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid #155e95;
-  border-radius: 10px;
-}
-
-.categoryCard:hover .overlay { animation: slideOverlayFromRightFull 0.5s ease forwards; }
-.categoryCard .overlay.reverse { animation: slideOverlayToRightFull 0.5s ease forwards; }
-
-.overlayContent {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: #155e95;
-  font-weight: bold;
-  opacity: 0;
-  animation: fadeInText 0.5s ease forwards;
-  animation-delay: 0.5s;
-}
-
-@keyframes fadeInText {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.categoryText {
-  font-size: 18px;
-  margin-bottom: 5px;
-}
-
-.arrow {
-  font-size: 24px;
-  color: #155e95;
-}
-
-/* Responsive adjustments */
-@media (max-width: 1024px) { .gridContainer { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 768px) { .gridContainer { grid-template-columns: repeat(2, 1fr); } }
-
-
-@media (max-width: 480px) {
-  .cliniContainer { padding: 1rem 10px; }
-  .gridContainer { grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 10px; }
-  .categoryCard { width: 100%; aspect-ratio: 1 / 1; }
 }

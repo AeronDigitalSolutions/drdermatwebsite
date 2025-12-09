@@ -73,4 +73,28 @@ router.delete("/:id", async (req, res) => {
         res.status(500).json({ message: "Failed to delete service" });
     }
 });
+// POST create service
+router.post("/", async (req, res) => {
+    try {
+        const { serviceName, clinic, categories, images, description, price, discountedPrice } = req.body;
+        if (!clinic) {
+            return res.status(400).json({ message: "Clinic ID is required" });
+        }
+        const newService = new services_1.default({
+            serviceName,
+            clinic, // ⭐ REQUIRED FIELD
+            categories,
+            images,
+            description,
+            price,
+            discountedPrice,
+        });
+        const saved = await newService.save();
+        res.status(201).json(saved);
+    }
+    catch (err) {
+        console.error("❌ Error creating service:", err);
+        res.status(500).json({ message: "Failed to create service" });
+    }
+});
 exports.default = router;

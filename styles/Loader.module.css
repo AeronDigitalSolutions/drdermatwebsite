@@ -1,54 +1,41 @@
-/* styles/Loader.module.css */
-.overlay {
+.blurOverlay {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(10px);
   display: flex;
-  align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(4px);
+  align-items: center;
+  z-index: 999999; 
+  animation: fadeLoader 0.4s ease;
 }
 
+@keyframes fadeLoader {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Glow spinner */
 .loaderContainer {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 20px;
 }
 
 .spinner {
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: 70px;
+  border: 6px solid rgba(0,0,0,0.1);
+  border-top-color: #007bff;
   border-radius: 50%;
-  border: 6px solid rgba(0, 0, 0, 0.1);
-  border-left-color: #0070f3;
-  animation: spin 1s linear infinite;
-}
-
-.progressBar {
-  width: 200px;
-  height: 10px;
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
-  overflow: hidden;
-}
-
-.progressFill {
-  height: 100%;
-  background-color: #0070f3;
-  transition: width 0.3s ease;
-}
-
-.message {
-  font-size: 16px;
-  color: #333;
-  text-align: center;
-  margin: 0;
+  animation: spin 0.8s linear infinite, glow 1.2s ease-in-out infinite alternate;
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 4px #007bff; }
+  to { box-shadow: 0 0 18px #007bff; }
 }

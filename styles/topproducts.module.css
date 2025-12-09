@@ -83,7 +83,7 @@
 
 .category {
   font-size: 0.7rem;
-  color: #9ca3af;
+  color: hsl(218, 11%, 65%);
   margin-bottom: 0.5rem;
   display: none;
 }

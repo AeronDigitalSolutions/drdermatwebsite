@@ -9,7 +9,9 @@ const clinic_1 = __importDefault(require("../models/clinic"));
 const clinicCategory_1 = __importDefault(require("../models/clinicCategory"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const router = express_1.default.Router();
-// ✅ Create Clinic
+/* --------------------------------------
+   CREATE CLINIC
+----------------------------------------- */
 router.post("/", async (req, res) => {
     try {
         const { name, mobile, whatsapp, mapLink, address, verified, trusted, images, email, password, category, } = req.body;
@@ -51,7 +53,9 @@ router.post("/", async (req, res) => {
         res.status(500).json({ message: "Failed to create clinic.", error: err });
     }
 });
-// ✅ Clinic Login
+/* --------------------------------------
+   CLINIC LOGIN
+----------------------------------------- */
 router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -76,7 +80,9 @@ router.post("/login", async (req, res) => {
         res.status(500).json({ message: "Login failed", error: err });
     }
 });
-// ✅ Get all clinics
+/* --------------------------------------
+   GET ALL CLINICS
+----------------------------------------- */
 router.get("/", async (_req, res) => {
     try {
         const clinics = await clinic_1.default.find()
@@ -88,7 +94,9 @@ router.get("/", async (_req, res) => {
         res.status(500).json({ message: "Failed to fetch clinics.", error: err });
     }
 });
-// ✅ Get single clinic
+/* --------------------------------------
+   GET SINGLE CLINIC
+----------------------------------------- */
 router.get("/:id", async (req, res) => {
     try {
         const clinic = await clinic_1.default.findById(req.params.id)
@@ -102,7 +110,9 @@ router.get("/:id", async (req, res) => {
         res.status(500).json({ message: "Failed to fetch clinic.", error: err });
     }
 });
-// ✅ Update clinic
+/* --------------------------------------
+   UPDATE CLINIC
+----------------------------------------- */
 router.put("/:id", async (req, res) => {
     try {
         const { name, mobile, whatsapp, mapLink, address, verified, trusted, images, category, } = req.body;
@@ -125,7 +135,9 @@ router.put("/:id", async (req, res) => {
         res.status(500).json({ message: "Failed to update clinic.", error: err });
     }
 });
-// ✅ Delete clinic
+/* --------------------------------------
+   DELETE CLINIC
+----------------------------------------- */
 router.delete("/:id", async (req, res) => {
     try {
         const deletedClinic = await clinic_1.default.findByIdAndDelete(req.params.id);
@@ -135,6 +147,93 @@ router.delete("/:id", async (req, res) => {
     }
     catch (err) {
         res.status(500).json({ message: "Failed to delete clinic.", error: err });
+    }
+});
+/* --------------------------------------
+   GET PURCHASED SERVICES (UPDATED)
+----------------------------------------- */
+router.get("/:id/purchased-services", async (req, res) => {
+    try {
+        const clinic = await clinic_1.default.findById(req.params.id)
+            .populate("purchasedServices.serviceId", "serviceName price images")
+            .populate("purchasedServices.userId", "name email")
+            .populate("purchasedServices.assignedDoctor", "title firstName lastName specialist"); // ⭐ NEW
+        if (!clinic)
+            return res.status(404).json({ message: "Clinic not found" });
+        res.json(clinic.purchasedServices || []);
+    }
+    catch (err) {
+        console.error("❌ Error fetching purchased services:", err);
+        res.status(500).json({ message: "Failed to fetch purchased services" });
+    }
+});
+/* --------------------------------------
+   ASSIGN DOCTOR TO PURCHASED SERVICE (UPDATED)
+----------------------------------------- */
+router.put("/purchased-services/:serviceEntryId/assign-doctor", async (req, res) => {
+    try {
+        const { doctorId } = req.body;
+        if (!doctorId)
+            return res.status(400).json({ message: "Doctor ID is required" });
+        const clinic = await clinic_1.default.findOne({
+            "purchasedServices._id": req.params.serviceEntryId,
+        });
+        if (!clinic)
+            return res.status(404).json({ message: "Purchased service not found" });
+        const serviceEntry = clinic.purchasedServices.id(req.params.serviceEntryId);
+        serviceEntry.assignedDoctor = doctorId;
+        await clinic.save();
+        const refreshed = await clinic_1.default.findById(clinic._id)
+            .populate("purchasedServices.serviceId", "serviceName")
+            .populate("purchasedServices.userId", "name")
+            .populate("purchasedServices.assignedDoctor", "title firstName lastName specialist");
+        const updatedEntry = refreshed.purchasedServices.id(req.params.serviceEntryId);
+        res.json({
+            message: "Doctor assigned successfully",
+            updatedEntry,
+        });
+    }
+    catch (error) {
+        console.error("❌ Assign doctor error:", error);
+        res.status(500).json({ message: "Failed to assign doctor", error });
+    }
+});
+// ⭐ GET assigned services for a doctor
+router.get("/doctor/:doctorId/assigned-services", async (req, res) => {
+    try {
+        const doctorId = req.params.doctorId;
+        if (!doctorId) {
+            return res.status(400).json({ message: "Doctor ID is required" });
+        }
+        // Find all clinics that have assigned services
+        const clinics = await clinic_1.default.find({
+            "purchasedServices.assignedDoctor": doctorId,
+        })
+            .populate("purchasedServices.serviceId", "serviceName price")
+            .populate("purchasedServices.userId", "name")
+            .select("name purchasedServices");
+        let results = [];
+        clinics.forEach((clinic) => {
+            clinic.purchasedServices.forEach((srv) => {
+                var _a, _b, _c;
+                if (((_a = srv.assignedDoctor) === null || _a === void 0 ? void 0 : _a.toString()) === doctorId) {
+                    results.push({
+                        _id: srv._id,
+                        serviceName: (_b = srv.serviceId) === null || _b === void 0 ? void 0 : _b.serviceName,
+                        userName: (_c = srv.userId) === null || _c === void 0 ? void 0 : _c.name,
+                        quantity: srv.quantity,
+                        totalPrice: srv.totalPrice,
+                        purchasedAt: srv.purchasedAt,
+                        clinicName: clinic.name,
+                    });
+                }
+            });
+        });
+        res.json(results);
+    }
+    catch (error) {
+        console.error("❌ Error fetching assigned services:", error);
+        res.status(500).json({ message: "Failed to fetch assigned services" });
     }
 });
 exports.default = router;

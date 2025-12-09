@@ -57,3 +57,28 @@ a {
     color-scheme: dark;
   }
 }
+/* --- NProgress style --- */
+#nprogress .bar {
+  background: #007bff !important;
+  height: 3px !important;
+}
+
+#nprogress .peg {
+  box-shadow: 0 0 10px #007bff, 0 0 5px #007bff !important;
+}
+/* ---- PAGE TRANSITIONS ---- */
+.page-transition {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.6s ease;
+}
+
+.page-enter {
+  opacity: 1;
+  transform: translateY(0px);
+}
+
+.page-exit {
+  opacity: 0;
+  transform: translateY(15px);
+}

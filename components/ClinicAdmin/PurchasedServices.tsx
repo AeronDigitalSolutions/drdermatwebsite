@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-const API_BASE = "https://drdermatweb.onrender.com/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 export default function PurchasedServices() {
   const router = useRouter();

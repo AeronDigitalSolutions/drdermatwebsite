@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import Joi from 'joi';
+const Joi = require("joi");
 
 export const validateSignup = (req: Request, res: Response, next: NextFunction) => {
   const schema = Joi.object({

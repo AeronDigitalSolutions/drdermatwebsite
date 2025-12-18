@@ -1,84 +1,87 @@
 .sliderWrapper {
-  width: 90%;
-  max-width: 1200px;
-  margin: 1rem auto;
-  overflow: hidden;
+  width: 92%;
+  max-width: 1400px;
+  margin: 2rem auto;
   position: relative;
-  border-radius: 8px;
 }
 
+.viewport {
+  overflow: hidden;
+}
+
+/* SLIDER */
 .slider {
   display: flex;
-  transition: transform 0.5s ease-in-out;
-  height: auto; /* ✅ Allow height to adjust to image */
 }
 
+/* 3 slides visible */
 .slide {
-  flex: 0 0 100%;
-  position: relative; /* Required for next/image layout="fill" */
+  flex: 0 0 calc(100% / 3);
+  padding: 0 10px;
 }
 
 .slide img {
   width: 100%;
-  height: auto;        /* ✅ Maintain aspect ratio */
-  object-fit: contain;  /* ✅ Show complete image */
+  height: 220px;
+  object-fit: cover;
+  border-radius: 14px;
   display: block;
-  border-radius: 8px;
 }
 
-/* Dots */
-.dots {
+/* TOP CONTROLS */
+.topControls {
+  position: absolute;
+  top: -18px;
+  right: 10px;
   display: flex;
-  justify-content: center;
   gap: 8px;
-  margin-top: 10px;
+  z-index: 10;
 }
 
-.dot {
-  width: 8px;
-  height: 8px;
-  background: #ccc;
+.topControls button,
+.playPause {
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
+  background: #fff;
+  border: 1px solid #ddd;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.activeDot {
-  background: #000;
+/* BOTTOM BAR */
+.bottomBar {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-/* Responsive */
+.progressTrack {
+  flex: 1;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
+}
 
-/* Tablets & large phones */
+.progress {
+  height: 100%;
+  background: #111;
+  transition: width 0.4s ease;
+}
+
+/* RESPONSIVE */
 @media (max-width: 1024px) {
-  .sliderWrapper {
-    width: 95%;
-  }
-
-  .slide img {
-    height: auto;
+  .slide {
+    flex: 0 0 50%;
   }
 }
 
-/* Small phones (480px) */
-@media (max-width: 480px) {
-  .sliderWrapper {
-    width: 98%;
-    margin: 0.5rem auto;
-  }
-
-  .slide img {
-    height: auto;
-  }
-}
-
-/* Extra small phones (≤370px) */
-@media (max-width: 370px) {
-  .sliderWrapper {
-    width: 100%;
-    margin: 0.5rem auto;
-  }
-
-  .slide img {
-    height: auto;
+@media (max-width: 640px) {
+  .slide {
+    flex: 0 0 100%;
   }
 }

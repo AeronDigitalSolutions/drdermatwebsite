@@ -503,3 +503,42 @@
     font-size: 0.65rem;
   }
 }
+/* 🔥 Force 6 × 3 layout */
+.grid {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+/* 🔥 Show More card */
+.showMore {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #155e95;
+  color: #155e95;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.showMore span {
+  margin-top: 8px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -12,6 +12,7 @@ import {
   FiX,
   FiClipboard,
 } from "react-icons/fi";
+import ServiceHistory from "@/components/UserPanel/ServiceHistory";
 
 import Topbar from "@/components/Layout/Topbar";
 import Footer from "@/components/Layout/Footer";
@@ -19,6 +20,7 @@ import MobileNavbar from "@/components/Layout/MobileNavbar";
 import UserProfile from "@/components/UserPanel/UserProfile";
 import OrderHistory from "@/components/UserPanel/OrderHistory";
 import AppointmentHistory from "@/components/UserPanel/AppointmentHistory";
+import Prescription from "@/components/UserPanel/Prescription";
 
 interface User {
   name?: string;
@@ -206,6 +208,38 @@ const UserDashboard: React.FC = () => {
                 <FiClipboard className={styles.icon} />
                 <span className={styles.label}>Appointment History</span>
               </li>
+
+
+
+<li
+  onClick={() => {
+    setActiveSection("servicehistory");
+    setSidebarOpen(false);
+  }}
+  className={`${styles.menuItem} ${
+    activeSection === "servicehistory" ? styles.active : ""
+  }`}
+>
+  <FiClipboard className={styles.icon} />
+  <span className={styles.label}>Service History</span>
+</li>
+
+
+<li
+  onClick={() => {
+    setActiveSection("prescription");
+    setSidebarOpen(false);
+  }}
+  className={`${styles.menuItem} ${
+    activeSection === "prescription" ? styles.active : ""
+  }`}
+>
+  <FiClipboard className={styles.icon} />
+  <span className={styles.label}>Prescription</span>
+</li>
+
+
+
             </ul>
 
             <button className={styles.logoutButton} onClick={handleLogout}>
@@ -245,6 +279,9 @@ const UserDashboard: React.FC = () => {
 
             {activeSection === "orderhistory" && <OrderHistory />}
             {activeSection === "appointmenthistory" && <AppointmentHistory />}
+            {activeSection === "servicehistory" && <ServiceHistory />}
+{activeSection === "prescription" && <Prescription />}
+
           </div>
         </div>
       </div>

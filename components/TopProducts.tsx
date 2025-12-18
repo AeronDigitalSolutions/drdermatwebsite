@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import styles from "@/styles/topproducts.module.css";
 import { useCart } from "@/context/CartContext";
-import { FaCartPlus, FaHeart, FaSearch } from "react-icons/fa";
+import { FaCartPlus, FaHeart, FaSearch, FaArrowRight } from "react-icons/fa";
 
 interface Product {
   _id?: string;
@@ -18,8 +18,8 @@ interface Product {
   images?: string[];
 }
 
-// ✅ API base from env variable
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const TopProducts: React.FC = () => {
   const [topProducts, setTopProducts] = useState<(Product | null)[]>([]);
@@ -91,13 +91,16 @@ const TopProducts: React.FC = () => {
     alert(`Proceeding to checkout for ${product.name}`);
   };
 
+  /* 🔥 NEW: limit to 17 products */
+  const displayProducts = topProducts.slice(0, 17);
+
   return (
     <div className={styles.container}>
       {loading && <p>Loading...</p>}
       {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.grid}>
-        {topProducts.map((product, idx) => {
+        {displayProducts.map((product, idx) => {
           if (!product) {
             return (
               <div key={idx} className={styles.card}>
@@ -132,45 +135,33 @@ const TopProducts: React.FC = () => {
                   <img
                     src={getImage(mainImage)}
                     alt={product.name}
-                    className={`${styles.image} ${
-                      hoveredIndex === idx ? styles.imageHover : ""
-                    }`}
+                    className={styles.image}
                   />
                 ) : (
                   <div className={styles.noImage}>No Image</div>
                 )}
 
                 {hasDiscount && (
-                  <span
-                    className={`${styles.badge} ${
-                      hoveredIndex === idx ? styles.badgeHover : ""
-                    }`}
-                  >
-                    -{discountPercent}%
-                  </span>
+                  <span className={styles.badge}>-{discountPercent}%</span>
                 )}
 
-{hoveredIndex === idx && window.innerWidth > 640 && (
-  <div className={styles.overlay}>
-    <div className={styles.iconContainer}>
-      <FaCartPlus
-        className={styles.icon}
-        onClick={(e) => handleAddToCart(e, product)}
-      />
-      <FaHeart className={styles.icon} />
-      <FaSearch className={styles.icon} />
-    </div>
-  </div>
-)}
-
+                {hoveredIndex === idx && window.innerWidth > 640 && (
+                  <div className={styles.overlay}>
+                    <div className={styles.iconContainer}>
+                      <FaCartPlus
+                        className={styles.icon}
+                        onClick={(e) => handleAddToCart(e, product)}
+                      />
+                      <FaHeart className={styles.icon} />
+                      <FaSearch className={styles.icon} />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <h3 className={styles.name}>{product.name}</h3>
               {product.company && (
                 <p className={styles.company}>{product.company}</p>
-              )}
-              {product.category && (
-                <p className={styles.category}>{product.category}</p>
               )}
 
               <div className={styles.priceRow}>
@@ -201,6 +192,15 @@ const TopProducts: React.FC = () => {
             </div>
           );
         })}
+
+        {/* 🔥 18th TILE — SHOW MORE */}
+        <div
+          className={`${styles.card} ${styles.showMore}`}
+          onClick={() => router.push("/products")}
+        >
+          <FaArrowRight size={32} />
+          <span>Show More</span>
+        </div>
       </div>
     </div>
   );

@@ -2,7 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 // @ts-ignore
-import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "react-beautiful-dnd";
 import styles from "@/styles/Dashboard/listoftopproducts.module.css";
 
 interface Product {
@@ -15,11 +20,15 @@ interface Product {
   images?: string[];
 }
 
-// ✅ Use environment variable for API base URL
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
+const MAX_TOP_PRODUCTS = 17;
 
 const ListOfTopProduct: React.FC = () => {
-  const [topProducts, setTopProducts] = useState<(Product | null)[]>(Array(8).fill(null));
+  const [topProducts, setTopProducts] = useState<(Product | null)[]>(
+    Array(MAX_TOP_PRODUCTS).fill(null)
+  );
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -27,32 +36,26 @@ const ListOfTopProduct: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [mainImages, setMainImages] = useState<Record<string, string>>({});
 
-  // Fetch all products + top products
+  /* ================= FETCH ================= */
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        setError(null);
 
         const resAll = await fetch(`${API_URL}/products`);
-        if (!resAll.ok) throw new Error("Failed to fetch all products");
         const allData: Product[] = await resAll.json();
         setAllProducts(allData);
 
         const resTop = await fetch(`${API_URL}/top-products`);
-        if (!resTop.ok) throw new Error("Failed to fetch top products");
         const topData: (Product | null)[] = await resTop.json();
 
         const padded = [...topData];
-        while (padded.length < 8) padded.push(null);
-        setTopProducts(padded);
+        while (padded.length < MAX_TOP_PRODUCTS) padded.push(null);
+        setTopProducts(padded.slice(0, MAX_TOP_PRODUCTS));
 
-        // Set default main image for each product
         const initial: Record<string, string> = {};
         allData.forEach((p) => {
-          if (p._id && p.images?.length) {
-            initial[p._id] = p.images[0];
-          }
+          if (p._id && p.images?.length) initial[p._id] = p.images[0];
         });
         setMainImages(initial);
       } catch (err: any) {
@@ -61,64 +64,57 @@ const ListOfTopProduct: React.FC = () => {
         setLoading(false);
       }
     };
+
     fetchData();
   }, []);
 
-  // Save top products to backend
+  /* ================= SAVE ================= */
   const saveTopProducts = async (products: (Product | null)[]) => {
-    try {
-      await fetch(`${API_URL}/top-products`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(products),
-      });
-    } catch (err) {
-      console.error("Failed to save top products:", err);
-    }
+    await fetch(`${API_URL}/top-products`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(products),
+    });
   };
 
-  // Add product to top
+  /* ================= ADD ================= */
   const handleAddProduct = (product: Product) => {
     const firstEmptyIndex = topProducts.findIndex((p) => p === null);
     if (firstEmptyIndex === -1) {
-      alert("Maximum 8 products allowed!");
+      alert(`Maximum ${MAX_TOP_PRODUCTS} products allowed`);
       return;
     }
-    const newTopProducts = [...topProducts];
-    newTopProducts[firstEmptyIndex] = product;
-    setTopProducts(newTopProducts);
-    saveTopProducts(newTopProducts);
 
-    // Initialize main image
-    if (product._id && product.images?.length) {
-      setMainImages((prev) => ({ ...prev, [product._id]: product.images![0] }));
-    }
+    const updated = [...topProducts];
+    updated[firstEmptyIndex] = product;
+    setTopProducts(updated);
+    saveTopProducts(updated);
 
     setShowModal(false);
     setSearchTerm("");
   };
 
-  // Delete product from top
+  /* ================= DELETE ================= */
   const handleDeleteProduct = (index: number) => {
-    const newTopProducts = [...topProducts];
-    newTopProducts[index] = null;
-    setTopProducts(newTopProducts);
-    saveTopProducts(newTopProducts);
+    const updated = [...topProducts];
+    updated[index] = null;
+    setTopProducts(updated);
+    saveTopProducts(updated);
   };
 
-  // Drag & drop reorder
+  /* ================= DRAG ================= */
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
     const items = Array.from(topProducts);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
+    const [moved] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, moved);
     setTopProducts(items);
     saveTopProducts(items);
   };
 
   return (
     <div className={styles.topProductContainer}>
-      <h2>Top Products</h2>
+      <h2>Top Products (17 slots)</h2>
 
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="topProducts" direction="horizontal">
@@ -129,45 +125,40 @@ const ListOfTopProduct: React.FC = () => {
               {...provided.droppableProps}
             >
               {topProducts.map((product, idx) => (
-                <Draggable key={idx} draggableId={idx.toString()} index={idx}>
-                  {(providedDraggable) => (
+                <Draggable
+                  key={idx}
+                  draggableId={idx.toString()}
+                  index={idx}
+                >
+                  {(drag) => (
                     <div
-                      ref={providedDraggable.innerRef}
-                      {...providedDraggable.draggableProps}
-                      {...providedDraggable.dragHandleProps}
-                      className={`${styles.productCard} ${!product ? styles.emptyCard : ""}`}
+                      ref={drag.innerRef}
+                      {...drag.draggableProps}
+                      {...drag.dragHandleProps}
+                      className={`${styles.productCard} ${
+                        !product ? styles.emptyCard : ""
+                      }`}
                       onClick={() => !product && setShowModal(true)}
                     >
                       {product ? (
-                        <div className={styles.productItem}>
+                        <>
                           <img
-                            src={mainImages[product._id] || product.images?.[0] || "/fallback.png"}
-                            alt={product.name}
+                            src={
+                              mainImages[product._id] ||
+                              product.images?.[0] ||
+                              "/fallback.png"
+                            }
                             className={styles.mainImage}
                           />
-
-                          {product.images && product.images.length > 1 && (
-                            <div className={styles.imageRow}>
-                              {product.images.slice(0, 4).map((img, i) => (
-                                <img
-                                  key={i}
-                                  src={img}
-                                  alt={`${product.name}-thumb-${i}`}
-                                  className={`${styles.imageThumb} ${
-                                    mainImages[product._id] === img ? styles.activeThumb : ""
-                                  }`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setMainImages((prev) => ({ ...prev, [product._id]: img }));
-                                  }}
-                                />
-                              ))}
-                            </div>
-                          )}
-
-                          <h3 className={styles.productName}>{product.name}</h3>
-                          <p className={styles.productCompany}>{product.company}</p>
-                          <p className={styles.productPrice}>₹{product.price}</p>
+                          <h3 className={styles.productName}>
+                            {product.name}
+                          </h3>
+                          <p className={styles.productCompany}>
+                            {product.company}
+                          </p>
+                          <p className={styles.productPrice}>
+                            ₹{product.price}
+                          </p>
                           <button
                             className={styles.deleteButton}
                             onClick={(e) => {
@@ -177,7 +168,7 @@ const ListOfTopProduct: React.FC = () => {
                           >
                             Delete
                           </button>
-                        </div>
+                        </>
                       ) : (
                         <p>Empty Slot</p>
                       )}
@@ -185,60 +176,55 @@ const ListOfTopProduct: React.FC = () => {
                   )}
                 </Draggable>
               ))}
+
+              {/* 🔥 18th TILE — SHOW MORE */}
+              <div className={styles.showMoreCard}>
+                <span>Explore More</span>
+                <small>Frontend View</small>
+              </div>
+
               {provided.placeholder}
             </div>
           )}
         </Droppable>
       </DragDropContext>
 
-      <button className={styles.addProductButton} onClick={() => setShowModal(true)}>
+      <button
+        className={styles.addProductButton}
+        onClick={() => setShowModal(true)}
+      >
         Add Product
       </button>
 
+      {/* MODAL */}
       {showModal && (
         <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <h3>Select a Product</h3>
-
+          <div
+            className={styles.modalContent}
+            onClick={(e) => e.stopPropagation()}
+          >
             <input
-              type="text"
               placeholder="Search products..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className={styles.searchInput}
             />
 
-            {loading ? (
-              <p>Loading...</p>
-            ) : error ? (
-              <p style={{ color: "red" }}>{error}</p>
-            ) : allProducts.length === 0 ? (
-              <p>No products available</p>
-            ) : (
-              <div className={styles.modalProductGrid}>
-                {allProducts
-                  .filter((product) =>
-                    product.name.toLowerCase().includes(searchTerm.toLowerCase())
-                  )
-                  .map((product) => (
-                    <div
-                      key={product._id}
-                      className={styles.modalProductCard}
-                      onClick={() => handleAddProduct(product)}
-                    >
-                      <img
-                        src={product.images?.[0] || "/fallback.png"}
-                        alt={product.name}
-                        className={styles.modalProductImage}
-                      />
-                      <p>{product.name}</p>
-                    </div>
-                  ))}
-              </div>
-            )}
-            <button className={styles.closeModalButton} onClick={() => setShowModal(false)}>
-              Close
-            </button>
+            <div className={styles.modalProductGrid}>
+              {allProducts
+                .filter((p) =>
+                  p.name.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+                .map((product) => (
+                  <div
+                    key={product._id}
+                    className={styles.modalProductCard}
+                    onClick={() => handleAddProduct(product)}
+                  >
+                    <img src={product.images?.[0]} />
+                    <p>{product.name}</p>
+                  </div>
+                ))}
+            </div>
           </div>
         </div>
       )}

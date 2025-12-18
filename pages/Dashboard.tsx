@@ -23,6 +23,7 @@ import UpdateOffer from "@/components/AdminPanel/UpdateOffer";
 import LatestUpdateOffer from "@/components/AdminPanel/LatestUpdateOffer";
 import LatestShorts from "@/components/AdminPanel/LatestShorts";
 import TreatmentShorts from "@/components/AdminPanel/TreatmentShorts";
+import CreateTreatment from "@/components/AdminPanel/CreateTreatment";
 
 import styles from "@/styles/dashboard.module.css";
 import {
@@ -243,6 +244,20 @@ export default function SuperAdminDashboard() {
                   >
                     Create Product
                   </li>
+
+<li
+                    onClick={() =>
+                      handleSectionChange("createTreatment", "create")
+                    }
+                    className={`${styles.menuItem} ${
+                      activeSection === "createTreatment" ? styles.active : ""
+                    }`}
+                  >
+                    Create Treatment
+                  </li>
+
+
+
                 </div>
               )}
 
@@ -412,7 +427,12 @@ export default function SuperAdminDashboard() {
             {activeSection === "latestofferupdate" && <LatestUpdateOffer />}
             {activeSection === "latestshorts" && <LatestShorts />}
             {activeSection === "treatmentshorts" && <TreatmentShorts />}
+            {activeSection === "userorderhistory" && <UserOrderHistory/>}
                         {activeSection === "userorderhistory" && <UserOrderHistory/>}
+
+
+                                                {activeSection === "createTreatment" && <CreateTreatment/>}
+
           </div>
         </div>
       </div>

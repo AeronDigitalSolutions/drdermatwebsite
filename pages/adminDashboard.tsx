@@ -157,6 +157,7 @@ export default function AdminDashboard() {
                 </span>
               </li>
 
+
               <p className={styles.sectionTitle}>List</p>
               <li
                 onClick={() => {
@@ -239,11 +240,13 @@ export default function AdminDashboard() {
             {activeSection === "createCategory" && <CreateCategory />}
             {activeSection === "createClinic" && <CreateClinic />}
             {activeSection === "createProduct" && <CreateProduct />}
+
             {activeSection === "listOfCategory" && <ListOfCategory />}
             {activeSection === "listOfClinic" && <ListOfClinic />}
             {activeSection === "listOfProduct" && <ListOfProduct />}
             {activeSection === "createdoctor" && <CreateDoctor/>}
             {activeSection === "listofdoctor" && <ListOfDoctor/>}
+
                        {activeSection === "test" && <Test/>}
           </div>
         </div>

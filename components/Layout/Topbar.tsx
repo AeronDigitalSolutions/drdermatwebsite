@@ -4,8 +4,8 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import styles from "@/styles/components/Layout/Topbar.module.css";
 import Image from "next/image";
-import { useRouter, usePathname } from "next/navigation"; // ✅ added usePathname
-import { ShoppingCart, MapPin, Menu } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import { ShoppingCart, MapPin, Menu, HelpCircle } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import Cookies from "js-cookie";
 
@@ -15,7 +15,7 @@ interface TopbarProps {
 
 const Topbar: React.FC<TopbarProps> = ({ hideHamburgerOnMobile }) => {
   const router = useRouter();
-  const pathname = usePathname(); // ✅ get current route
+  const pathname = usePathname();
   const { cartItems, clearCart } = useCart();
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -23,15 +23,13 @@ const Topbar: React.FC<TopbarProps> = ({ hideHamburgerOnMobile }) => {
   const [location, setLocation] = useState<string>("");
   const [username, setUsername] = useState<string | null>(null);
 
-  // Load username from cookies
+  // Load username
   useEffect(() => {
     const storedUsername = Cookies.get("username");
-    if (storedUsername) {
-      setUsername(storedUsername);
-    }
+    if (storedUsername) setUsername(storedUsername);
   }, []);
 
-  // 🚫 Hide right section on dashboards
+  // Hide on dashboards
   const isDashboard =
     pathname.startsWith("/ClinicDashboard") ||
     pathname.startsWith("/DoctorDashboard") ||
@@ -44,43 +42,31 @@ const Topbar: React.FC<TopbarProps> = ({ hideHamburgerOnMobile }) => {
 
   const fetchLocation = () => {
     if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser");
+      alert("Geolocation not supported");
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        try {
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-          );
-          const data = await res.json();
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      const { latitude, longitude } = position.coords;
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+        );
+        const data = await res.json();
 
-          if (data?.address) {
-            const city =
-              data.address.city ||
-              data.address.town ||
-              data.address.village;
-            const state = data.address.state;
+        const city =
+          data?.address?.city ||
+          data?.address?.town ||
+          data?.address?.village;
+        const state = data?.address?.state;
 
-            setLocation(`${city || "Unknown"}, ${state || ""}`);
-          } else {
-            setLocation(`Lat: ${latitude.toFixed(2)}, Lng: ${longitude.toFixed(2)}`);
-          }
-        } catch (err) {
-          console.error("Error fetching location:", err);
-          setLocation(`Lat: ${latitude.toFixed(2)}, Lng: ${longitude.toFixed(2)}`);
-        }
-      },
-      (error) => {
-        console.error("Geolocation error:", error);
-        alert("Unable to retrieve your location");
+        setLocation(`${city || "Unknown"}, ${state || ""}`);
+      } catch {
+        setLocation(`Lat ${latitude.toFixed(2)}, Lng ${longitude.toFixed(2)}`);
       }
-    );
+    });
   };
 
-  // Logout
   const handleLogout = () => {
     Cookies.remove("token");
     Cookies.remove("username");
@@ -89,22 +75,22 @@ const Topbar: React.FC<TopbarProps> = ({ hideHamburgerOnMobile }) => {
 
     localStorage.removeItem("userId");
     clearCart && clearCart();
+
     setUsername(null);
     setLocation("");
-
     router.replace("/Login");
   };
 
   return (
     <div className={styles.topbar}>
-      {/* Left section */}
+      {/* LEFT SECTION */}
       <div className={styles.leftSection}>
         <Image
           className={styles.logo}
-          src="/logo.png"
+          src="/logo.jpeg"
           alt="Logo"
           width={120}
-          height={36}
+          height={30}
           onClick={() => router.push("/home")}
         />
 
@@ -117,40 +103,73 @@ const Topbar: React.FC<TopbarProps> = ({ hideHamburgerOnMobile }) => {
           <Menu size={26} />
         </div>
 
+        {/* NAV LINKS */}
         <nav className={`${styles.navLinks} ${menuOpen ? styles.open : ""}`}>
+          {/* EXISTING */}
           <Link href="/home" className={styles.navLink}>
             Home
           </Link>
+
           <Link href="/home/findClinicsPage" className={styles.navLink}>
             Book Appointment
           </Link>
-          <Link href="/quiz/ques1" className={styles.navLink}>
-            Your Result
-          </Link>
+
+
           <Link href="/user/profile" className={styles.navLink}>
             Care Plan
+          </Link>
+
+          {/* 🔥 NEWLY ADDED (NO REPLACEMENT) */}
+          <Link href="/home/findClinicsPage" className={styles.navLink}>
+            Find Derma Clinic
+          </Link>
+
+          <Link href="/video-consultation" className={styles.navLink}>
+            Book Video Consultation
+          </Link>
+
+          <Link href="/plans" className={styles.navLink}>
+            Buy Treatment Plan
+          </Link>
+
+          <Link href="/products" className={styles.navLink}>
+            Buy Products
+          </Link>
+
+          <Link href="/quiz/ques1" className={styles.navLink}>
+            Online Test
+          </Link>
+
+          
+          <Link href="/quiz/ques1" className={styles.navLink}>
+           Track Your Result
+          </Link>
+
+          <Link href="/help" className={styles.navLink}>
+            Need Help?
           </Link>
         </nav>
       </div>
 
-      {/* Right section — only visible for USER pages */}
+      {/* RIGHT SECTION */}
       {!isDashboard && (
         <div className={styles.rightSection}>
           <div className={styles.location} onClick={fetchLocation}>
             <MapPin size={18} />
-            {location && <span className={styles.locationText}>{location}</span>}
+            {location && (
+              <span className={styles.locationText}>{location}</span>
+            )}
           </div>
 
           {username ? (
             <div className={styles.userSection}>
               <span
                 className={styles.userName}
-                title="Go to Dashboard"
                 onClick={() => router.push("/UserDashboard")}
               >
                 {username.toUpperCase()}
               </span>
-              <button onClick={handleLogout} className={styles.logoutBtn}>
+              <button className={styles.logoutBtn} onClick={handleLogout}>
                 Logout
               </button>
             </div>

@@ -1,173 +1,89 @@
-/* 🔥 MAIN CONTAINER */
+/* MAIN CONTAINER */
 .cliniContainer {
   background-color: white;
-  padding: 1rem 4rem;
+  padding: 2rem 4rem;
 }
 
 .clinicTitle {
   font-size: 26px;
   font-weight: 700;
   text-align: center;
-  margin-top: 20px;
-  padding-bottom: 20px;
+  margin-bottom: 30px;
 }
 
-/* 🔥 GRID LAYOUT */
+/* GRID — EXACT 6 × 3 */
 .gridContainer {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 22px;
-  justify-content: center;
-  padding: 20px 40px;
-  max-width: 1151px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 32px 24px;
+  max-width: 1150px;
   margin: 0 auto;
 }
 
-/* 🔥 CATEGORY CARD (new soft hover effect + 3D depth) */
+/* WRAPPER (IMAGE + TEXT) */
+.categoryWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* IMAGE TILE */
 .categoryCard {
   width: 100%;
   aspect-ratio: 1 / 1;
   border-radius: 16px;
   overflow: hidden;
-  cursor: pointer;
-  background: none;
-  border: none;
-  position: relative;
-
-  transition: transform 0.4s cubic-bezier(.13,.45,.21,1.02), 
-              box-shadow 0.4s ease;
+  background: linear-gradient(135deg, #dbeafe, #fef3c7);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.categoryCard:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0px 14px 32px rgba(0, 0, 0, 0.25);
+.categoryWrapper:hover .categoryCard {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.18);
 }
 
-/* 🔥 IMAGE WRAPPER */
-.imageWrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-/* 🔥 IMAGE — enhanced zoom + depth + shine */
+/* IMAGE */
 .categoryImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
-
-  transition: transform 0.65s ease, 
-              filter 0.4s ease,
-              opacity 0.3s ease;
-  will-change: transform;
 }
 
-/* ZOOM + DEPTH + SHINE */
-.categoryCard:hover .categoryImg {
-  transform: scale(1.18) translateZ(0);
-  filter: brightness(1.2) contrast(1.05);
-  opacity: 0.96;
+/* TEXT BELOW IMAGE */
+.categoryLabel {
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1f2937;
+  text-align: center;
 }
 
-/* ✨ SHINE OVERLAY (premium highlight) */
-.categoryCard::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -150%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
-  transform: skewX(-20deg);
-  transition: all 0.8s ease;
+/* EXPLORE TILE */
+.exploreCard {
+  background: linear-gradient(135deg, #e0f2fe, #ecfeff);
 }
 
-.categoryCard:hover::before {
-  left: 130%;
-}
-
-/* 🔥 OVERLAY (smoothest possible slide — fixed version) */
-.overlay {
-  position: absolute;
-  top: 0;
-  right: -100%;
-  width: 100%;
-  height: 100%;
-
-  backdrop-filter: blur(8px);
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid #c9dff2;
-  border-radius: 16px;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  /* smooth-performance GPU animation */
-  transition: transform 0.55s cubic-bezier(.13,.45,.21,1.02);
-  transform: translateX(100%);
-}
-
-.categoryCard:hover .overlay {
-  transform: translateX(0%);
-}
-
-/* 🔥 TEXT FADE + SLIDE IN */
-.overlayContent {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: #155e95;
-  font-weight: 700;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.45s ease, transform 0.45s ease;
-}
-
-/* fade in text AFTER overlay arrives */
-.categoryCard:hover .overlayContent {
-  opacity: 1;
-  transform: translateY(0px);
-}
-
-.categoryText {
-  font-size: 18px;
-  margin-bottom: 6px;
-}
-
-.arrow {
-  font-size: 26px;
-  color: #155e95;
-}
-
-/* 🔥 RESPONSIVE ADJUSTMENTS */
-@media (max-width: 1024px) {
+/* RESPONSIVE */
+@media (max-width: 1200px) {
   .gridContainer {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
 @media (max-width: 768px) {
   .gridContainer {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
-/* Mobile optimized */
 @media (max-width: 480px) {
-  .cliniContainer {
-    padding: 1rem 10px;
-  }
-
   .gridContainer {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    padding: 0 10px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
   }
 
-  .categoryCard {
-    aspect-ratio: 1 / 1;
+  .cliniContainer {
+    padding: 1rem;
   }
 }

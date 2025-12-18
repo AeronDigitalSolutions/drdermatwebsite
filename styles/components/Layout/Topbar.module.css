@@ -15,7 +15,7 @@
 .leftSection {
   display: flex;
   align-items: center;
-  gap: 112px;
+  gap: 35px;
 }
 
 .logo {
@@ -28,21 +28,21 @@
 /* Nav links */
 .navLinks {
   display: flex;
-  gap: 24px;
+  gap: 18px;
   align-items: center;
 }
 
 .navLink {
-  font-size: 16px;
-  font-weight: 600;
-  color: #7f8595;
-  text-decoration: none;
-  transition: color 0.2s ease;
+ font-size: 13px;
+    font-weight: 600;
+    color: #41444c;
+    text-decoration: none;
+    transition: color 0.2s ease;
 }
 
 .navLink:hover {
-  text-decoration: underline;
-  color: #1a2238;
+  text-decoration: underline solid 2px;
+  color: #1f49be;
 }
 
 /* Right section (icons + auth) */

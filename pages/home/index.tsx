@@ -119,7 +119,7 @@ const Index = () => {
             slides={[
               { url: "/card-1.png", heading: "Book A Clinic Appointment" },
               { url: "/card-2.png", heading: "Book A Video Consultation" },
-              { url: "/card-3.png", heading: "Top Dermatology Clinics" },
+              { url: "/card-3.png", heading: "Take Free Hair & Skin Test" },
             ]}
             loading={!appReady} // 👈 pass loader state
           />

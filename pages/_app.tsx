@@ -38,7 +38,7 @@ export default function App({
             <LoaderProvider>
               <Component {...pageProps} />
 
-              {isDesktop && (
+              {/* {isDesktop && (
                 <AnimatedCursor
                   innerSize={12}
                   outerSize={20}
@@ -47,7 +47,7 @@ export default function App({
                   innerScale={0.7}
                   outerScale={2}
                 />
-              )}
+              )} */}
             </LoaderProvider>
           </OrderProvider>
         </CartProvider>

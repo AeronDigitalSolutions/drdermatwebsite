@@ -1,330 +1,259 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import styles from "@/styles/Dashboard/createproduct.module.css";
-
-// ✅ Load ReactQuill dynamically
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
 
-interface Category {
-  _id: string;
-  name: string;
-  imageUrl?: string;
-}
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
-interface Company {
-  _id: string;
-  name: string;
-}
+export default function CreateProduct() {
+  /* ================= AUTO SKU ================= */
+  const [productSKU] = useState(`SKU-${Date.now().toString().slice(-6)}`);
 
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
-
-const CreateProduct: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [companies] = useState<Company[]>([
-    { _id: "dove", name: "Dove" },
-    { _id: "patanjali", name: "Patanjali" },
-    { _id: "himalaya", name: "Himalaya" },
-    { _id: "vlcc", name: "VLCC" },
-  ]);
-  const [images, setImages] = useState<string[]>([]);
-  const [formData, setFormData] = useState({
+  /* ================= FORM STATE ================= */
+  const [form, setForm] = useState({
+    productName: "",
     category: "",
-    company: "",
-    name: "",
-    quantity: "",
-    price: "",
-    discountPrice: "",
+    subCategory: "",
+
     description: "",
+    ingredients: "",
+    targetConcerns: "",
+    usageInstructions: "",
+
+    netQuantity: "",
+    mrpPrice: "",
+    discountedPrice: "",
+    discountPercent: "",
+    taxIncluded: true,
+
+    expiryDate: "",
+    manufacturerName: "",
+    licenseNumber: "",
+    packagingType: "",
+
+    productImages: [] as string[],
+    productShortVideo: "",
+
+    benefits: "",
+    rating: "",
+    shippingTime: "",
+    returnPolicy: "",
+    howToUseVideo: "",
+    certifications: "",
+
+    gender: "Unisex",
+    skinHairType: "",
+    barcode: "",
+
+    availabilityStatus: "Available",
+    stockStatus: "In Stock",
+    reviews: "",
+
+    brandName: "",
+    checkAvailability: true,
+    dermatologistRecommended: false,
+    activeStatus: true,
+
+    productURL: "",
+    buyNow: true,
   });
 
-  // ✅ Fetch categories
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await fetch(`${API_URL}/categories`);
-        if (!res.ok) throw new Error("Failed to fetch categories");
-        const data = await res.json();
-        const valid = data
-          .filter((cat: any) => cat._id && cat.name)
-          .map((cat: any) => ({
-            _id: cat._id,
-            name: cat.name,
-            imageUrl: cat.imageUrl,
-          }));
-        setCategories(valid);
-      } catch (err) {
-        console.error("Error fetching categories:", err);
-      }
-    };
-    fetchCategories();
-  }, []);
+  /* ================= HANDLERS ================= */
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value, type } = e.target as HTMLInputElement;
+    const checked = (e.target as HTMLInputElement).checked;
 
-  // ✅ Gallery image upload
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
     Array.from(files).forEach((file) => {
-      if (file.size > 1024 * 1024) {
-        alert("Image size should not exceed 1MB.");
-        return;
-      }
       const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        setImages((prev) => [...prev, base64]);
+      reader.onload = () => {
+        setForm((prev) => ({
+          ...prev,
+          productImages: [...prev.productImages, reader.result as string],
+        }));
       };
       reader.readAsDataURL(file);
     });
   };
 
-  const handleRemoveImage = (index: number) =>
-    setImages((prev) => prev.filter((_, i) => i !== index));
+  const quillModules = useMemo(
+    () => ({
+      toolbar: [
+        ["bold", "italic", "underline"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        ["link", "image"],
+        ["clean"],
+      ],
+    }),
+    []
+  );
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleDescriptionChange = (value: string) =>
-    setFormData((prev) => ({ ...prev, description: value }));
-
-  // ✅ ReactQuill modules with Base64 image upload & auto styling
-  const modules = useMemo(() => {
-    return {
-      toolbar: {
-        container: [
-          ["bold", "italic", "underline"],
-          [{ list: "ordered" }, { list: "bullet" }],
-          ["link", "image"],
-          ["clean"],
-        ],
-        handlers: {
-          image: function handleImage(this: any) {
-            const input = document.createElement("input");
-            input.type = "file";
-            input.accept = "image/*";
-            input.click();
-
-            input.onchange = () => {
-              const file = input.files?.[0];
-              if (!file) return;
-              if (file.size > 1024 * 1024) {
-                alert("Image size should not exceed 1MB.");
-                return;
-              }
-
-              const reader = new FileReader();
-              reader.onload = () => {
-                const base64 = reader.result as string;
-                const quill = this.quill;
-                const range = quill.getSelection(true);
-
-                // ✅ Insert image
-                quill.insertEmbed(range.index, "image", base64);
-
-                // ✅ Add class after insertion
-                setTimeout(() => {
-                  const [leaf] = quill.getLeaf(range.index);
-                  const imgNode = leaf?.domNode as HTMLImageElement | undefined;
-                  if (imgNode && imgNode.tagName === "IMG") {
-                    imgNode.classList.add(styles.descriptionImage); // add CSS module class
-                  }
-                }, 100);
-
-                quill.setSelection(range.index + 1);
-              };
-              reader.readAsDataURL(file);
-            };
-          },
-        },
-      },
-    };
-  }, []);
-
-  // ✅ Submit product
-  const handleSubmit = async (e: React.FormEvent) => {
+  /* ================= SUBMIT ================= */
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.category) return alert("Please select a category");
-    if (!formData.company) return alert("Please select a company");
-    if (images.length === 0) return alert("Please upload at least one image");
-
-    const productData = {
-      ...formData,
-      quantity: Number(formData.quantity),
-      price: Number(formData.price),
-      discountPrice: Number(formData.discountPrice),
-      images,
+    const payload = {
+      productSKU,
+      ...form,
     };
 
-    try {
-      const res = await fetch(`${API_URL}/products`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(productData),
-      });
-
-      if (!res.ok) throw new Error("Failed to create product");
-
-      const result = await res.json();
-      alert("✅ Product created successfully!");
-      console.log("Created product:", result);
-
-      setFormData({
-        category: "",
-        company: "",
-        name: "",
-        quantity: "",
-        price: "",
-        discountPrice: "",
-        description: "",
-      });
-      setImages([]);
-    } catch (err) {
-      console.error("Error creating product:", err);
-      alert("❌ Failed to create product. Check console for details.");
-    }
+    console.log("✅ FINAL PRODUCT PAYLOAD", payload);
+    alert("Product saved successfully (check console)");
   };
 
+  /* ================= UI ================= */
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
-      <h2 className={styles.heading}>Add New Product</h2>
+    <div className={styles.container}>
+      <h1 className={styles.heading}>Create Product</h1>
 
-      {/* Gallery Upload */}
-      <div className={styles.row}>
-        <label className={styles.imageUpload}>
-          <span>Upload Product Images</span>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            className={styles.imageInput}
-            onChange={handleImageUpload}
-          />
-        </label>
-      </div>
+      <form className={styles.form} onSubmit={handleSubmit}>
+        {/* ===== BASIC INFO ===== */}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Basic Information</h3>
 
-      {/* Gallery Preview */}
-      <div className={styles.previewContainer}>
-        {images.map((img, index) => (
-          <div key={index} className={styles.previewWrapper}>
-            <img src={img} alt={`Preview ${index}`} className={styles.previewImage} />
-            <button
-              type="button"
-              className={styles.removeBtn}
-              onClick={() => handleRemoveImage(index)}
-            >
-              ✖
-            </button>
+          <div className={styles.field}>
+            <label className={styles.label}>Product SKU (Auto)</label>
+            <input className={styles.readonlyInput} value={productSKU} disabled />
           </div>
-        ))}
-      </div>
 
-      {/* Category & Company */}
-      <div className={styles.row}>
-        <select
-          name="category"
-          value={formData.category}
-          onChange={handleChange}
-          className={styles.select}
-        >
-          <option value="">Select Category</option>
-          {categories.map((cat) => (
-            <option key={cat._id} value={cat._id}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
+          <div className={styles.field}>
+            <label className={styles.label}>Product Name</label>
+            <input className={styles.input} name="productName" onChange={handleChange} />
+          </div>
 
-        <select
-          name="company"
-          value={formData.company}
-          onChange={handleChange}
-          className={styles.select}
-        >
-          <option value="">Select Company</option>
-          {companies.map((c) => (
-            <option key={c._id} value={c._id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-      </div>
+          <div className={styles.field}>
+            <label className={styles.label}>Product Category</label>
+            <input className={styles.input} name="category" onChange={handleChange} />
+          </div>
 
-      {/* Name & Quantity */}
-      <div className={styles.row}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Product Name"
-          value={formData.name}
-          onChange={handleChange}
-          className={styles.input}
-        />
-        <input
-          type="number"
-          name="quantity"
-          placeholder="Quantity"
-          value={formData.quantity}
-          onChange={handleChange}
-          className={styles.input}
-        />
-      </div>
-
-      {/* Price & Discount */}
-      <div className={styles.row}>
-        <input
-          type="number"
-          name="price"
-          placeholder="Price"
-          value={formData.price}
-          onChange={handleChange}
-          className={styles.input}
-        />
-        <input
-          type="number"
-          name="discountPrice"
-          placeholder="Discount Price"
-          value={formData.discountPrice}
-          onChange={handleChange}
-          className={styles.input}
-        />
-      </div>
-
-      {/* Description */}
-      <div className={styles.richTextWrapper}>
-        <ReactQuill
-          theme="snow"
-          value={formData.description}
-          onChange={handleDescriptionChange}
-          modules={modules}
-          className={styles.richText}
-          placeholder="Enter product description... (you can add images)"
-        />
-      </div>
-
-      {/* Live Description Preview */}
-      {formData.description && (
-        <div className={styles.previewSection}>
-          <h3 className={styles.previewTitle}>Live Description Preview:</h3>
-          <div
-            className={styles.descriptionPreview}
-            dangerouslySetInnerHTML={{ __html: formData.description }}
-          />
+          <div className={styles.field}>
+            <label className={styles.label}>Sub-Category</label>
+            <input className={styles.input} name="subCategory" onChange={handleChange} />
+          </div>
         </div>
-      )}
 
-      <button type="submit" className={styles.button}>
-        Add Product
-      </button>
-    </form>
+        {/* ===== DESCRIPTION ===== */}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Description</h3>
+
+          <div className={styles.fullField}>
+            <label className={styles.label}>Product Description</label>
+            <ReactQuill
+              value={form.description}
+              onChange={(v) => setForm({ ...form, description: v })}
+              modules={quillModules}
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Ingredients (Key)</label>
+            <input className={styles.input} name="ingredients" onChange={handleChange} />
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Target Concerns</label>
+            <input className={styles.input} name="targetConcerns" onChange={handleChange} />
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Usage Instructions</label>
+            <input className={styles.input} name="usageInstructions" onChange={handleChange} />
+          </div>
+        </div>
+
+        {/* ===== PRICING ===== */}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Pricing</h3>
+
+          <input className={styles.input} name="netQuantity" placeholder="Net Quantity" onChange={handleChange} />
+          <input className={styles.input} name="mrpPrice" placeholder="MRP Price" onChange={handleChange} />
+          <input className={styles.input} name="discountedPrice" placeholder="Discounted Price" onChange={handleChange} />
+          <input className={styles.input} name="discountPercent" placeholder="Discount (%)" onChange={handleChange} />
+
+          <select className={styles.select} name="taxIncluded" onChange={handleChange}>
+            <option value="true">Tax Included – Yes</option>
+            <option value="false">Tax Included – No</option>
+          </select>
+        </div>
+
+        {/* ===== COMPLIANCE ===== */}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Compliance & Packaging</h3>
+
+          <input type="date" className={styles.input} name="expiryDate" onChange={handleChange} />
+          <input className={styles.input} name="manufacturerName" placeholder="Manufacturer Name" onChange={handleChange} />
+          <input className={styles.input} name="licenseNumber" placeholder="License / FSSAI No." onChange={handleChange} />
+          <input className={styles.input} name="packagingType" placeholder="Packaging Type" onChange={handleChange} />
+        </div>
+
+        {/* ===== MEDIA ===== */}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Media</h3>
+
+          <input type="file" multiple className={styles.fileInput} onChange={handleImageUpload} />
+          <input className={styles.input} name="productShortVideo" placeholder="Product Short Video URL" onChange={handleChange} />
+          <input className={styles.input} name="howToUseVideo" placeholder="How to Use Video (Optional)" onChange={handleChange} />
+        </div>
+
+        {/* ===== META ===== */}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Meta & Controls</h3>
+
+          <input className={styles.input} name="benefits" placeholder="Benefits Highlighted" onChange={handleChange} />
+          <input className={styles.input} name="rating" placeholder="Product Rating" onChange={handleChange} />
+          <input className={styles.input} name="shippingTime" placeholder="Shipping Time" onChange={handleChange} />
+          <input className={styles.input} name="returnPolicy" placeholder="Return Policy" onChange={handleChange} />
+          <input className={styles.input} name="certifications" placeholder="Certifications" onChange={handleChange} />
+          <input className={styles.input} name="brandName" placeholder="Brand Name" onChange={handleChange} />
+          <input className={styles.input} name="barcode" placeholder="Product SKU / Barcode" onChange={handleChange} />
+
+          <select className={styles.select} name="gender" onChange={handleChange}>
+            <option>Unisex</option>
+            <option>Male</option>
+            <option>Female</option>
+          </select>
+
+          <input className={styles.input} name="skinHairType" placeholder="Skin Type / Hair Type" onChange={handleChange} />
+
+          <select className={styles.select} name="availabilityStatus" onChange={handleChange}>
+            <option>Available</option>
+            <option>Unavailable</option>
+          </select>
+
+          <select className={styles.select} name="stockStatus" onChange={handleChange}>
+            <option>In Stock</option>
+            <option>Out of Stock</option>
+          </select>
+
+          <textarea className={styles.input} name="reviews" placeholder="Product Reviews" onChange={handleChange} />
+          <input className={styles.input} name="productURL" placeholder="Product URL" onChange={handleChange} />
+        </div>
+
+        {/* ===== SWITCHES ===== */}
+        <div className={styles.switchRow}>
+          <label><input type="checkbox" name="checkAvailability" checked={form.checkAvailability} onChange={handleChange} /> Check Product Availability</label>
+          <label><input type="checkbox" name="dermatologistRecommended" checked={form.dermatologistRecommended} onChange={handleChange} /> Dermatologist Recommended</label>
+          <label><input type="checkbox" name="activeStatus" checked={form.activeStatus} onChange={handleChange} /> Active</label>
+          <label><input type="checkbox" name="buyNow" checked={form.buyNow} onChange={handleChange} /> Buy Now / Add to Cart</label>
+        </div>
+
+        <button className={styles.submitBtn}>Save Product</button>
+      </form>
+    </div>
   );
-};
-
-export default CreateProduct;
+}

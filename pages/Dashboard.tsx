@@ -24,6 +24,9 @@ import LatestUpdateOffer from "@/components/AdminPanel/LatestUpdateOffer";
 import LatestShorts from "@/components/AdminPanel/LatestShorts";
 import TreatmentShorts from "@/components/AdminPanel/TreatmentShorts";
 import CreateTreatment from "@/components/AdminPanel/CreateTreatment";
+import CreatePatient from "@/components/AdminPanel/CreatePatient";
+import CreateTestResult from "@/components/AdminPanel/CreateTestResult";
+import CreateOnlineDoctor from "@/components/AdminPanel/CreateOnlineDoctor";
 
 import styles from "@/styles/dashboard.module.css";
 import {
@@ -41,6 +44,7 @@ import Topbar from "@/components/Layout/Topbar";
 import Footer from "@/components/Layout/Footer";
 import MobileNavbar from "@/components/Layout/MobileNavbar";
 import UserOrderHistory from "@/components/AdminPanel/UserOrderHistory";
+
 
 type JwtPayload = { id: string; role: string; exp: number };
 
@@ -255,6 +259,39 @@ export default function SuperAdminDashboard() {
                   >
                     Create Treatment
                   </li>
+<li
+                    onClick={() =>
+                      handleSectionChange("createPatient", "create")
+                    }
+                    className={`${styles.menuItem} ${
+                      activeSection === "createPatient" ? styles.active : ""
+                    }`}
+                  >
+                    Create Patient
+                  </li>
+
+
+                  <li
+                    onClick={() =>
+                      handleSectionChange("createTestResult", "create")
+                    }
+                    className={`${styles.menuItem} ${
+                      activeSection === "createTestResult" ? styles.active : ""
+                    }`}
+                  >
+                    Create Test Result
+                  </li>
+
+                  <li
+                    onClick={() =>
+                      handleSectionChange("createOnlineDoctor", "create")
+                    }
+                    className={`${styles.menuItem} ${
+                      activeSection === "createOnlineDoctor" ? styles.active : ""
+                    }`}
+                  >
+                    Create Online Doctor
+                  </li>
 
 
 
@@ -429,6 +466,9 @@ export default function SuperAdminDashboard() {
             {activeSection === "treatmentshorts" && <TreatmentShorts />}
             {activeSection === "userorderhistory" && <UserOrderHistory/>}
                         {activeSection === "userorderhistory" && <UserOrderHistory/>}
+                        {activeSection === "createPatient" && <CreatePatient/>}
+                        {activeSection === "createTestResult" && <CreateTestResult/>}
+                        {activeSection === "createOnlineDoctor" && <CreateOnlineDoctor/>}
 
 
                                                 {activeSection === "createTreatment" && <CreateTreatment/>}

@@ -27,6 +27,8 @@ import CreateTreatment from "@/components/AdminPanel/CreateTreatment";
 import CreatePatient from "@/components/AdminPanel/CreatePatient";
 import CreateTestResult from "@/components/AdminPanel/CreateTestResult";
 import CreateOnlineDoctor from "@/components/AdminPanel/CreateOnlineDoctor";
+import CreateB2BProduct from "@/components/AdminPanel/CreateB2BProduct";
+import CreateSupport from "@/components/AdminPanel/CreateSupport";
 
 import styles from "@/styles/dashboard.module.css";
 import {
@@ -295,6 +297,30 @@ export default function SuperAdminDashboard() {
 
 
 
+<li
+                    onClick={() =>
+                      handleSectionChange("createB2Bproduct", "create")
+                    }
+                    className={`${styles.menuItem} ${
+                      activeSection === "createB2Bproduct" ? styles.active : ""
+                    }`}
+                  >
+                    Create B2B Product
+                  </li>
+
+<li
+                    onClick={() =>
+                      handleSectionChange("createSupport", "create")
+                    }
+                    className={`${styles.menuItem} ${
+                      activeSection === "createSupport" ? styles.active : ""
+                    }`}
+                  >
+                    Create Support
+                  </li>
+
+
+
                 </div>
               )}
 
@@ -469,6 +495,8 @@ export default function SuperAdminDashboard() {
                         {activeSection === "createPatient" && <CreatePatient/>}
                         {activeSection === "createTestResult" && <CreateTestResult/>}
                         {activeSection === "createOnlineDoctor" && <CreateOnlineDoctor/>}
+                        {activeSection === "createB2Bproduct" && <CreateB2BProduct/>}
+                        {activeSection === "createSupport" && <CreateSupport/>}
 
 
                                                 {activeSection === "createTreatment" && <CreateTreatment/>}

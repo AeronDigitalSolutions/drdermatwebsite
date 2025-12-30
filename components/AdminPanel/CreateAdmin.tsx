@@ -4,149 +4,210 @@ import React, { useState } from "react";
 import styles from "@/styles/Dashboard/adminpages.module.css";
 import MobileNavbar from "../Layout/MobileNavbar";
 
-// ✅ Use environment variable for API base
 const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
-const CreateAdmin = () => {
-  const [formData, setFormData] = useState({
-    empId: "",
+export default function CreateAdmin() {
+  /* ================= AUTO USER ID ================= */
+  const [userId] = useState(`ADM-${Date.now().toString().slice(-6)}`);
+
+  /* ================= FORM STATE ================= */
+  const [form, setForm] = useState({
     name: "",
     email: "",
-    number: "",
+    phone: "",
     password: "",
-    role: "admin", // ✅ default role
+    confirmPassword: "",
+
+    accessLevel: "Admin", // Admin | SuperAdmin | Manager
+    active: true,
+
+    forgotPassword: false,
+    changePassword: false,
   });
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
+  /* ================= HANDLER ================= */
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
 
-    if (name === "role" && type === "checkbox") {
-      // ✅ if checkbox checked, role = superadmin
-      setFormData(prev => ({ ...prev, role: checked ? "superadmin" : "admin" }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
 
     setError("");
     setSuccess("");
   };
 
+  /* ================= SUBMIT ================= */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log("🔍 Submitting admin data:", formData);
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    const payload = {
+      userId,
+      ...form,
+    };
 
     try {
       const res = await fetch(`${API_URL}/admins`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
 
-      if (!res.ok) throw new Error(data.message || "Failed to create admin");
-
-      setSuccess("✅ Admin created successfully!");
-      setFormData({
-        empId: "",
+      setSuccess("✅ Admin account created successfully");
+      setForm({
         name: "",
         email: "",
-        number: "",
+        phone: "",
         password: "",
-        role: "admin",
+        confirmPassword: "",
+        accessLevel: "Admin",
+        active: true,
+        forgotPassword: false,
+        changePassword: false,
       });
     } catch (err: any) {
-      setError(`❌ ${err.message}`);
+      setError(err.message || "Failed to create admin");
     }
   };
 
   return (
     <div className={styles.container}>
+      <h1 className={styles.heading}>Admin Management</h1>
+
       <form className={styles.form} onSubmit={handleSubmit}>
-        <h2 className={styles.title}>Create Admin</h2>
+        {/* ================= LOGIN / PROFILE ================= */}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Login / Profile</h3>
+
+          <div className={styles.field}>
+            <label className={styles.label}>User ID</label>
+            <input className={styles.readonlyInput} value={userId} disabled />
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Name</label>
+            <input className={styles.input} name="name" onChange={handleChange} />
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Email</label>
+            <input
+              className={styles.input}
+              type="email"
+              name="email"
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Contact No.</label>
+            <input
+              className={styles.input}
+              name="phone"
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        {/* ================= PASSWORD ================= */}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Security</h3>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Password</label>
+            <input
+              className={styles.input}
+              type="password"
+              name="password"
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Confirm Password</label>
+            <input
+              className={styles.input}
+              type="password"
+              name="confirmPassword"
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        {/* ================= ACCESS ================= */}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Access Level</h3>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Grant Access</label>
+            <select
+              className={styles.select}
+              name="accessLevel"
+              onChange={handleChange}
+            >
+              <option>Admin</option>
+              <option>SuperAdmin</option>
+              <option>Manager</option>
+            </select>
+          </div>
+
+          <div className={styles.switchRow}>
+            <label>
+              <input
+                type="checkbox"
+                name="active"
+                checked={form.active}
+                onChange={handleChange}
+              />
+              Active / Block
+            </label>
+
+            <label>
+              <input
+                type="checkbox"
+                name="forgotPassword"
+                checked={form.forgotPassword}
+                onChange={handleChange}
+              />
+              Forgot Password Enabled
+            </label>
+
+            <label>
+              <input
+                type="checkbox"
+                name="changePassword"
+                checked={form.changePassword}
+                onChange={handleChange}
+              />
+              Allow Change Password
+            </label>
+          </div>
+        </div>
 
         {error && <p className={styles.error}>{error}</p>}
         {success && <p className={styles.success}>{success}</p>}
 
-        <label htmlFor="empId">Employee ID</label>
-        <input
-          className={styles.input}
-          type="text"
-          name="empId"
-          id="empId"
-          value={formData.empId}
-          onChange={handleChange}
-          required
-        />
-
-        <label htmlFor="name">Name</label>
-        <input
-          className={styles.input}
-          type="text"
-          name="name"
-          id="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
-
-        <label htmlFor="email">Email</label>
-        <input
-          className={styles.input}
-          type="email"
-          name="email"
-          id="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-
-        <label htmlFor="number">Phone Number</label>
-        <input
-          className={styles.input}
-          type="tel"
-          name="number"
-          id="number"
-          value={formData.number}
-          onChange={handleChange}
-          required
-        />
-
-        <label htmlFor="password">Password</label>
-        <input
-          className={styles.input}
-          type="password"
-          name="password"
-          id="password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
-
-        {/* ✅ Checkbox for Superadmin */}
-        <div className={styles.checkboxContainer}>
-          <input
-            type="checkbox"
-            id="role"
-            name="role"
-            checked={formData.role === "superadmin"}
-            onChange={handleChange}
-          />
-          <label htmlFor="role">Make Superadmin</label>
-        </div>
-
-        <button type="submit" className={styles.button}>Create Admin</button>
+        <button className={styles.submitBtn} type="submit">
+          Save Admin
+        </button>
       </form>
 
       <MobileNavbar />
     </div>
   );
-};
-
-export default CreateAdmin;
+}

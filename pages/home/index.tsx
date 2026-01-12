@@ -16,6 +16,9 @@ import OfferCard from "@/components/homePage/offerCard";
 import FeaturedSection from "@/components/Layout/FeaturedSection";
 import Offer from "./Offer";
 import LatestOffer from "./LatestOffer";
+import Offer3 from "./Offer3";
+import Offer4 from "./Offer4";
+
 import Treatment from "./Treatment";
 import HappyStories from "./HappyStories";
 import Link from "next/link";
@@ -134,6 +137,28 @@ const Index = () => {
           border="2px solid #D9EBFD"
         />
 
+<h2
+          style={{
+            textAlign: "center",
+            margin: "20px",
+            fontWeight: "700",
+            fontSize: "26px",
+          }}
+        >
+           Offer1
+        </h2>
+        <div
+          style={{
+            display: "flex",
+            gap: "20px",
+            justifyContent: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          <Offer3/>
+        </div>
+
+
         <div
           style={{
             padding: "16px 0px",
@@ -178,7 +203,7 @@ const Index = () => {
                 fontSize: "26px",
               }}
             >
-              Exclusive Offers
+              Offer2
             </h2>
             <div
               style={{
@@ -225,7 +250,7 @@ const Index = () => {
             fontSize: "26px",
           }}
         >
-          Latest Offers
+          Offer 3
         </h2>
         <div
           style={{
@@ -237,7 +262,19 @@ const Index = () => {
         >
           <LatestOffer />
         </div>
+
+
+
+
+
+
+
       </div>
+
+
+
+
+
 
       <div
         style={{
@@ -268,6 +305,29 @@ const Index = () => {
           <Treatment />
         </div>
       </div>
+
+
+<h2
+          style={{
+            textAlign: "center",
+            margin: "20px",
+            fontWeight: "700",
+            fontSize: "26px",
+          }}
+        >
+          Offer 4
+        </h2>
+        <div
+          style={{
+            display: "flex",
+            gap: "20px",
+            justifyContent: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          <Offer4/>
+        </div>
+
 
       <div
         style={{

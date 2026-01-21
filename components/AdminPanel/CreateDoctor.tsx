@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import styles from "@/styles/Dashboard/createDoctor.module.css";
+import styles from "@/styles/Dashboard/createdoctor.module.css";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";

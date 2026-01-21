@@ -1,61 +1,74 @@
 "use client";
+
 import React, { useState } from "react";
-import axios from "axios";
-import styles from "@/styles/Dashboard/createdoctor.module.css";
+import styles from "@/styles/Dashboard/createDoctor.module.css";
 
-interface DoctorForm {
-  title: string;
-  firstName: string;
-  lastName: string;
-  specialist: string;
-  email: string;
-  password: string;
-}
+const API_URL =
+  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
-interface Props {
-  onDoctorCreated?: () => void; // callback to refresh list
-}
-
-// ✅ Use environment variable or fallback to localhost
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
-
-const CreateDoctor: React.FC<Props> = ({ onDoctorCreated }) => {
-  const [form, setForm] = useState<DoctorForm>({
+const CreateDoctor = () => {
+  const [formData, setFormData] = useState({
     title: "",
     firstName: "",
     lastName: "",
     specialist: "",
     email: "",
     password: "",
+    description: "",
   });
 
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const titles = ["Dr.", "Prof.", "Mr.", "Ms."];
+  const specialists = [
+    "Dermatologist",
+    "Cardiologist",
+    "Neurologist",
+    "Pediatrician",
+    "Orthopedic",
+  ];
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
+    setMessage(null);
 
     try {
-      const res = await axios.post(`${API_URL}/doctoradmin`, form);
-      setMessage("✅ Doctor created successfully!");
-      setForm({
-        title: "",
-        firstName: "",
-        lastName: "",
-        specialist: "",
-        email: "",
-        password: "",
+      const res = await fetch(`${API_URL}/doctors`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
-      if (onDoctorCreated) onDoctorCreated();
-    } catch (err: any) {
-      console.error("Error creating doctor:", err);
-      setMessage(err.response?.data?.message || "❌ Error creating doctor");
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setMessage("✅ Doctor created successfully");
+        setFormData({
+          title: "",
+          firstName: "",
+          lastName: "",
+          specialist: "",
+          email: "",
+          password: "",
+          description: "",
+        });
+      } else {
+        setMessage(data.message || "❌ Failed to create doctor");
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage("❌ Server error");
     } finally {
       setLoading(false);
     }
@@ -63,37 +76,123 @@ const CreateDoctor: React.FC<Props> = ({ onDoctorCreated }) => {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Create Doctor</h2>
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <label className={styles.label}>
-          Title
-          <input className={styles.input} type="text" name="title" value={form.title} onChange={handleChange} />
-        </label>
-        <label className={styles.label}>
-          First Name*
-          <input className={styles.input} type="text" name="firstName" value={form.firstName} onChange={handleChange} required />
-        </label>
-        <label className={styles.label}>
-          Last Name*
-          <input className={styles.input} type="text" name="lastName" value={form.lastName} onChange={handleChange} required />
-        </label>
-        <label className={styles.label}>
-          Specialist*
-          <input className={styles.input} type="text" name="specialist" value={form.specialist} onChange={handleChange} required />
-        </label>
-        <label className={styles.label}>
-          Email*
-          <input className={styles.input} type="email" name="email" value={form.email} onChange={handleChange} required />
-        </label>
-        <label className={styles.label}>
-          Password*
-          <input className={styles.input} type="password" name="password" value={form.password} onChange={handleChange} required />
-        </label>
-        <button className={styles.button} type="submit" disabled={loading}>
+      <h1 className={styles.heading}>Create Doctor</h1>
+
+      {message && <p>{message}</p>}
+
+      <form className={styles.form} onSubmit={handleSubmit}>
+        {/* ===== BASIC INFO ===== */}
+        <div className={styles.section}>
+          <h2 className={styles.sectionTitle}>Basic Information</h2>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Title</label>
+            <select
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              className={styles.select}
+              required
+            >
+              <option value="">Select Title</option>
+              {titles.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>First Name</label>
+            <input
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              className={styles.input}
+              required
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Last Name</label>
+            <input
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              className={styles.input}
+              required
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Specialist</label>
+            <select
+              name="specialist"
+              value={formData.specialist}
+              onChange={handleChange}
+              className={styles.select}
+              required
+            >
+              <option value="">Select Specialist</option>
+              {specialists.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* ===== CREDENTIALS ===== */}
+        <div className={styles.section}>
+          <h2 className={styles.sectionTitle}>Login Credentials</h2>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className={styles.input}
+              required
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Password</label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className={styles.input}
+              required
+            />
+          </div>
+        </div>
+
+        {/* ===== DESCRIPTION ===== */}
+        <div className={styles.section}>
+          <h2 className={styles.sectionTitle}>Doctor Description</h2>
+
+          <div className={styles.fullField}>
+            <label className={styles.label}>About Doctor</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              className={styles.textarea}
+              placeholder="Write doctor profile, experience, qualifications..."
+            />
+          </div>
+        </div>
+
+        <button type="submit" className={styles.submitBtn} disabled={loading}>
           {loading ? "Creating..." : "Create Doctor"}
         </button>
       </form>
-      {message && <p className={styles.message}>{message}</p>}
     </div>
   );
 };

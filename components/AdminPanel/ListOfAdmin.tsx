@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import styles from "@/styles/Dashboard/listofadmin.module.css";
 
@@ -6,15 +8,15 @@ interface Admin {
   empId: string;
   name: string;
   email: string;
-  number: string;
-  role: "admin" | "superadmin";
+  phone: string; // Contact No.
+  role: "admin" | "superadmin" | "manager";
   createdAt: string;
 }
 
-// ✅ Use environment variable for API base
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
-function ListOfAdmin() {
+export default function ListOfAdmin() {
   const [admins, setAdmins] = useState<Admin[]>([]);
   const [loading, setLoading] = useState(true);
   const [editModal, setEditModal] = useState(false);
@@ -37,15 +39,13 @@ function ListOfAdmin() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this admin?")) return;
+    if (!confirm("Are you sure you want to delete this admin?")) return;
 
     try {
-      await fetch(`${API_URL}/admins/${id}`, {
-        method: "DELETE",
-      });
+      await fetch(`${API_URL}/admins/${id}`, { method: "DELETE" });
       fetchAdmins();
     } catch (error) {
-      console.error("Failed to delete admin:", error);
+      console.error("Delete failed:", error);
     }
   };
 
@@ -69,7 +69,12 @@ function ListOfAdmin() {
       const res = await fetch(`${API_URL}/admins/${currentAdmin._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(currentAdmin),
+        body: JSON.stringify({
+          name: currentAdmin.name,
+          email: currentAdmin.email,
+          number: currentAdmin.phone,
+          role: currentAdmin.role,
+        }),
       });
 
       if (res.ok) {
@@ -78,114 +83,116 @@ function ListOfAdmin() {
         fetchAdmins();
       }
     } catch (error) {
-      console.error("Error updating admin:", error);
+      console.error("Update failed:", error);
     }
   };
 
-  if (loading) return <div className={styles.loading}>Loading admins...</div>;
+  if (loading) {
+    return <div className={styles.loading}>Loading admins…</div>;
+  }
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.heading}>List of Admins</h2>
+      <h1 className={styles.heading}>Admin Directory</h1>
 
       {admins.length === 0 ? (
         <div className={styles.noData}>No admins found.</div>
       ) : (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Emp ID</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Role</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {admins.map((admin) => (
-              <tr key={admin._id}>
-                <td>{admin.empId}</td>
-                <td>{admin.name}</td>
-                <td>{admin.email}</td>
-                <td>{admin.number}</td>
-                <td>{admin.role}</td>
-                <td className={styles.actions}>
-                  <button
-                    onClick={() => handleEdit(admin)}
-                    className={styles.editButton}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(admin._id)}
-                    className={styles.deleteButton}
-                  >
-                    Delete
-                  </button>
-                </td>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Admin ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Contact No.</th>
+                <th>Role</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {admins.map((admin) => (
+                <tr key={admin._id}>
+                  <td className={styles.id}>{admin.empId}</td>
+                  <td>{admin.name}</td>
+                  <td>{admin.email}</td>
+                  <td>{admin.phone}</td>
+                  <td>
+                    <span
+                      className={`${styles.badge} ${
+                        styles[admin.role]
+                      }`}
+                    >
+                      {admin.role}
+                    </span>
+                  </td>
+                  <td className={styles.actions}>
+                    <button
+                      className={styles.editBtn}
+                      onClick={() => handleEdit(admin)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className={styles.deleteBtn}
+                      onClick={() => handleDelete(admin._id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
+      {/* ================= EDIT MODAL ================= */}
       {editModal && currentAdmin && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
-            <h3>Edit Admin</h3>
-            <form onSubmit={handleEditSubmit} className={styles.form}>
+            <h2>Edit Admin</h2>
+
+            <form onSubmit={handleEditSubmit} className={styles.modalForm}>
+              <input value={currentAdmin.empId} disabled />
               <input
-                type="text"
-                name="empId"
-                value={currentAdmin.empId}
-                onChange={handleEditChange}
-                required
-                placeholder="Employee ID"
-              />
-              <input
-                type="text"
                 name="name"
                 value={currentAdmin.name}
                 onChange={handleEditChange}
-                required
                 placeholder="Name"
               />
               <input
-                type="email"
                 name="email"
                 value={currentAdmin.email}
                 onChange={handleEditChange}
-                required
                 placeholder="Email"
               />
               <input
-                type="text"
                 name="number"
-                value={currentAdmin.number}
+                value={currentAdmin.phone}
                 onChange={handleEditChange}
-                required
-                placeholder="Phone Number"
+                placeholder="Contact No."
               />
 
               <select
                 name="role"
                 value={currentAdmin.role}
                 onChange={handleEditChange}
-                className={styles.select}
               >
                 <option value="admin">Admin</option>
-                <option value="superadmin">Superadmin</option>
+                <option value="superadmin">Super Admin</option>
+                <option value="manager">Manager</option>
               </select>
 
               <div className={styles.modalActions}>
-                <button type="submit" className={styles.saveButton}>
+                <button type="submit" className={styles.saveBtn}>
                   Save
                 </button>
                 <button
-                  onClick={() => setEditModal(false)}
                   type="button"
-                  className={styles.cancelButton}
+                  className={styles.cancelBtn}
+                  onClick={() => setEditModal(false)}
                 >
                   Cancel
                 </button>
@@ -197,5 +204,3 @@ function ListOfAdmin() {
     </div>
   );
 }
-
-export default ListOfAdmin;

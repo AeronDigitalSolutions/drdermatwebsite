@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
@@ -31,11 +32,17 @@ import CreateB2BProduct from "@/components/AdminPanel/CreateB2BProduct";
 import CreateSupport from "@/components/AdminPanel/CreateSupport";
 import UserOrderHistory from "@/components/AdminPanel/UserOrderHistory";
 
+import CreateUser from "@/components/AdminPanel/CreateUser";
+import ListOfUser from "@/components/AdminPanel/ListOfUser";
+import ListOfB2BProduct from "@/components/AdminPanel/ListOfB2BProduct";
+
+/* ✅ DOCTOR */
+import CreateDoctor from "@/components/AdminPanel/CreateDoctor";
+import ListOfDoctor from "@/components/AdminPanel/ListOfDoctor";
+
 import styles from "@/styles/dashboard.module.css";
 import {
   FiUsers,
-  FiUserPlus,
-  FiList,
   FiMenu,
   FiX,
   FiLogOut,
@@ -56,15 +63,9 @@ export default function SuperAdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
-
-  // OLD dropdowns (kept)
-  const [createDropdownOpen, setCreateDropdownOpen] = useState(false);
-  const [listDropdownOpen, setListDropdownOpen] = useState(false);
-
-  // ✅ NEW: per-category dropdown states (THIS IS THE FIX)
   const [openCategory, setOpenCategory] = useState<string | null>(null);
 
-  // Auth check
+  /* ================= AUTH ================= */
   useEffect(() => {
     const token = Cookies.get("token");
     if (!token) {
@@ -92,7 +93,7 @@ export default function SuperAdminDashboard() {
     }
   }, [router]);
 
-  // Responsive
+  /* ================= RESPONSIVE ================= */
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     handleResize();
@@ -122,8 +123,59 @@ export default function SuperAdminDashboard() {
 
   return (
     <>
-      <Topbar hideHamburgerOnMobile />
+      {/* ORIGINAL TOPBAR – KEPT BUT HIDDEN */}
+      <div style={{ display: "none" }}>
+        <Topbar hideHamburgerOnMobile />
+      </div>
 
+      {/* HEADER */}
+      <div
+        style={{
+          height: "84px",
+          background: "#ffffff",
+          borderBottom: "1px solid #e5e7eb",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 24px",
+          position: "sticky",
+          top: 0,
+          zIndex: 100,
+        }}
+      >
+        <Image
+          className={styles.logo}
+          src="/logo.jpeg"
+          alt="Logo"
+          width={100}
+          height={90}
+        />
+
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <span style={{ fontWeight: 600, color: "#334155" }}>
+            Super Admin
+          </span>
+          <button
+            onClick={handleLogout}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              background: "#ef4444",
+              color: "#fff",
+              border: "none",
+              padding: "8px 14px",
+              borderRadius: 8,
+              cursor: "pointer",
+              fontWeight: 600,
+            }}
+          >
+            <FiLogOut /> Logout
+          </button>
+        </div>
+      </div>
+
+      {/* MOBILE MENU */}
       {isMobile && (
         <div className={styles.mobileTopbar}>
           <button
@@ -135,6 +187,7 @@ export default function SuperAdminDashboard() {
         </div>
       )}
 
+      {/* BODY */}
       <div className={styles.wrapper}>
         <aside
           className={`${styles.sidebar} ${
@@ -154,38 +207,33 @@ export default function SuperAdminDashboard() {
             <FiUsers /> Dashboard
           </li>
 
-          {/* ========= CATEGORY BLOCKS ========= */}
-
           {[
-            {
-              key: "ADMIN",
-              create: "createAdmin",
-              list: "listOfAdmin",
-            },
+            { key: "ADMIN", create: "createAdmin", list: "listOfAdmin" },
+            { key: "USER", create: "createUser", list: "listOfUser" },
+
+            { key: "DOCTOR", create: "createDoctor", list: "listOfDoctor" },
+
+            { key: "CLINIC", create: "createClinic", list: "listOfClinic" },
             {
               key: "CLINIC CATEGORY",
               create: "createClinicCategory",
               list: "listOfClinicCategory",
             },
+            { key: "PRODUCT", create: "createProduct", list: "listOfProduct" },
             {
               key: "PRODUCT CATEGORY",
               create: "createProductCategory",
               list: "listOfProductCategory",
             },
             {
+              key: "B2B PRODUCT",
+              create: "createB2Bproduct",
+              list: "listOfB2Bproduct",
+            },
+            {
               key: "SERVICE CATEGORY",
               create: "createServiceCategory",
               list: "listOfServiceCategory",
-            },
-            {
-              key: "CLINIC",
-              create: "createClinic",
-              list: "listOfClinic",
-            },
-            {
-              key: "PRODUCT",
-              create: "createProduct",
-              list: "listOfProduct",
             },
           ].map((cat) => (
             <div key={cat.key}>
@@ -208,15 +256,12 @@ export default function SuperAdminDashboard() {
                   <li onClick={() => handleSectionChange(cat.create)}>
                     Create
                   </li>
-                  <li onClick={() => handleSectionChange(cat.list)}>
-                    List
-                  </li>
+                  <li onClick={() => handleSectionChange(cat.list)}>List</li>
                 </ul>
               )}
             </div>
           ))}
 
-          {/* OTHERS */}
           <li
             className={styles.menuItem}
             onClick={() =>
@@ -253,29 +298,35 @@ export default function SuperAdminDashboard() {
               </li>
             </ul>
           )}
-
-          <button className={styles.logoutButton} onClick={handleLogout}>
-            <FiLogOut /> Logout
-          </button>
         </aside>
 
-        {/* MAIN CONTENT – RIGHT SIDE */}
+        {/* MAIN CONTENT */}
         <div className={styles.mainContent}>
           {activeSection === "dashBoard" && <Dashboard />}
           {activeSection === "createAdmin" && <CreateAdmin />}
           {activeSection === "listOfAdmin" && <ListOfAdmin />}
+          {activeSection === "createUser" && <CreateUser />}
+          {activeSection === "listOfUser" && <ListOfUser />}
+
+          {activeSection === "createDoctor" && <CreateDoctor />}
+          {activeSection === "listOfDoctor" && <ListOfDoctor />}
+
+          {activeSection === "createClinic" && <CreateClinic />}
+          {activeSection === "listOfClinic" && <ListOfClinic />}
           {activeSection === "createClinicCategory" && <CreateClinicCategory />}
           {activeSection === "listOfClinicCategory" && <ListOfClinicCategory />}
+          {activeSection === "createProduct" && <CreateProduct />}
+          {activeSection === "listOfProduct" && <ListOfProduct />}
           {activeSection === "createProductCategory" && <CreateCategory />}
           {activeSection === "listOfProductCategory" && <ListOfCategory />}
-          {activeSection === "createServiceCategory" && <CreateServiceCategory />}
+          {activeSection === "createB2Bproduct" && <CreateB2BProduct />}
+          {activeSection === "listOfB2Bproduct" && <ListOfB2BProduct />}
+          {activeSection === "createServiceCategory" && (
+            <CreateServiceCategory />
+          )}
           {activeSection === "listOfServiceCategory" && (
             <ListOfServiceCategory />
           )}
-          {activeSection === "createClinic" && <CreateClinic />}
-          {activeSection === "listOfClinic" && <ListOfClinic />}
-          {activeSection === "createProduct" && <CreateProduct />}
-          {activeSection === "listOfProduct" && <ListOfProduct />}
           {activeSection === "listOfTopProduct" && <ListOfTopProduct />}
           {activeSection === "offerupdate" && <UpdateOffer />}
           {activeSection === "latestshorts" && <LatestShorts />}
@@ -285,7 +336,6 @@ export default function SuperAdminDashboard() {
           {activeSection === "createPatient" && <CreatePatient />}
           {activeSection === "createTestResult" && <CreateTestResult />}
           {activeSection === "createOnlineDoctor" && <CreateOnlineDoctor />}
-          {activeSection === "createB2Bproduct" && <CreateB2BProduct />}
           {activeSection === "createSupport" && <CreateSupport />}
           {activeSection === "createTreatment" && <CreateTreatment />}
         </div>

@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import styles from "@/styles/Dashboard/adminpages.module.css";
 import MobileNavbar from "../Layout/MobileNavbar";
 
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 export default function CreateAdmin() {
   /* ================= AUTO USER ID ================= */
@@ -17,12 +18,7 @@ export default function CreateAdmin() {
     phone: "",
     password: "",
     confirmPassword: "",
-
     accessLevel: "Admin", // Admin | SuperAdmin | Manager
-    active: true,
-
-    forgotPassword: false,
-    changePassword: false,
   });
 
   const [error, setError] = useState("");
@@ -32,12 +28,11 @@ export default function CreateAdmin() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value, type } = e.target;
-    const checked = (e.target as HTMLInputElement).checked;
+    const { name, value } = e.target;
 
     setForm((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     }));
 
     setError("");
@@ -55,7 +50,11 @@ export default function CreateAdmin() {
 
     const payload = {
       userId,
-      ...form,
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      password: form.password,
+      accessLevel: form.accessLevel,
     };
 
     try {
@@ -76,9 +75,6 @@ export default function CreateAdmin() {
         password: "",
         confirmPassword: "",
         accessLevel: "Admin",
-        active: true,
-        forgotPassword: false,
-        changePassword: false,
       });
     } catch (err: any) {
       setError(err.message || "Failed to create admin");
@@ -101,7 +97,13 @@ export default function CreateAdmin() {
 
           <div className={styles.field}>
             <label className={styles.label}>Name</label>
-            <input className={styles.input} name="name" onChange={handleChange} />
+            <input
+              className={styles.input}
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className={styles.field}>
@@ -110,7 +112,9 @@ export default function CreateAdmin() {
               className={styles.input}
               type="email"
               name="email"
+              value={form.email}
               onChange={handleChange}
+              required
             />
           </div>
 
@@ -119,6 +123,7 @@ export default function CreateAdmin() {
             <input
               className={styles.input}
               name="phone"
+              value={form.phone}
               onChange={handleChange}
             />
           </div>
@@ -134,7 +139,9 @@ export default function CreateAdmin() {
               className={styles.input}
               type="password"
               name="password"
+              value={form.password}
               onChange={handleChange}
+              required
             />
           </div>
 
@@ -144,7 +151,9 @@ export default function CreateAdmin() {
               className={styles.input}
               type="password"
               name="confirmPassword"
+              value={form.confirmPassword}
               onChange={handleChange}
+              required
             />
           </div>
         </div>
@@ -158,44 +167,13 @@ export default function CreateAdmin() {
             <select
               className={styles.select}
               name="accessLevel"
+              value={form.accessLevel}
               onChange={handleChange}
             >
-              <option>Admin</option>
-              <option>SuperAdmin</option>
-              <option>Manager</option>
+              <option value="Admin">Admin</option>
+              <option value="SuperAdmin">SuperAdmin</option>
+              <option value="Manager">Manager</option>
             </select>
-          </div>
-
-          <div className={styles.switchRow}>
-            <label>
-              <input
-                type="checkbox"
-                name="active"
-                checked={form.active}
-                onChange={handleChange}
-              />
-              Active / Block
-            </label>
-
-            <label>
-              <input
-                type="checkbox"
-                name="forgotPassword"
-                checked={form.forgotPassword}
-                onChange={handleChange}
-              />
-              Forgot Password Enabled
-            </label>
-
-            <label>
-              <input
-                type="checkbox"
-                name="changePassword"
-                checked={form.changePassword}
-                onChange={handleChange}
-              />
-              Allow Change Password
-            </label>
           </div>
         </div>
 

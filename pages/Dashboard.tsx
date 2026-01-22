@@ -118,7 +118,7 @@ export default function SuperAdminDashboard() {
   };
 
   if (checkingAuth) {
-    return <div className={styles.loading}>Loading dashboard…</div>;
+    return <div className={styles.loading}>Loading dashboard.......</div>;
   }
 
   return (

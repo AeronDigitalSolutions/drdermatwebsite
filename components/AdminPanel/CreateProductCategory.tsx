@@ -15,6 +15,7 @@ const CreateCategory = () => {
   const [explorePreview, setExplorePreview] = useState<string | null>(null);
 
   const [error, setError] = useState("");
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const exploreInputRef = useRef<HTMLInputElement>(null);
 
@@ -26,40 +27,53 @@ const CreateCategory = () => {
       reader.onerror = reject;
     });
 
-  // ✅ Handle main image upload
+  /* ================= MAIN IMAGE ================= */
   const handleCategoryImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     if (file.size > 1024 * 1024) {
       setError("Image must be ≤ 1MB");
       return;
     }
+
     setError("");
     setCategoryImage(file);
-    setPreviewUrl(URL.createObjectURL(file)); // replaces old preview
+    setPreviewUrl(URL.createObjectURL(file));
   };
 
-  // ✅ Handle explore image upload
+  /* ================= EXPLORE IMAGE ================= */
   const handleExploreImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     if (file.size > 1024 * 1024) {
       setError("Explore image must be ≤ 1MB");
       return;
     }
+
     setError("");
     setExploreImage(file);
-    setExplorePreview(URL.createObjectURL(file)); // replaces old preview
+    setExplorePreview(URL.createObjectURL(file));
   };
 
-  // ✅ Create category with main image
+  /* ================= CREATE CATEGORY ================= */
   const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!categoryName.trim()) return setError("Category name required");
-    if (!categoryImage) return setError("Please select a category image");
+
+    if (!categoryName.trim()) {
+      setError("Category name is required");
+      return;
+    }
+
+    if (!categoryImage) {
+      setError("Please upload category image");
+      return;
+    }
 
     try {
       const base64Image = await convertToBase64(categoryImage);
+
       const res = await fetch(`${API_URL}/categories`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -70,27 +84,28 @@ const CreateCategory = () => {
       });
 
       const data = await res.json();
-      if (!res.ok) {
-        setError(data.message || "Failed to create category");
-        return;
-      }
+      if (!res.ok) throw new Error(data.message);
 
       alert("✅ Category created successfully");
+
       setCategoryName("");
       setCategoryImage(null);
       setPreviewUrl(null);
       setError("");
+
       if (fileInputRef.current) fileInputRef.current.value = "";
-    } catch (err) {
-      console.error(err);
-      setError("Unexpected error");
+    } catch (err: any) {
+      setError(err.message || "Something went wrong");
     }
   };
 
-  // ✅ Upload explore image only
+  /* ================= UPLOAD EXPLORE IMAGE ================= */
   const handleExploreSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!exploreImage) return setError("Please select an explore image");
+    if (!exploreImage) {
+      setError("Please select explore image");
+      return;
+    }
 
     try {
       const base64Explore = await convertToBase64(exploreImage);
@@ -99,89 +114,109 @@ const CreateCategory = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: "Explore Image Only", // dummy name if you only want to upload image
-          imageUrl: base64Explore, // you can store in exploreImage only if needed
+          name: "Explore Image Only",
           exploreImage: base64Explore,
         }),
       });
 
       const data = await res.json();
-      if (!res.ok) {
-        setError(data.message || "Failed to upload explore image");
-        return;
-      }
+      if (!res.ok) throw new Error(data.message);
 
-      alert("✅ Explore image uploaded successfully");
+      alert("✅ Explore image uploaded");
+
       setExploreImage(null);
       setExplorePreview(null);
+
       if (exploreInputRef.current) exploreInputRef.current.value = "";
-    } catch (err) {
-      console.error(err);
-      setError("Unexpected error during explore upload");
+    } catch (err: any) {
+      setError(err.message || "Explore upload failed");
     }
   };
 
   return (
     <div className={styles.container}>
-      {/* ✅ Add Category Section */}
+      <h1 className={styles.heading}>Category Management</h1>
+
+      {error && <p className={styles.error}>{error}</p>}
+
       <form className={styles.form} onSubmit={handleCreateCategory}>
-        <h2 className={styles.title}>Add New Category</h2>
+        {/* ================= CATEGORY DETAILS ================= */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Create Category</h2>
 
-        {error && <p className={styles.error}>{error}</p>}
+          <div className={styles.field}>
+            <label className={styles.label}>Category Name</label>
+            <input
+              className={styles.input}
+              value={categoryName}
+              onChange={(e) => setCategoryName(e.target.value)}
+              placeholder="e.g. Dermatology"
+            />
+          </div>
 
-        <label htmlFor="name">Category Name</label>
-        <input
-          type="text"
-          id="name"
-          value={categoryName}
-          onChange={(e) => setCategoryName(e.target.value)}
-          className={styles.input}
-          placeholder="Enter category name"
-        />
+          <div className={styles.fullField}>
+            <label className={styles.label}>Category Image</label>
 
-        <label htmlFor="categoryImage">Category Image (Max 1MB)</label>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleCategoryImage}
-          className={styles.fileInput}
-        />
+            <div className={styles.uploadBox}>
+              <button
+                type="button"
+                className={styles.uploadBtn}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                Choose Image
+              </button>
+              <span className={styles.uploadHint}>Max size 1MB</span>
+            </div>
 
-        {previewUrl && (
-          <img src={previewUrl} alt="Preview" className={styles.preview} />
-        )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={handleCategoryImage}
+            />
 
-        <button type="submit" className={styles.button}>
-          Add Category
-        </button>
+            {previewUrl && (
+              <img src={previewUrl} className={styles.preview} />
+            )}
+          </div>
+        </section>
+
+        <button className={styles.submitBtn}>Create Category</button>
       </form>
 
-      {/* ✅ Explore Image Section */}
+      {/* ================= EXPLORE IMAGE ================= */}
       <form className={styles.form} onSubmit={handleExploreSubmit}>
-        <h3 className={styles.subHeading}>
-          Update image to explore more category
-        </h3>
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Explore Category Image</h2>
 
-        <input
-          ref={exploreInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleExploreImage}
-          className={styles.fileInput}
-        />
+          <div className={styles.uploadBox}>
+            <button
+              type="button"
+              className={styles.uploadBtn}
+              onClick={() => exploreInputRef.current?.click()}
+            >
+              Upload Explore Image
+            </button>
+            <span className={styles.uploadHint}>Max size 1MB</span>
+          </div>
 
-        {explorePreview && (
-          <img
-            src={explorePreview}
-            alt="Explore Preview"
-            className={styles.preview}
+          <input
+            ref={exploreInputRef}
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={handleExploreImage}
           />
-        )}
 
-        <button type="submit" className={styles.buttonSecondary}>
-          Upload Explore Image
-        </button>
+          {explorePreview ? (
+            <img src={explorePreview} className={styles.preview} />
+          ) : (
+            <p className={styles.noImage}>No explore image uploaded</p>
+          )}
+        </section>
+
+        <button className={styles.submitBtn}>Save Explore Image</button>
       </form>
 
       <MobileNavbar />

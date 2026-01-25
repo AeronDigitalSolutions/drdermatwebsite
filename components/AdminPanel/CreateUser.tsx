@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react"; // ✅ useEffect added
 import styles from "@/styles/Dashboard/createUser.module.css";
+
+// ✅ helper to generate Patient ID
+const generatePatientId = () => `PAT-${Date.now().toString().slice(-6)}`;
 
 export default function CreateUser() {
   const [formData, setFormData] = useState({
@@ -18,8 +21,18 @@ export default function CreateUser() {
     profileReset: false,
   });
 
+  /* ================= AUTO PATIENT ID ON LOAD ================= */
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      patientId: generatePatientId(),
+    }));
+  }, []);
+
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
@@ -30,10 +43,52 @@ export default function CreateUser() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("CREATE USER DATA:", formData);
-    alert("Dummy user created (check console)");
+
+    const payload = {
+      patientId: formData.patientId, // ✅ SENT TO BACKEND
+      name: formData.patientName,
+      email: formData.email,
+      contactNo: formData.contactNo,
+      address: formData.address,
+    };
+
+    try {
+      const res = await fetch(
+        `${
+          process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api"
+        }/users`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message);
+
+      alert("✅ User created successfully");
+
+      // 🔁 reset form with NEW patient ID
+      setFormData({
+        patientId: generatePatientId(),
+        patientName: "",
+        email: "",
+        contactNo: "",
+        address: "",
+        membershipPlan: "",
+        paymentMethod: "",
+        location: "",
+        status: "active",
+        notifications: true,
+        profileReset: false,
+      });
+    } catch (err: any) {
+      alert(err.message || "Failed to create user");
+    }
   };
 
   return (
@@ -48,11 +103,10 @@ export default function CreateUser() {
           <div className={styles.field}>
             <label className={styles.label}>Patient ID</label>
             <input
-              className={styles.input}
+              className={styles.readonlyInput} // ✅ readonly style
               name="patientId"
-              placeholder="Auto / Manual ID"
               value={formData.patientId}
-              onChange={handleChange}
+              disabled // ✅ cannot edit
             />
           </div>
 

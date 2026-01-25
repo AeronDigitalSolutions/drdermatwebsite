@@ -53,6 +53,8 @@ import {
 import Topbar from "@/components/Layout/Topbar";
 import Footer from "@/components/Layout/Footer";
 import MobileNavbar from "@/components/Layout/MobileNavbar";
+import CreateB2BCategory from "@/components/AdminPanel/CreateB2BCategory";
+import ListofB2BCategory from "@/components/AdminPanel/ListofB2BCategory";
 
 type JwtPayload = { id: string; role: string; exp: number };
 
@@ -212,19 +214,27 @@ export default function SuperAdminDashboard() {
             { key: "USER", create: "createUser", list: "listOfUser" },
 
             { key: "DOCTOR", create: "createDoctor", list: "listOfDoctor" },
-
-            { key: "CLINIC", create: "createClinic", list: "listOfClinic" },
             {
               key: "CLINIC CATEGORY",
               create: "createClinicCategory",
               list: "listOfClinicCategory",
             },
-            { key: "PRODUCT", create: "createProduct", list: "listOfProduct" },
+
+            { key: "CLINIC", create: "createClinic", list: "listOfClinic" },
+            
             {
               key: "PRODUCT CATEGORY",
               create: "createProductCategory",
               list: "listOfProductCategory",
             },
+            { key: "PRODUCT", create: "createProduct", list: "listOfProduct" },
+            
+{
+              key: "B2B PRODUCT CATEGORY",
+              create: "createB2BProductCategory",
+              list: "listOfB2BProductCategory",
+            },
+
             {
               key: "B2B PRODUCT",
               create: "createB2Bproduct",
@@ -338,6 +348,10 @@ export default function SuperAdminDashboard() {
           {activeSection === "createOnlineDoctor" && <CreateOnlineDoctor />}
           {activeSection === "createSupport" && <CreateSupport />}
           {activeSection === "createTreatment" && <CreateTreatment />}
+
+          {activeSection === "listOfB2BProductCategory" && <ListofB2BCategory/>}
+
+          {activeSection === "createB2BProductCategory" && <CreateB2BCategory/>}
         </div>
       </div>
 

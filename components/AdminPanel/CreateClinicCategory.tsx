@@ -1,9 +1,13 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import styles from "@/styles/Dashboard/createcategory.module.css";
+import styles from "@/styles/Dashboard/createcliniccategory.module.css";
 import MobileNavbar from "../Layout/MobileNavbar";
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
+/* ✅ AUTO CATEGORY ID GENERATOR */
+const generateCategoryId = () =>
+  `CAT-${Date.now().toString().slice(-6)}`;
 
 const CreateClinicCategory = () => {
   const [categoryId, setCategoryId] = useState("");
@@ -11,24 +15,30 @@ const CreateClinicCategory = () => {
   const [categoryImage, setCategoryImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  // Explore Image States
   const [exploreImage, setExploreImage] = useState<File | null>(null);
   const [explorePreview, setExplorePreview] = useState<string | null>(null);
   const [latestCategoryId, setLatestCategoryId] = useState<string | null>(null);
 
   const [error, setError] = useState("");
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const exploreInputRef = useRef<HTMLInputElement>(null);
 
-  // 🔹 Fetch latest category to show explore image
+  /* ================= AUTO CATEGORY ID ON LOAD ================= */
+  useEffect(() => {
+    if (!categoryId) {
+      setCategoryId(generateCategoryId());
+    }
+  }, [categoryId]);
+
+  /* ================= FETCH LATEST CATEGORY ================= */
   const fetchLatestCategory = async () => {
     try {
       const res = await fetch(`${API_URL}/clinic-categories`);
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
-        const latest = data[0];
-        setLatestCategoryId(latest._id);
-        setExplorePreview(latest.exploreImage || null);
+        setLatestCategoryId(data[0]._id);
+        setExplorePreview(data[0].exploreImage || null);
       }
     } catch (err) {
       console.error("Failed to fetch latest category:", err);
@@ -39,96 +49,94 @@ const CreateClinicCategory = () => {
     fetchLatestCategory();
   }, []);
 
-  const convertToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
+  /* ================= BASE64 CONVERTER ================= */
+  const convertToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = reject;
     });
-  };
 
+  /* ================= IMAGE HANDLERS ================= */
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 1024 * 1024) {
-        setError("Image must be less than or equal to 1MB.");
-        setCategoryImage(null);
-        setPreviewUrl(null);
-        return;
-      }
-      setError("");
-      setCategoryImage(file);
-      setPreviewUrl(URL.createObjectURL(file));
+    if (!file) return;
+
+    if (file.size > 1024 * 1024) {
+      setError("Image must be less than or equal to 1MB.");
+      return;
     }
+
+    setError("");
+    setCategoryImage(file);
+    setPreviewUrl(URL.createObjectURL(file));
   };
 
   const handleExploreImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 1024 * 1024) {
-        setError("Explore image must be less than or equal to 1MB.");
-        setExploreImage(null);
-        return;
-      }
-      setError("");
-      setExploreImage(file);
+    if (!file) return;
+
+    if (file.size > 1024 * 1024) {
+      setError("Explore image must be less than or equal to 1MB.");
+      return;
     }
+
+    setError("");
+    setExploreImage(file);
   };
 
+  /* ================= CREATE CATEGORY ================= */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!categoryId.trim() || !categoryName.trim() || !categoryImage) {
-      setError("Please fill all required fields and select an image.");
+    if (!categoryId || !categoryName || !categoryImage) {
+      setError("All fields are required");
       return;
     }
 
     try {
-      const base64Image = await convertToBase64(categoryImage);
-      const response = await fetch(`${API_URL}/clinic-categories`, {
+      const base64 = await convertToBase64(categoryImage);
+
+      const res = await fetch(`${API_URL}/clinic-categories`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           categoryId: categoryId.trim(),
           name: categoryName.trim(),
-          imageUrl: base64Image,
+          imageUrl: base64,
         }),
       });
 
-      const data = await response.json();
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
 
-      if (!response.ok) {
-        setError(data.message || "Failed to create clinic category.");
-        return;
-      }
+      alert("✅ Clinic category created successfully");
 
-      alert("✅ Clinic Category created successfully!");
-      setCategoryId("");
+      /* 🔄 RESET (AUTO-GENERATE NEW ID AGAIN) */
+      setCategoryId(generateCategoryId());
       setCategoryName("");
       setCategoryImage(null);
       setPreviewUrl(null);
+
       if (fileInputRef.current) fileInputRef.current.value = "";
-      setError("");
-      fetchLatestCategory(); // Refresh to show latest
-    } catch (err) {
-      console.error(err);
-      setError("An unexpected error occurred.");
+
+      fetchLatestCategory();
+    } catch (err: any) {
+      setError(err.message || "Something went wrong");
     }
   };
 
+  /* ================= EXPLORE IMAGE UPLOAD ================= */
   const handleExploreUpload = async () => {
-    if (!exploreImage) {
-      setError("Please select an image to upload.");
-      return;
-    }
-    if (!latestCategoryId) {
-      setError("No category found to update.");
+    if (!exploreImage || !latestCategoryId) {
+      setError("Missing explore image or category");
       return;
     }
 
     try {
       const base64 = await convertToBase64(exploreImage);
+
       const res = await fetch(
         `${API_URL}/clinic-categories/explore-image/${latestCategoryId}`,
         {
@@ -139,82 +147,79 @@ const CreateClinicCategory = () => {
       );
 
       const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
 
-      if (!res.ok) {
-        setError(data.message || "Failed to upload image");
-        return;
-      }
-
-      alert("✅ Explore image updated successfully!");
+      alert("✅ Explore image updated");
       setExploreImage(null);
       setExplorePreview(data.exploreImage);
       if (exploreInputRef.current) exploreInputRef.current.value = "";
-    } catch (err) {
-      console.error(err);
-      setError("An unexpected error occurred while uploading.");
+    } catch (err: any) {
+      setError(err.message || "Upload failed");
     }
   };
 
   return (
     <div className={styles.container}>
-      {/* ========== CREATE CLINIC CATEGORY FORM ========== */}
+      <h1 className={styles.heading}>Clinic Category Management</h1>
+
+      {error && <p className={styles.error}>{error}</p>}
+
+      {/* ================= CREATE CATEGORY ================= */}
       <form className={styles.form} onSubmit={handleSubmit}>
-        <h2 className={styles.title}>Add New Clinic Category</h2>
-        {error && <p className={styles.error}>{error}</p>}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Create Clinic Category</h3>
 
-        <label htmlFor="categoryId">Category ID (Unique)</label>
-        <input
-          type="text"
-          id="categoryId"
-          value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
-          className={styles.input}
-          placeholder="Enter unique category ID"
-          required
-        />
+          <div className={styles.field}>
+            <label className={styles.label}>Category ID</label>
+            <input
+              className={styles.input}
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              placeholder="Unique category ID"
+            />
+          </div>
 
-        <label htmlFor="name">Category Name</label>
-        <input
-          type="text"
-          id="name"
-          value={categoryName}
-          onChange={(e) => setCategoryName(e.target.value)}
-          className={styles.input}
-          placeholder="Enter clinic category name"
-          required
-        />
+          <div className={styles.field}>
+            <label className={styles.label}>Category Name</label>
+            <input
+              className={styles.input}
+              value={categoryName}
+              onChange={(e) => setCategoryName(e.target.value)}
+              placeholder="Clinic category name"
+            />
+          </div>
 
-        <label htmlFor="image">Category Image (Max 1MB)</label>
-        <input
-          ref={fileInputRef}
-          type="file"
-          id="image"
-          accept="image/*"
-          onChange={handleImageChange}
-          className={styles.fileInput}
-        />
+          <div className={styles.fullField}>
+            <label className={styles.label}>Category Image</label>
 
-        {previewUrl && (
-          <img src={previewUrl} alt="Preview" className={styles.preview} />
-        )}
+            {/* 🔥 PREMIUM CHOOSE IMAGE UX (NO REMOVAL) */}
+            
 
-        <button type="submit" className={styles.button}>
-          Add Clinic Category
-        </button>
+            <input
+            // className={styles.uploadBtn}
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
+
+            {previewUrl && (
+              <img src={previewUrl} className={styles.preview} />
+            )}
+          </div>
+        </div>
+
+        <button className={styles.submitBtn}>Create Category</button>
       </form>
 
-      {/* ========== EXPLORE IMAGE SECTION ========== */}
-      <div className={styles.exploreSection}>
-        <h3 className={styles.subtitle}>Update image to explore more category</h3>
+      {/* ================= EXPLORE IMAGE ================= */}
+      <div className={styles.section}>
+        <h3 className={styles.sectionTitle}>Explore Category Image</h3>
 
         {explorePreview ? (
-          <img
-            src={explorePreview}
-            alt="Explore"
-            className={styles.preview}
-          />
+          <img src={explorePreview} className={styles.preview} />
         ) : (
-          <p className={styles.noImage}>No explore image uploaded yet.</p>
+          <p className={styles.noImage}>No explore image uploaded</p>
         )}
 
         <input
@@ -222,10 +227,9 @@ const CreateClinicCategory = () => {
           type="file"
           accept="image/*"
           onChange={handleExploreImageChange}
-          className={styles.fileInput}
         />
 
-        <button onClick={handleExploreUpload} className={styles.button}>
+        <button className={styles.submitBtn} onClick={handleExploreUpload}>
           Upload Explore Image
         </button>
       </div>

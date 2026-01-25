@@ -1,27 +1,41 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import styles from "@/styles/Dashboard/createproduct.module.css";
 import "react-quill/dist/quill.snow.css";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
+/* ================= CATEGORY TYPE ================= */
+interface Category {
+  id: string;
+  name: string;
+}
+
+/* ================= API BASE ================= */
+const API_URL =
+  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
 export default function CreateProduct() {
   /* ================= AUTO SKU ================= */
   const [productSKU] = useState(`SKU-${Date.now().toString().slice(-6)}`);
+
+  /* ================= CATEGORY STATE ================= */
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
 
   /* ================= FORM STATE ================= */
   const [form, setForm] = useState({
     productName: "",
     category: "",
-    subCategory: "",
+    // subCategory: "", // ❌ not used anymore (intentionally kept)
+    brandName: "",
 
     description: "",
     ingredients: "",
     targetConcerns: "",
     usageInstructions: "",
-
     netQuantity: "",
     mrpPrice: "",
     discountedPrice: "",
@@ -37,9 +51,9 @@ export default function CreateProduct() {
     productShortVideo: "",
 
     benefits: "",
-    rating: "",
-    shippingTime: "",
-    returnPolicy: "",
+    rating: "", // read-only
+    shippingTime: "", // read-only
+    returnPolicy: "", // read-only
     howToUseVideo: "",
     certifications: "",
 
@@ -47,18 +61,43 @@ export default function CreateProduct() {
     skinHairType: "",
     barcode: "",
 
-    availabilityStatus: "Available",
-    stockStatus: "In Stock",
-    reviews: "",
+    availabilityStatus: "Available", // read-only
+    stockStatus: "In Stock", // read-only
+    reviews: "", // read-only
 
-    brandName: "",
-    checkAvailability: true,
-    dermatologistRecommended: false,
-    activeStatus: true,
+    checkAvailability: true, // read-only
+    dermatologistRecommended: false, // read-only
+    activeStatus: true, // read-only
 
     productURL: "",
-    buyNow: true,
+    buyNow: true, // read-only
   });
+
+  /* ================= FETCH CATEGORIES ================= */
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        const res = await fetch(`${API_URL}/categories`);
+        const data = await res.json();
+
+        const normalized = data
+          .map((cat: any) => ({
+            id: cat.id || cat._id,
+            name: cat.name,
+          }))
+          .filter((cat: Category) => cat.id && cat.name);
+
+        setCategories(normalized);
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   /* ================= HANDLERS ================= */
   const handleChange = (
@@ -104,15 +143,52 @@ export default function CreateProduct() {
   );
 
   /* ================= SUBMIT ================= */
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const payload = {
       productSKU,
-      ...form,
+      productName: form.productName,
+      category: form.category,
+      // subCategory: form.subCategory, ❌ intentionally not sent
+      brandName: form.brandName,
+
+      description: form.description,
+      ingredients: form.ingredients,
+      targetConcerns: form.targetConcerns,
+      usageInstructions: form.usageInstructions,
+      benefits: form.benefits,
+      certifications: form.certifications,
+
+      netQuantity: form.netQuantity,
+      mrpPrice: Number(form.mrpPrice),
+      discountedPrice: Number(form.discountedPrice),
+      discountPercent: Number(form.discountPercent),
+      taxIncluded: form.taxIncluded,
+
+      expiryDate: form.expiryDate,
+      manufacturerName: form.manufacturerName,
+      licenseNumber: form.licenseNumber,
+      packagingType: form.packagingType,
+
+      productImages: form.productImages,
+      productShortVideo: form.productShortVideo,
+      howToUseVideo: form.howToUseVideo,
+
+      gender: form.gender,
+      skinHairType: form.skinHairType,
+      barcode: form.barcode,
+      productURL: form.productURL,
     };
 
     console.log("✅ FINAL PRODUCT PAYLOAD", payload);
+
+    await fetch(`${API_URL}/products`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
     alert("Product saved successfully (check console)");
   };
 
@@ -138,12 +214,27 @@ export default function CreateProduct() {
 
           <div className={styles.field}>
             <label className={styles.label}>Product Category</label>
-            <input className={styles.input} name="category" onChange={handleChange} />
+            <select
+              className={styles.select}
+              name="category"
+              value={form.category}
+              onChange={handleChange}
+              disabled={loadingCategories}
+            >
+              <option value="">
+                {loadingCategories ? "Loading categories..." : "Select Category"}
+              </option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.name}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label}>Sub-Category</label>
-            <input className={styles.input} name="subCategory" onChange={handleChange} />
+            <label className={styles.label}>Brand Name</label>
+            <input className={styles.input} name="brandName" onChange={handleChange} />
           </div>
         </div>
 
@@ -161,7 +252,7 @@ export default function CreateProduct() {
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label}>Ingredients (Key)</label>
+            <label className={styles.label}>Ingredients</label>
             <input className={styles.input} name="ingredients" onChange={handleChange} />
           </div>
 
@@ -174,6 +265,16 @@ export default function CreateProduct() {
             <label className={styles.label}>Usage Instructions</label>
             <input className={styles.input} name="usageInstructions" onChange={handleChange} />
           </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Benefits</label>
+            <input className={styles.input} name="benefits" onChange={handleChange} />
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Certifications</label>
+            <input className={styles.input} name="certifications" onChange={handleChange} />
+          </div>
         </div>
 
         {/* ===== PRICING ===== */}
@@ -185,10 +286,10 @@ export default function CreateProduct() {
           <input className={styles.input} name="discountedPrice" placeholder="Discounted Price" onChange={handleChange} />
           <input className={styles.input} name="discountPercent" placeholder="Discount (%)" onChange={handleChange} />
 
-          <select className={styles.select} name="taxIncluded" onChange={handleChange}>
-            <option value="true">Tax Included – Yes</option>
-            <option value="false">Tax Included – No</option>
-          </select>
+          <label className={styles.checkbox}>
+            <input type="checkbox" name="taxIncluded" checked={form.taxIncluded} onChange={handleChange} />
+            Tax Included
+          </label>
         </div>
 
         {/* ===== COMPLIANCE ===== */}
@@ -207,49 +308,38 @@ export default function CreateProduct() {
 
           <input type="file" multiple className={styles.fileInput} onChange={handleImageUpload} />
           <input className={styles.input} name="productShortVideo" placeholder="Product Short Video URL" onChange={handleChange} />
-          <input className={styles.input} name="howToUseVideo" placeholder="How to Use Video (Optional)" onChange={handleChange} />
+          <input className={styles.input} name="howToUseVideo" placeholder="How to Use Video" onChange={handleChange} />
         </div>
 
         {/* ===== META ===== */}
         <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Meta & Controls</h3>
+          <h3 className={styles.sectionTitle}>Product Meta</h3>
 
-          <input className={styles.input} name="benefits" placeholder="Benefits Highlighted" onChange={handleChange} />
-          <input className={styles.input} name="rating" placeholder="Product Rating" onChange={handleChange} />
-          <input className={styles.input} name="shippingTime" placeholder="Shipping Time" onChange={handleChange} />
-          <input className={styles.input} name="returnPolicy" placeholder="Return Policy" onChange={handleChange} />
-          <input className={styles.input} name="certifications" placeholder="Certifications" onChange={handleChange} />
-          <input className={styles.input} name="brandName" placeholder="Brand Name" onChange={handleChange} />
-          <input className={styles.input} name="barcode" placeholder="Product SKU / Barcode" onChange={handleChange} />
-
-          <select className={styles.select} name="gender" onChange={handleChange}>
+          <select className={styles.select} name="gender" value={form.gender} onChange={handleChange}>
             <option>Unisex</option>
             <option>Male</option>
             <option>Female</option>
           </select>
 
-          <input className={styles.input} name="skinHairType" placeholder="Skin Type / Hair Type" onChange={handleChange} />
-
-          <select className={styles.select} name="availabilityStatus" onChange={handleChange}>
-            <option>Available</option>
-            <option>Unavailable</option>
-          </select>
-
-          <select className={styles.select} name="stockStatus" onChange={handleChange}>
-            <option>In Stock</option>
-            <option>Out of Stock</option>
-          </select>
-
-          <textarea className={styles.input} name="reviews" placeholder="Product Reviews" onChange={handleChange} />
+          <input className={styles.input} name="skinHairType" placeholder="Skin / Hair Type" onChange={handleChange} />
+          <input className={styles.input} name="barcode" placeholder="Barcode / SKU" onChange={handleChange} />
           <input className={styles.input} name="productURL" placeholder="Product URL" onChange={handleChange} />
         </div>
 
-        {/* ===== SWITCHES ===== */}
-        <div className={styles.switchRow}>
-          <label><input type="checkbox" name="checkAvailability" checked={form.checkAvailability} onChange={handleChange} /> Check Product Availability</label>
-          <label><input type="checkbox" name="dermatologistRecommended" checked={form.dermatologistRecommended} onChange={handleChange} /> Dermatologist Recommended</label>
-          <label><input type="checkbox" name="activeStatus" checked={form.activeStatus} onChange={handleChange} /> Active</label>
-          <label><input type="checkbox" name="buyNow" checked={form.buyNow} onChange={handleChange} /> Buy Now / Add to Cart</label>
+        {/* ===== META & READ ONLY ===== */}
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Meta & System Controlled</h3>
+
+          <input className={styles.input} placeholder="Rating" disabled />
+          <input className={styles.input} placeholder="Shipping Time" disabled />
+          <input className={styles.input} placeholder="Return Policy" disabled />
+          <textarea className={styles.input} placeholder="Reviews" disabled />
+
+          <label><input type="checkbox" disabled checked /> In Stock</label>
+          <label><input type="checkbox" disabled /> Check Availability</label>
+          <label><input type="checkbox" disabled /> Dermatologist Recommended</label>
+          <label><input type="checkbox" disabled checked /> Active</label>
+          <label><input type="checkbox" disabled checked /> Buy Now</label>
         </div>
 
         <button className={styles.submitBtn}>Save Product</button>

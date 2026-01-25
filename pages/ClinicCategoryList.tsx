@@ -7,10 +7,9 @@ interface ClinicCategory {
   _id: string;
   categoryId: string;
   name: string;
-  imageUrl: string; // base64 string
+  imageUrl: string;
 }
 
-// API URL
 const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const ClinicCategoryList: React.FC = () => {
@@ -23,7 +22,9 @@ const ClinicCategoryList: React.FC = () => {
       try {
         const res = await fetch(`${API_URL}/clinic-categories`);
         const data = await res.json();
-        setCategories(data);
+
+        // 🔥 SAFE HANDLING (array or wrapped response)
+        setCategories(Array.isArray(data) ? data : data.categories || []);
       } catch (err) {
         console.error("Failed to fetch categories:", err);
         setError("Failed to load clinic categories.");
@@ -35,24 +36,38 @@ const ClinicCategoryList: React.FC = () => {
     fetchCategories();
   }, []);
 
-  if (loading) return <p className={styles.loading}>Loading clinic categories...</p>;
+  if (loading) {
+    return <p className={styles.loading}>Loading clinic categories…</p>;
+  }
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Clinic Categories</h2>
+      <h1 className={styles.heading}>Clinic Categories</h1>
+
       {error && <p className={styles.error}>{error}</p>}
 
-      <div className={styles.grid}>
-        {categories.map((cat) => (
-          <div key={cat._id} className={styles.card}>
-            <img src={cat.imageUrl} alt={cat.name} className={styles.image} />
-            <div className={styles.content}>
-              <h3>{cat.name}</h3>
-              <p>ID: {cat.categoryId}</p>
+      {categories.length === 0 ? (
+        <p className={styles.empty}>No clinic categories found.</p>
+      ) : (
+        <div className={styles.grid}>
+          {categories.map((cat) => (
+            <div key={cat._id} className={styles.card}>
+              <div className={styles.imageWrapper}>
+                <img
+                  src={cat.imageUrl}
+                  alt={cat.name}
+                  className={styles.image}
+                />
+              </div>
+
+              <div className={styles.content}>
+                <h3 className={styles.name}>{cat.name}</h3>
+                <span className={styles.badge}>{cat.categoryId}</span>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

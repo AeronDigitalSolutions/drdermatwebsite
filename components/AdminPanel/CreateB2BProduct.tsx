@@ -1,15 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "@/styles/Dashboard/createb2bproduct.module.css";
+
+const API_URL =
+  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
+/* ================= CATEGORY TYPE ================= */
+interface B2BCategory {
+  _id: string;
+  name: string;
+}
 
 export default function CreateB2BProduct() {
   const [sku] = useState(`B2B-${Date.now().toString().slice(-6)}`);
 
+  /* ================= CATEGORY STATE ================= */
+  const [categories, setCategories] = useState<B2BCategory[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+
   const [form, setForm] = useState({
     productName: "",
     category: "",
-    subCategory: "",
     hsnCode: "",
     brandName: "",
     packSize: "",
@@ -54,22 +66,76 @@ export default function CreateB2BProduct() {
     email: "",
   });
 
+  /* ================= FETCH B2B CATEGORIES ================= */
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        const res = await fetch(`${API_URL}/b2b-categories`);
+        const data = await res.json();
+        setCategories(data);
+      } catch (err) {
+        console.error("Failed to fetch B2B categories:", err);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value, type } = e.target as HTMLInputElement;
     const checked = (e.target as HTMLInputElement).checked;
 
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  /* ================= UPDATED SUBMIT ================= */
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("✅ B2B PRODUCT PAYLOAD", { sku, ...form });
-    alert("B2B Product saved successfully (check console)");
+
+    const {
+      /* ❌ LOGISTICS (READ ONLY) */
+      countryOfOrigin,
+      shippingWeight,
+      dispatchTime,
+      returnPolicy,
+      howToUseVideo,
+
+      /* ❌ ACTIONS & CONTACT (READ ONLY) */
+      addToCart,
+      inAppChat,
+      chooseFromList,
+      issueDescription,
+      chatOption,
+      tollFreeNumber,
+      email,
+
+      ...dbFields
+    } = form;
+
+    const payload = {
+      sku,
+      ...dbFields,
+    };
+
+    console.log("✅ B2B PRODUCT PAYLOAD", payload);
+
+    await fetch(`${API_URL}/b2b-products`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    alert("B2B Product saved successfully");
   };
 
   return (
@@ -86,11 +152,45 @@ export default function CreateB2BProduct() {
             <input className={styles.readonlyInput} value={sku} disabled />
           </div>
 
-          <input className={styles.input} name="productName" placeholder="Product Name" onChange={handleChange} />
-          <input className={styles.input} name="category" placeholder="Product Category" onChange={handleChange} />
-          <input className={styles.input} name="subCategory" placeholder="Sub-Category" onChange={handleChange} />
-          <input className={styles.input} name="hsnCode" placeholder="HSN Code" onChange={handleChange} />
-          <input className={styles.input} name="brandName" placeholder="Brand Name" onChange={handleChange} />
+          <input
+            className={styles.input}
+            name="productName"
+            placeholder="Product Name"
+            onChange={handleChange}
+          />
+
+          {/* ✅ DYNAMIC CATEGORY */}
+          <select
+            className={styles.select}
+            name="category"
+            value={form.category}
+            onChange={handleChange}
+            disabled={loadingCategories}
+          >
+            <option value="">
+              {loadingCategories
+                ? "Loading categories..."
+                : "Select B2B Category"}
+            </option>
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat.name}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+
+          <input
+            className={styles.input}
+            name="hsnCode"
+            placeholder="HSN Code"
+            onChange={handleChange}
+          />
+          <input
+            className={styles.input}
+            name="brandName"
+            placeholder="Brand Name"
+            onChange={handleChange}
+          />
         </div>
 
         {/* PRICING */}
@@ -132,15 +232,15 @@ export default function CreateB2BProduct() {
           </select>
         </div>
 
-        {/* LOGISTICS */}
+        {/* LOGISTICS (READ ONLY) */}
         <div className={styles.section}>
           <h3 className={styles.sectionTitle}>Logistics</h3>
 
-          <input className={styles.input} name="countryOfOrigin" placeholder="Country of Origin" onChange={handleChange} />
-          <input className={styles.input} name="shippingWeight" placeholder="Shipping Weight" onChange={handleChange} />
-          <input className={styles.input} name="dispatchTime" placeholder="Dispatch Time" onChange={handleChange} />
-          <input className={styles.input} name="returnPolicy" placeholder="Return Policy" onChange={handleChange} />
-          <input className={styles.input} name="howToUseVideo" placeholder="How to Use Video / Manual" onChange={handleChange} />
+          <input className={styles.input} disabled placeholder="Country of Origin" />
+          <input className={styles.input} disabled placeholder="Shipping Weight" />
+          <input className={styles.input} disabled placeholder="Dispatch Time" />
+          <input className={styles.input} disabled placeholder="Return Policy" />
+          <input className={styles.input} disabled placeholder="How to Use Video / Manual" />
         </div>
 
         {/* MEDIA & SUPPORT */}
@@ -154,20 +254,20 @@ export default function CreateB2BProduct() {
           <input className={styles.input} name="promotionalTags" placeholder="Promotional Tags" onChange={handleChange} />
         </div>
 
-        {/* ACTIONS */}
+        {/* ACTIONS & CONTACT (READ ONLY) */}
         <div className={styles.section}>
           <h3 className={styles.sectionTitle}>Actions & Contact</h3>
 
           <div className={styles.switchRow}>
-            <label><input type="checkbox" name="addToCart" checked={form.addToCart} onChange={handleChange} /> Add to Cart</label>
-            <label><input type="checkbox" name="inAppChat" checked={form.inAppChat} onChange={handleChange} /> In-App Chat with Supplier</label>
-            <label><input type="checkbox" name="chatOption" checked={form.chatOption} onChange={handleChange} /> Chat Option</label>
+            <label><input type="checkbox" disabled checked /> Add to Cart</label>
+            <label><input type="checkbox" disabled checked /> In-App Chat with Supplier</label>
+            <label><input type="checkbox" disabled checked /> Chat Option</label>
           </div>
 
-          <input className={styles.input} name="chooseFromList" placeholder="Choose from list" onChange={handleChange} />
-          <textarea className={styles.textarea} name="issueDescription" placeholder="Describe your issue in detail" onChange={handleChange} />
-          <input className={styles.input} name="tollFreeNumber" placeholder="Toll Free Number" onChange={handleChange} />
-          <input className={styles.input} name="email" placeholder="Write an Email" onChange={handleChange} />
+          <input className={styles.input} disabled placeholder="Choose from list" />
+          <textarea className={styles.textarea} disabled placeholder="Describe your issue in detail" />
+          <input className={styles.input} disabled placeholder="Toll Free Number" />
+          <input className={styles.input} disabled placeholder="Write an Email" />
         </div>
 
         <button className={styles.submitBtn}>Submit B2B Product</button>

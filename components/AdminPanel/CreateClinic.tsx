@@ -1,11 +1,6 @@
-
-
-
-
-
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "@/styles/Dashboard/createclinic.module.css";
 import MobileNavbar from "../Layout/MobileNavbar";
 
@@ -19,8 +14,16 @@ interface Doctor {
   specialization: string;
 }
 
+interface ClinicCategory {
+  _id: string;
+  name: string;
+}
+
 export default function CreateClinic() {
   const [cuc] = useState(`CUC-${Date.now().toString().slice(-6)}`);
+
+  /* ================= CATEGORY STATE ================= */
+  const [categories, setCategories] = useState<ClinicCategory[]>([]);
 
   /* ================= DOCTOR MODAL STATE ================= */
   const [doctors, setDoctors] = useState<Doctor[]>([]);
@@ -34,7 +37,8 @@ export default function CreateClinic() {
   /* ================= MAIN FORM STATE ================= */
   const [form, setForm] = useState({
     clinicName: "",
-    dermaCategory: "",
+    dermaCategory: "", // ✅ ObjectId ONLY
+
     clinicType: "",
     ownerName: "",
     website: "",
@@ -83,6 +87,20 @@ export default function CreateClinic() {
     logout: false,
   });
 
+  /* ================= FETCH CLINIC CATEGORIES ================= */
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch(`${API_URL}/clinic-categories`);
+        const data = await res.json();
+        if (Array.isArray(data)) setCategories(data);
+      } catch (err) {
+        console.error("Failed to fetch categories", err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   /* ================= HANDLERS ================= */
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -94,6 +112,13 @@ export default function CreateClinic() {
         type === "checkbox"
           ? (e.target as HTMLInputElement).checked
           : value,
+    }));
+  };
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setForm((prev) => ({
+      ...prev,
+      dermaCategory: e.target.value, // ✅ ObjectId
     }));
   };
 
@@ -114,6 +139,11 @@ export default function CreateClinic() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!form.dermaCategory) {
+      alert("Please select clinic category");
+      return;
+    }
 
     const payload = {
       cuc,
@@ -140,18 +170,39 @@ export default function CreateClinic() {
 
         <form className={styles.form} onSubmit={handleSubmit}>
 
-          {/* 1. CLINIC IDENTITY */}
+          {/* ================= 1. CLINIC IDENTITY ================= */}
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>Clinic Identity</h2>
+
             <input value={cuc} disabled className={styles.readonlyInput} />
-            <input className={styles.input} name="clinicName" placeholder="Clinic (Hospital) Name" onChange={handleChange} />
-            <input className={styles.input} name="dermaCategory" placeholder="Derma Clinic Category" onChange={handleChange} />
+
+            <input
+              className={styles.input}
+              name="clinicName"
+              placeholder="Clinic (Hospital) Name"
+              onChange={handleChange}
+            />
+
+            {/* ✅ SINGLE DYNAMIC CATEGORY FIELD */}
+            <select
+              className={styles.input}
+              value={form.dermaCategory}
+              onChange={handleCategoryChange}
+            >
+              <option value="">Select Clinic Category</option>
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+
             <input className={styles.input} name="clinicType" placeholder="Clinic Type" onChange={handleChange} />
             <input className={styles.input} name="ownerName" placeholder="Owner (Founder) Name" onChange={handleChange} />
             <input className={styles.input} name="website" placeholder="Website" onChange={handleChange} />
           </section>
 
-          {/* 2. BRANDING & MEDIA (FIXED – ALL REQUIRED FIELDS) */} <section className={styles.section}> <h2 className={styles.sectionTitle}>Branding & Media</h2> <div className={styles.field}> <label>Clinic Logo</label> <input type="file" className={styles.input} /> </div> <div className={styles.field}> <label>Banner Image</label> <input type="file" className={styles.input} /> </div> <div className={styles.field}> <label>Special Offers (Images)</label> <input type="file" multiple className={styles.input} /> </div> <div className={styles.field}> <label>Rate Card / Catalogue</label> <input type="file" className={styles.input} /> </div> <div className={styles.field}> <label>Photos</label> <input type="file" multiple className={styles.input} /> </div> <div className={styles.field}> <label>Videos</label> <input type="file" multiple className={styles.input} /> </div> <div className={styles.field}> <label>Certifications / Awards (Images)</label> <input type="file" multiple className={styles.input} /> </div> </section>
+        {/* 2. BRANDING & MEDIA (FIXED – ALL REQUIRED FIELDS) */} <section className={styles.section}> <h2 className={styles.sectionTitle}>Branding & Media</h2> <div className={styles.field}> <label>Clinic Logo</label> <input type="file" className={styles.input} /> </div> <div className={styles.field}> <label>Banner Image</label> <input type="file" className={styles.input} /> </div> <div className={styles.field}> <label>Special Offers (Images)</label> <input type="file" multiple className={styles.input} /> </div> <div className={styles.field}> <label>Rate Card / Catalogue</label> <input type="file" className={styles.input} /> </div> <div className={styles.field}> <label>Photos</label> <input type="file" multiple className={styles.input} /> </div> <div className={styles.field}> <label>Videos</label> <input type="file" multiple className={styles.input} /> </div> <div className={styles.field}> <label>Certifications / Awards (Images)</label> <input type="file" multiple className={styles.input} /> </div> </section>
 
           {/* 3. DOCTORS & EXPERTISE (UPDATED ONLY SECTION) */}
           <section className={styles.section}>
@@ -273,8 +324,6 @@ export default function CreateClinic() {
               <input type="checkbox" name="logout" onChange={handleChange} /> Log out
             </label>
           </section>
-
-
           <button className={styles.submitBtn}>Create Clinic</button>
         </form>
       </div>

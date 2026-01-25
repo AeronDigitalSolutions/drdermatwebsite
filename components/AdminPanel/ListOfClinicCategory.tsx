@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import styles from "@/styles/Dashboard/listofcategory.module.css";
+import styles from "@/styles/Dashboard/listofcliniccategory.module.css";
 
 interface ClinicCategory {
   _id: string;

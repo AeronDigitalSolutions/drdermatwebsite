@@ -1,337 +1,192 @@
 "use client";
-import React, { useEffect, useState } from "react";
+
+import React, { useEffect, useMemo, useState } from "react";
 import styles from "@/styles/Dashboard/productlist.module.css";
 
 interface Category {
   _id: string;
   name: string;
-  imageUrl: string;
 }
 
-type RawProduct = {
+interface Product {
   _id: string;
-  name: string;
-  category: string;
-  company: string;
-  price: number;
-  discountPrice: number;
-  quantity: number;
+  productName: string;
+  category: string; // category id or name
+  mrpPrice: number;
+  discountedPrice: number;
+  brandName: string;
   description: string;
-  images: string[];
-};
-
-interface ProductWithCategory extends RawProduct {
-  categoryObj?: Category | null;
+  ingredients: string;
+  targetConcerns: string;
+  usageInstructions: string;
+  netQuantity: string;
+  expiryDate: string;
+  manufacturerName: string;
+  licenseNumber: string;
+  packagingType: string;
+  productImages: string[];
+  productShortVideo: string;
+  howToUseVideo: string;
+  benefits: string;
+  certifications: string;
+  gender: string;
+  skinHairType: string;
+  barcode: string;
+  productURL: string;
+  createdAt: string;
 }
 
-// ✅ Environment-aware API base URL
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const ListOfProduct: React.FC = () => {
-  const [products, setProducts] = useState<ProductWithCategory[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [editingProduct, setEditingProduct] = useState<ProductWithCategory | null>(null);
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [mainImages, setMainImages] = useState<Record<string, string>>({});
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<"name" | "price">("name");
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [viewProduct, setViewProduct] = useState<Product | null>(null);
 
+  /* ================= FETCH DATA ================= */
   useEffect(() => {
-    fetchCategoriesAndProducts();
+    fetchData();
   }, []);
 
-  const normalizeProduct = (p: RawProduct, categories: Category[]): ProductWithCategory => {
-    const categoryObj = categories.find((c) => c._id === p.category) || null;
-    return { ...p, categoryObj };
+  const fetchData = async () => {
+    const [prodRes, catRes] = await Promise.all([
+      fetch(`${API_URL}/products`),
+      fetch(`${API_URL}/categories`),
+    ]);
+
+    const prodData = await prodRes.json();
+    const catData = await catRes.json();
+
+    setProducts(prodData);
+    setCategories(catData);
   };
 
-  const fetchCategoriesAndProducts = async () => {
-    try {
-      const [catRes, prodRes] = await Promise.all([
-        fetch(`${API_URL}/categories`),
-        fetch(`${API_URL}/products`),
-      ]);
+  /* ================= HELPERS ================= */
+  const getCategoryName = (id: string) =>
+    categories.find((c) => c._id === id)?.name || id;
 
-      if (!catRes.ok) throw new Error("Failed to fetch categories");
-      if (!prodRes.ok) throw new Error("Failed to fetch products");
+  /* ================= FILTER + SORT ================= */
+  const filteredProducts = useMemo(() => {
+    let data = [...products];
 
-      const catData: Category[] = await catRes.json();
-      const prodData: RawProduct[] = await prodRes.json();
-
-      const normalizedProducts = prodData.map((p) => normalizeProduct(p, catData));
-
-      setCategories(catData);
-      setProducts(normalizedProducts);
-
-      // ✅ Set main image for each product
-      const mainImgMap: Record<string, string> = {};
-      normalizedProducts.forEach((p) => {
-        mainImgMap[p._id] = p.images?.[0] || "https://via.placeholder.com/200?text=No+Image";
-      });
-      setMainImages(mainImgMap);
-    } catch (error) {
-      console.error("Failed to fetch:", error);
-    }
-  };
-
-  const handleDelete = async (_id: string) => {
-    if (!confirm("Are you sure you want to delete this product?")) return;
-
-    try {
-      const res = await fetch(`${API_URL}/products/${_id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Delete failed");
-      setProducts((prev) => prev.filter((p) => p._id !== _id));
-      alert("✅ Product deleted successfully.");
-    } catch (error) {
-      console.error("Delete failed:", error);
-      alert("Failed to delete product.");
-    }
-  };
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    if (!editingProduct) return;
-    const { name, value } = e.target;
-
-    if (name === "category") {
-      const selected = categories.find((c) => c._id === value) || null;
-      setEditingProduct({ ...editingProduct, category: value, categoryObj: selected });
-    } else {
-      setEditingProduct({ ...editingProduct, [name]: value });
-    }
-  };
-
-  const handleUpdateSubmit = async () => {
-    if (!editingProduct) return;
-
-    try {
-      const payload = {
-        name: editingProduct.name,
-        company: editingProduct.company,
-        category: editingProduct.category,
-        price: Number(editingProduct.price),
-        discountPrice: Number(editingProduct.discountPrice),
-        quantity: Number(editingProduct.quantity),
-        description: editingProduct.description,
-        images: editingProduct.images,
-      };
-
-      const res = await fetch(`${API_URL}/products/${editingProduct._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const updatedRaw = await res.json();
-      if (!res.ok) throw new Error(updatedRaw.message || "Failed to update product");
-
-      const updatedProduct = normalizeProduct(updatedRaw, categories);
-
-      setProducts((prev) =>
-        prev.map((p) => (p._id === updatedProduct._id ? updatedProduct : p))
+    if (search) {
+      data = data.filter((p) =>
+        p.productName.toLowerCase().includes(search.toLowerCase())
       );
-
-      setMainImages((prev) => ({
-        ...prev,
-        [updatedProduct._id]: updatedProduct.images?.[0] || prev[updatedProduct._id],
-      }));
-
-      alert("✅ Product updated successfully.");
-      setEditingProduct(null);
-    } catch (error) {
-      console.error("Update error:", error);
-      alert("Failed to update product.");
     }
-  };
 
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "all" || product.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+    if (filterCategory !== "all") {
+      data = data.filter((p) => p.category === filterCategory);
+    }
+
+    if (sortBy === "name") {
+      data.sort((a, b) => a.productName.localeCompare(b.productName));
+    } else {
+      data.sort((a, b) => a.mrpPrice - b.mrpPrice);
+    }
+
+    return data;
+  }, [products, search, sortBy, filterCategory]);
+
+  /* ================= DELETE ================= */
+  const handleDelete = async (id: string) => {
+    if (!confirm("Delete this product?")) return;
+
+    await fetch(`${API_URL}/products/${id}`, { method: "DELETE" });
+    setProducts((prev) => prev.filter((p) => p._id !== id));
+  };
 
   return (
     <div className={styles.container}>
       <h2 className={styles.heading}>Product List</h2>
 
-      <div className={styles.layout}>
-        {/* Sidebar for Categories */}
-        <aside className={styles.sidebar}>
-          <h3>Categories</h3>
-          <ul>
-            <li
-              className={selectedCategory === "all" ? styles.active : ""}
-              onClick={() => setSelectedCategory("all")}
-            >
-              All Products
-            </li>
-            {categories.map((cat) => (
-              <li
-                key={cat._id}
-                className={selectedCategory === cat._id ? styles.active : ""}
-                onClick={() => setSelectedCategory(cat._id)}
-              >
-                {cat.name}
-              </li>
-            ))}
-          </ul>
-        </aside>
+      {/* ===== CONTROLS ===== */}
+      <div className={styles.controls}>
+        <input
+          className={styles.search}
+          placeholder="Search product..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
 
-        {/* Product Grid */}
-        <main className={styles.main}>
-          <input
-            type="text"
-            placeholder="Search by name..."
-            className={styles.searchInput}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        <select onChange={(e) => setSortBy(e.target.value as any)}>
+          <option value="name">Sort by Name</option>
+          <option value="price">Sort by Price</option>
+        </select>
 
-          <div className={styles.grid}>
-            {filteredProducts.map((product) => (
-              <div key={product._id} className={styles.card}>
-                <img
-                  src={mainImages[product._id] || "https://via.placeholder.com/200?text=No+Image"}
-                  alt={product.name}
-                  className={styles.mainImage}
-                />
-
-                {product.images && product.images.length > 1 && (
-                  <div className={styles.imageRow}>
-                    {product.images.map((img, idx) => (
-                      <img
-                        key={idx}
-                        src={img}
-                        alt={`${product.name}-${idx}`}
-                        className={`${styles.imageThumb} ${
-                          mainImages[product._id] === img ? styles.activeThumb : ""
-                        }`}
-                        onClick={() =>
-                          setMainImages((prev) => ({ ...prev, [product._id]: img }))
-                        }
-                      />
-                    ))}
-                  </div>
-                )}
-
-                <h3 className={styles.name}>{product.name}</h3>
-                <p className={styles.company}>{product.company}</p>
-
-                <p className={styles.category}>
-                  {product.categoryObj?.imageUrl && (
-                    <img
-                      src={product.categoryObj.imageUrl}
-                      alt={product.categoryObj.name}
-                      className={styles.categoryIcon}
-                    />
-                  )}
-                  {product.categoryObj?.name || "Unknown"}
-                </p>
-
-                <div className={styles.priceRow}>
-                  <span className={styles.discount}>₹{product.price}</span>
-                  {product.discountPrice && product.discountPrice !== product.price && (
-                    <span className={styles.original}>₹{product.discountPrice}</span>
-                  )}
-                </div>
-
-                <p className={styles.quantity}>Available: {product.quantity}</p>
-
-                <div
-                  className={styles.description}
-                  dangerouslySetInnerHTML={{ __html: product.description }}
-                />
-
-                <div className={styles.buttonGroup}>
-                  <button
-                    className={styles.updateBtn}
-                    onClick={() => setEditingProduct(product)}
-                  >
-                    Update
-                  </button>
-                  <button
-                    className={styles.deleteBtn}
-                    onClick={() => handleDelete(product._id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </main>
+        <select onChange={(e) => setFilterCategory(e.target.value)}>
+          <option value="all">All Categories</option>
+          {categories.map((c) => (
+            <option key={c._id} value={c._id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {/* ✅ Edit Product Modal */}
-      {editingProduct && (
+      {/* ===== TABLE ===== */}
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th>S.No</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {filteredProducts.map((p, i) => (
+            <tr key={p._id}>
+              <td>{i + 1}</td>
+              <td>{p.productName}</td>
+              <td>{getCategoryName(p.category)}</td>
+              <td>₹{p.mrpPrice}</td>
+              <td className={styles.actions}>
+                <button
+                  className={styles.eye}
+                  onClick={() => setViewProduct(p)}
+                >
+                  👁
+                </button>
+                <button className={styles.edit}>✏️</button>
+                <button
+                  className={styles.delete}
+                  onClick={() => handleDelete(p._id)}
+                >
+                  🗑
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* ===== VIEW MODAL ===== */}
+      {viewProduct && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
-            <h3>Edit Product</h3>
+            <h3>{viewProduct.productName}</h3>
 
-            <input
-              name="name"
-              value={editingProduct.name}
-              onChange={handleInputChange}
-              placeholder="Name"
-            />
-
-            <input
-              name="company"
-              value={editingProduct.company}
-              onChange={handleInputChange}
-              placeholder="Company"
-            />
-
-            <select
-              name="category"
-              value={editingProduct.category}
-              onChange={handleInputChange}
-            >
-              <option value="">Select Category</option>
-              {categories.map((cat) => (
-                <option key={cat._id} value={cat._id}>
-                  {cat.name}
-                </option>
+            <div className={styles.modalGrid}>
+              {Object.entries(viewProduct).map(([key, val]) => (
+                <div key={key}>
+                  <strong>{key}</strong>
+                  <p>
+                    {Array.isArray(val)
+                      ? val.join(", ")
+                      : String(val || "-")}
+                  </p>
+                </div>
               ))}
-            </select>
-
-            <input
-              name="price"
-              type="number"
-              value={editingProduct.price}
-              onChange={handleInputChange}
-              placeholder="Price"
-            />
-
-            <input
-              name="discountPrice"
-              type="number"
-              value={editingProduct.discountPrice}
-              onChange={handleInputChange}
-              placeholder="Discount Price"
-            />
-
-            <input
-              name="quantity"
-              type="number"
-              value={editingProduct.quantity}
-              onChange={handleInputChange}
-              placeholder="Quantity"
-            />
-
-            <textarea
-              name="description"
-              value={editingProduct.description}
-              onChange={handleInputChange}
-              placeholder="Description"
-              rows={4}
-            ></textarea>
-
-            <div className={styles.modalButtons}>
-              <button onClick={handleUpdateSubmit}>Save</button>
-              <button onClick={() => setEditingProduct(null)}>Cancel</button>
             </div>
+
+            <button onClick={() => setViewProduct(null)}>Close</button>
           </div>
         </div>
       )}

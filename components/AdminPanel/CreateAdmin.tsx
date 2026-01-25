@@ -54,7 +54,7 @@ export default function CreateAdmin() {
       email: form.email,
       phone: form.phone,
       password: form.password,
-      accessLevel: form.accessLevel,
+accessLevel: form.accessLevel.toLowerCase(),
     };
 
     try {

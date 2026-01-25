@@ -5,7 +5,7 @@ import { Product } from "../types/product";
 import { ProductCategory } from "../types/productCategory";
 import { getCategoryList } from "../lib/api/productCategories";
 import { updateProduct } from "../lib/api/product";
-// import { useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 type ProductPropType = {
   product: Product;
@@ -26,7 +26,7 @@ function ProductUpdateForm({ product }: ProductPropType) {
     ProductCategory[]
   >([]);
 
-  // const session = useSession();
+  const session = useSession();
 
   async function handleSubmit(event: any) {
     event.preventDefault();

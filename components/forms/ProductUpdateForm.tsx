@@ -38,31 +38,32 @@ function ProductUpdateForm({ product }: ProductPropType) {
 
     const tempCategories = selectedCategories.map((cat) => cat.id);
 
-    const res = await updateProduct({
-      id: product.id,
-      name: formObj.name as string,
-      description: formObj.description as string,
-      longdescription: formObj.longdescription as string,
-      price: parseInt(formObj.price as string),
-      saleprice: parseInt(formObj.saleprice as string),
-      categories: tempCategories,
-      token: user?.token as string,
-    });
+    try {
+      const res = await updateProduct({
+        id: product.id,
+        name: formObj.name as string,
+        description: formObj.description as string,
+        longdescription: formObj.longdescription as string,
+        price: parseInt(formObj.price as string),
+        saleprice: parseInt(formObj.saleprice as string),
+        categories: tempCategories,
+        token: user?.token as string,
+      });
 
-    console.log(res);
+      console.log(res);
+    } catch (error) {
+      console.error("Error updating product:", error);
+      alert("Failed to update product. Please try again.");
+    }
   }
 
   async function getCategories() {
     const tempCategories = await getCategoryList();
     setCategories(tempCategories.data);
 
-    const tempSelectCats: ProductCategory[] = product.categories.map(
-      (cat, index) => {
-        return tempCategories.data?.filter((catListItem: ProductCategory) => {
-          return catListItem.id == cat ? true : false;
-        })[0];
-      }
-    ) as unknown as ProductCategory[];
+    const tempSelectCats: ProductCategory[] = product.categories.map(catId => {
+      return tempCategories.data.find((cat: ProductCategory) => cat.id === catId);
+    }).filter(Boolean) as ProductCategory[];
     setSelectedCategories(tempSelectCats);
   }
   useEffect(() => {
@@ -75,13 +76,9 @@ function ProductUpdateForm({ product }: ProductPropType) {
       (option: { value: number }) => option.value
     );
 
-    const tempSelectCats: ProductCategory[] = selectedValues.map(
-      (cat, index) => {
-        return categories?.filter((catListItem: ProductCategory) => {
-          return catListItem.id == cat ? true : false;
-        })[0];
-      }
-    ) as unknown as ProductCategory[];
+    const tempSelectCats: ProductCategory[] = selectedValues.map(catId => {
+      return categories.find((cat: ProductCategory) => cat.id === catId);
+    }).filter(Boolean) as ProductCategory[];
     setSelectedCategories(tempSelectCats);
   };
 
@@ -111,8 +108,7 @@ function ProductUpdateForm({ product }: ProductPropType) {
           <label className={styles.label} htmlFor="description">
             Description
           </label>
-          <input
-            type="textarea"
+          <textarea
             name="description"
             id="description"
             defaultValue={product.description}
@@ -120,13 +116,12 @@ function ProductUpdateForm({ product }: ProductPropType) {
           />
         </div>
         <div className={styles.inputDiv}>
-          <label className={styles.label} htmlFor="long_description">
+          <label className={styles.label} htmlFor="longdescription">
             Long Description
           </label>
-          <input
-            type="textarea"
+          <textarea
             name="longdescription"
-            id="nlong_descriptioname"
+            id="longdescription"
             defaultValue={product.long_description}
             className={styles.input}
           />
@@ -151,7 +146,7 @@ function ProductUpdateForm({ product }: ProductPropType) {
             type="number"
             name="saleprice"
             id="saleprice"
-            defaultValue={product.price}
+            defaultValue={product.mrp}
             className={styles.input}
           />
         </div>

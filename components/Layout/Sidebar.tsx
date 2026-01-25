@@ -14,7 +14,7 @@ import {
   DollarSign,
   ChevronDown,
 } from "lucide-react";
-import { signOut } from "next-auth/react";
+// import { signOut } from "next-auth/react";
 
 const Sidebar = () => {
   const [openMenus, setOpenMenus] = useState<{ [key: string]: boolean }>({});
@@ -138,7 +138,7 @@ const Sidebar = () => {
           </li>
         ))}
       </ul>
-      <button className={styles.signout} onClick={() => signOut()}>Signout</button>
+      {/* <button className={styles.signout} onClick={() => signOut()}>Signout</button> */}
     </div>
   );
 };

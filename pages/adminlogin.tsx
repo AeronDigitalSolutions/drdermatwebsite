@@ -1,5 +1,5 @@
 "use client";
-
+import { API_URL } from "@/config/api";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
@@ -7,7 +7,7 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import styles from "@/styles/adminlogin.module.css";
 
 // ✅ Use environment variable for API URL
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 export default function AdminLogin() {
   const router = useRouter();

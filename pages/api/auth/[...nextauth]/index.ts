@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const url = process.env.NEXT_PUBLIC_APP_URL;
+const url =2 ;
 
 type NextCredentials = {
   username: string;

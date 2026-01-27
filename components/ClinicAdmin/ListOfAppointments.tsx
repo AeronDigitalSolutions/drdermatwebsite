@@ -3,8 +3,9 @@
 import React, { useEffect, useState } from "react";
 import styles from "@/styles/clinicdashboard/listofappointments.module.css";
 import Cookies from "js-cookie";
+import { API_URL } from "@/config/api";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 type Appointment = {
   _id: string;
@@ -50,7 +51,7 @@ export default function ListOfAppointments() {
   ----------------------------------------------- */
   const fetchAppointments = async () => {
     try {
-      const res = await fetch(`${API_BASE}/appointments`);
+      const res = await fetch(`${API_URL}/appointments`);
       const data = await res.json();
       setAppointments(data);
       setFilteredAppointments(data);
@@ -64,7 +65,7 @@ export default function ListOfAppointments() {
   ----------------------------------------------- */
   const fetchPurchased = async () => {
     try {
-      const res = await fetch(`${API_BASE}/clinics/${clinicId}/purchased-services`);
+      const res = await fetch(`${API_URL}/clinics/${clinicId}/purchased-services`);
       const data = await res.json();
       setPurchased(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -77,7 +78,7 @@ export default function ListOfAppointments() {
   ----------------------------------------------- */
   const fetchDoctors = async () => {
     try {
-      const res = await fetch(`${API_BASE}/doctors`);
+      const res = await fetch(`${API_URL}/doctors`);
       const data = await res.json();
       setDoctors(data);
     } catch (err) {
@@ -91,7 +92,7 @@ export default function ListOfAppointments() {
   const assignDoctor = async (serviceEntryId: string, doctorId: string) => {
     try {
       const res = await fetch(
-        `${API_BASE}/clinics/purchased-services/${serviceEntryId}/assign-doctor`,
+        `${API_URL}/clinics/purchased-services/${serviceEntryId}/assign-doctor`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -157,7 +158,7 @@ export default function ListOfAppointments() {
     if (!editingAppt) return;
 
     try {
-      const res = await fetch(`${API_BASE}/appointments/${editingAppt._id}`, {
+      const res = await fetch(`${API_URL}/appointments/${editingAppt._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editForm),
@@ -179,7 +180,7 @@ export default function ListOfAppointments() {
     if (!confirm("Are you sure you want to delete this appointment?")) return;
 
     try {
-      await fetch(`${API_BASE}/appointments/${id}`, { method: "DELETE" });
+      await fetch(`${API_URL}/appointments/${id}`, { method: "DELETE" });
       setAppointments(appointments.filter((appt) => appt._id !== id));
     } catch (err) {
       console.error("Error deleting appointment:", err);

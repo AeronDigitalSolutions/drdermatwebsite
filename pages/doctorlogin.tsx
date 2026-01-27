@@ -3,9 +3,10 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import styles from "@/styles/clinicdashboard/doctors.module.css";
+import { API_URL } from "@/config/api";
 
 // ✅ Use environment variable for API base URL
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const LoginDoctor = () => {
   const [formData, setFormData] = useState({

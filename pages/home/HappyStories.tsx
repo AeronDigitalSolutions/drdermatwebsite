@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
@@ -11,7 +12,7 @@ interface Short {
 }
 
 // ✅ Backend API base URL (local or deployed)
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const HappyStories = () => {
   const [shorts, setShorts] = useState<Short[]>([]);
@@ -25,7 +26,7 @@ const HappyStories = () => {
   useEffect(() => {
     const fetchShorts = async () => {
       try {
-        const res = await axios.get(`${API_BASE}/latest-shorts`);
+        const res = await axios.get(`${API_URL}/latest-shorts`);
         setShorts(res.data || []);
       } catch (err) {
         console.error("Failed to fetch shorts", err);

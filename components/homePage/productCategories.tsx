@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import React, { useEffect, useState } from "react";
 import styles from "@/styles/components/homePage/categories.module.css";
@@ -19,7 +20,7 @@ interface ProductCategoryProps {
   border?: string;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const ProductCategory: React.FC<ProductCategoryProps> = ({
   title,
@@ -44,7 +45,7 @@ const ProductCategory: React.FC<ProductCategoryProps> = ({
 
     const fetchCategories = async () => {
       try {
-        const res = await fetch(`${API_BASE}/categories`, { signal: ac.signal });
+        const res = await fetch(`${API_URL}/categories`, { signal: ac.signal });
         if (!res.ok) throw new Error("Failed to fetch categories");
 
         const data: Category[] = await res.json();

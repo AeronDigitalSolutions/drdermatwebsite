@@ -8,11 +8,12 @@ import styles from "@/styles/pages/findClinicsPage.module.css";
 import Footer from "@/components/Layout/Footer";
 import Topbar from "@/components/Layout/Topbar";
 import MobileNavbar from "@/components/Layout/MobileNavbar";
+import { API_URL } from "@/config/api";
 
 const ITEMS_PER_PAGE = 6;
 
 // ✅ Backend API base (local or deployed)
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 interface ClinicCategory {
   _id: string;
@@ -43,7 +44,7 @@ const FindClinicsPage: React.FC = () => {
   // Fetch categories
   const fetchCategories = async () => {
     try {
-      const res = await fetch(`${API_BASE}/clinic-categories`);
+      const res = await fetch(`${API_URL}/clinic-categories`);
       if (!res.ok) throw new Error("Failed to fetch categories");
       const data = await res.json();
       setCategories(data);
@@ -57,7 +58,7 @@ const FindClinicsPage: React.FC = () => {
   const fetchClinics = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/clinics`);
+      const res = await fetch(`${API_URL}/clinics`);
       if (!res.ok) throw new Error("Failed to fetch clinics");
       const data = await res.json();
       setClinics(data);

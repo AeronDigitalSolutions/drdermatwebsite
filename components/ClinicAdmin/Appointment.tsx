@@ -1,9 +1,10 @@
 "use client";
 import React, { useState } from "react";
 import styles from "@/styles/clinicdashboard/appointments.module.css";
+import { API_URL } from "@/config/api";
 
 // ✅ Use environment variable for API base URL
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const Appointment: React.FC = () => {
   const [formData, setFormData] = useState({

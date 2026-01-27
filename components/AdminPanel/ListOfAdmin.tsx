@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import React, { useEffect, useState } from "react";
 import styles from "@/styles/Dashboard/listofadmin.module.css";
@@ -13,8 +14,8 @@ interface Admin {
   createdAt: string;
 }
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL =
+//   process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 export default function ListOfAdmin() {
   const [admins, setAdmins] = useState<Admin[]>([]);

@@ -4,6 +4,7 @@ import React, { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import styles from "@/styles/adminpanel/userprofile.module.css";
+import { API_URL } from "@/config/api";
 
 interface IAddress {
   type: "Home" | "Work" | "Other";
@@ -19,7 +20,7 @@ interface IUserProfile {
   addresses: IAddress[];
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 interface UserProfileProps {
   showFormInitially?: boolean;
@@ -61,7 +62,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
 
     const fetchProfile = async () => {
       try {
-        const res = await fetch(`${API_BASE}/userprofile/${email}`);
+        const res = await fetch(`${API_URL}/userprofile/${email}`);
         if (res.ok) {
           const data: IUserProfile = await res.json();
           setUser(data);
@@ -125,7 +126,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${API_BASE}/userprofile`, {
+      const res = await fetch(`${API_URL}/userprofile`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

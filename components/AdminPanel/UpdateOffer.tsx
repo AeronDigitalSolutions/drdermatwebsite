@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import styles from "@/styles/UpdateOffer.module.css";
+import { API_URL } from "@/config/api";
 
 interface Offer {
   _id: string;
@@ -20,7 +21,7 @@ const REQUIRED_WIDTH = 1600;
 const REQUIRED_HEIGHT = 350;
 
 // ✅ Use dynamic API URL
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+// const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 const UpdateOffer = () => {
   const [offers, setOffers] = useState<Offer[]>([]);

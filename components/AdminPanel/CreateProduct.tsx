@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import styles from "@/styles/Dashboard/createproduct.module.css";
 import "react-quill/dist/quill.snow.css";
+import { API_URL } from "@/config/api";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
@@ -14,8 +15,8 @@ interface Category {
 }
 
 /* ================= API BASE ================= */
-const API_URL =
-  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL =
+  // process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 export default function CreateProduct() {
   /* ================= AUTO SKU ================= */

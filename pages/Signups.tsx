@@ -7,9 +7,10 @@ import styles from "@/styles/components/forms/Signup.module.css";
 import illustration from "../public/register.png"; // adjust path if needed
 import Topbar from "@/components/Layout/Topbar";
 import Footer from "@/components/Layout/Footer";
+import { API_URL } from "@/config/api";
 
 // ✅ Use live backend URL
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const Signup: React.FC = () => {
   const router = useRouter();

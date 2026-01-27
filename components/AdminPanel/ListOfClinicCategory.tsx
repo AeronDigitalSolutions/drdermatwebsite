@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import React, { useEffect, useState } from "react";
 import styles from "@/styles/Dashboard/listofcliniccategory.module.css";
@@ -11,7 +12,7 @@ interface ClinicCategory {
 }
 
 // ✅ Use environment variable for API base
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const ListOfClinicCategory = () => {
   const [categories, setCategories] = useState<ClinicCategory[]>([]);

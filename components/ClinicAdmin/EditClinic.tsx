@@ -2,9 +2,10 @@
 import React, { useEffect, useState } from "react";
 import styles from "@/styles/clinicdashboard/editprofile.module.css";
 import MobileNavbar from "../Layout/MobileNavbar";
+import { API_URL } from "@/config/api";
 
 // ✅ Use environment variable for API base URL
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const EditClinic = () => {
   const [formData, setFormData] = useState({

@@ -8,8 +8,9 @@ import Topbar from "@/components/Layout/Topbar";
 import Footer from "@/components/Layout/Footer";
 import styles from "@/styles/components/forms/ModularForm.module.css";
 import illustration from "../public/form.png";
+import { API_URL } from "@/config/api";
 
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 export default function Login() {
   const router = useRouter();

@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { API_URL } from "@/config/api";
 
 interface User {
   _id: string;
@@ -20,7 +21,7 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -33,10 +34,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const userId = Cookies.get("userId") || localStorage.getItem("userId");
 
         if (userId) {
-          const res = await axios.get(`${API_BASE}/userprofile/id/${userId}`);
+          const res = await axios.get(`${API_URL}/userprofile/id/${userId}`);
           setUser(res.data);
         } else if (email) {
-          const res = await axios.get(`${API_BASE}/userprofile/${email}`);
+          const res = await axios.get(`${API_URL}/userprofile/${email}`);
           setUser(res.data);
 
           Cookies.set("userId", res.data._id);

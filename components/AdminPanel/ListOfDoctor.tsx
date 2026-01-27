@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import styles from "@/styles/Dashboard/listofdoctor.module.css";
+import { API_URL } from "@/config/api";
 
 interface Doctor {
   _id: string;
@@ -14,7 +15,7 @@ interface Doctor {
 }
 
 // ✅ Use environment variable for API base
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const ListOfDoctor: React.FC = () => {
   const [doctors, setDoctors] = useState<Doctor[]>([]);

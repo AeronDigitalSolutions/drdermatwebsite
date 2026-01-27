@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import styles from "@/styles/clinicdashboard/clinicservices.module.css";
 import "react-quill/dist/quill.snow.css";
+import { API_URL } from "@/config/api";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
@@ -13,8 +14,8 @@ interface JwtPayload {
   id: string;
 }
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL =
+  // process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 export default function CreateTreatmentPlan() {
   const [clinicId, setClinicId] = useState<string | null>(null);

@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import styles from "@/styles/Dashboard/listofcategory.module.css";
+import { API_URL } from "@/config/api";
 
 interface ServiceCategory {
   _id: string;
@@ -9,7 +10,7 @@ interface ServiceCategory {
 }
 
 // ✅ Use environment variable for API
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const ListOfServiceCategory = () => {
   const [categories, setCategories] = useState<ServiceCategory[]>([]);

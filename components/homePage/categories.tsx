@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import React, { useEffect, useState } from "react";
 import styles from "@/styles/components/homePage/categories.module.css";
@@ -18,7 +19,7 @@ interface ClinicCategoryProps {
   border?: string;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const ClinicCategories: React.FC<ClinicCategoryProps> = ({
   title,

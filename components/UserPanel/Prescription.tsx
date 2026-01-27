@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useUser } from "@/context/UserContext";
+import { API_URL } from "@/config/api";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const Prescription = () => {
   const { user } = useUser();
@@ -16,7 +17,7 @@ const Prescription = () => {
   useEffect(() => {
     if (!user?._id) return;
 
-    axios.get(`${API_BASE}/userprofile/id/${user._id}`).then((res) => {
+    axios.get(`${API_URL}/userprofile/id/${user._id}`).then((res) => {
       setPrescriptions(res.data.prescriptions || []);
       setReports(res.data.reports || []);
     });
@@ -36,7 +37,7 @@ const Prescription = () => {
     const data = await convertToBase64(file);
 
     const res = await axios.post(
-      `${API_BASE}/userprofile/${user?._id}/upload-prescription`,
+      `${API_URL}/userprofile/${user?._id}/upload-prescription`,
       { fileName: file.name, fileType: file.type, data }
     );
 
@@ -50,7 +51,7 @@ const Prescription = () => {
     const data = await convertToBase64(file);
 
     const res = await axios.post(
-      `${API_BASE}/userprofile/${user?._id}/upload-report`,
+      `${API_URL}/userprofile/${user?._id}/upload-report`,
       { fileName: file.name, fileType: file.type, data }
     );
 
@@ -60,14 +61,14 @@ const Prescription = () => {
   /* ---------------- DELETE ---------------- */
   const deletePrescription = async (i: number) => {
     const res = await axios.delete(
-      `${API_BASE}/userprofile/${user?._id}/prescriptions/${i}`
+      `${API_URL}/userprofile/${user?._id}/prescriptions/${i}`
     );
     setPrescriptions(res.data.prescriptions);
   };
 
   const deleteReport = async (i: number) => {
     const res = await axios.delete(
-      `${API_BASE}/userprofile/${user?._id}/reports/${i}`
+      `${API_URL}/userprofile/${user?._id}/reports/${i}`
     );
     setReports(res.data.reports);
   };

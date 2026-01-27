@@ -11,6 +11,7 @@ import { HiOutlineMail } from "react-icons/hi";
 import { MdOutlineEdit, MdOutlineRadioButtonChecked } from "react-icons/md";
 import { IoClose } from "react-icons/io5";
 import { useCart } from "@/context/CartContext";
+import { API_URL } from "@/config/api";
 
 interface Address {
   type: string;
@@ -24,7 +25,7 @@ interface IUserProfile {
   addresses: Address[];
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const AddressPage: React.FC = () => {
   const router = useRouter();
@@ -43,7 +44,7 @@ const AddressPage: React.FC = () => {
 
     const fetchUser = async () => {
       try {
-        const res = await fetch(`${API_BASE}/userprofile/${email}`);
+        const res = await fetch(`${API_URL}/userprofile/${email}`);
         if (res.ok) {
           const data: IUserProfile = await res.json();
           setUser(data);

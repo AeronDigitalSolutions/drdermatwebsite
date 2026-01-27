@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import React, { useEffect, useState } from "react";
 import styles from "@/styles/pages/cliniccategorylist.module.css";
@@ -10,7 +11,7 @@ interface ClinicCategory {
   imageUrl: string;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const ClinicCategoryList: React.FC = () => {
   const [categories, setCategories] = useState<ClinicCategory[]>([]);

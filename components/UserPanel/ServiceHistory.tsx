@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useUser } from "@/context/UserContext";
 import axios from "axios";
+import { API_URL } from "@/config/api";
 
 interface ServiceHistoryItem {
   clinicName: string;
@@ -14,7 +15,7 @@ interface ServiceHistoryItem {
   purchasedAt: string;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const ServiceHistory: React.FC = () => {
   const { user, loading } = useUser();
@@ -31,7 +32,7 @@ const ServiceHistory: React.FC = () => {
         setFetching(true);
         setError("");
 
-        const res = await axios.get(`${API_BASE}/clinics/user/services`, {
+        const res = await axios.get(`${API_URL}/clinics/user/services`, {
           headers: { "x-user-id": user._id },
         });
 

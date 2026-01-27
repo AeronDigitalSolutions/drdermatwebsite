@@ -1,10 +1,12 @@
 "use client";
+import { API_URL } from "@/config/api";
+
 
 import React, { useState } from "react";
 import styles from "@/styles/Dashboard/createcliniccategory.module.css";
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL =
+//   process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 export default function CreateB2BCategory() {
   const [name, setName] = useState("");

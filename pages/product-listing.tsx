@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -32,7 +33,7 @@ interface ProductWithCategory extends RawProduct {
 }
 
 // ✅ Use environment variable for API base
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const ProductListingPage: React.FC = () => {
   const router = useRouter();
@@ -59,8 +60,8 @@ const ProductListingPage: React.FC = () => {
     setLoading(true);
     try {
       const [catRes, prodRes] = await Promise.all([
-        fetch(`${API_BASE}/categories`),
-        fetch(`${API_BASE}/products`),
+        fetch(`${API_URL}/categories`),
+        fetch(`${API_URL}/products`),
       ]);
 
       const catData: Category[] = await catRes.json();

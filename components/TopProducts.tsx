@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
@@ -18,8 +19,8 @@ interface Product {
   images?: string[];
 }
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_BASE =
+//   process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const TopProducts: React.FC = () => {
   const [topProducts, setTopProducts] = useState<(Product | null)[]>([]);
@@ -42,7 +43,7 @@ const TopProducts: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`${API_BASE}/top-products`);
+        const res = await fetch(`${API_URL}/top-products`);
         if (!res.ok) throw new Error("Failed to fetch top products");
         const data: (Product | null)[] = await res.json();
         setTopProducts(data);

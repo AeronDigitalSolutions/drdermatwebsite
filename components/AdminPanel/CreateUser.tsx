@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"; // ✅ useEffect added
 import styles from "@/styles/Dashboard/createUser.module.css";
+import { API_URL } from "@/config/api";
 
 // ✅ helper to generate Patient ID
 const generatePatientId = () => `PAT-${Date.now().toString().slice(-6)}`;
@@ -56,7 +57,8 @@ export default function CreateUser() {
     try {
       const res = await fetch(
         `${
-          process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api"
+        API_URL
+
         }/users`,
         {
           method: "POST",

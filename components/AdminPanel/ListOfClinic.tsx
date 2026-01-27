@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import React, { useEffect, useState } from "react";
 import styles from "@/styles/Dashboard/listofclinic.module.css";
@@ -31,8 +32,8 @@ type Clinic = {
   doctors: Doctor[];
 };
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL =
+  // process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 function ListOfClinic() {
   const [clinics, setClinics] = useState<Clinic[]>([]);

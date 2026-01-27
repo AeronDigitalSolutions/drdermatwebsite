@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
@@ -31,7 +32,7 @@ interface JwtPayload {
 }
 
 // ✅ Use environment variable for API base URL
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const ServiceList = () => {
   const [services, setServices] = useState<Service[]>([]);
@@ -65,7 +66,7 @@ const ServiceList = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch(`${API_BASE}/service-categories`);
+        const res = await fetch(`${API_URL}/service-categories`);
         if (!res.ok) throw new Error("Failed to fetch categories");
         const data: Category[] = await res.json();
         setCategories(data);
@@ -83,7 +84,7 @@ const ServiceList = () => {
     const fetchServices = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${API_BASE}/services?clinic=${clinicId}`);
+        const res = await fetch(`${API_URL}/services?clinic=${clinicId}`);
         if (!res.ok) throw new Error("Failed to fetch services");
         const data = await res.json();
         setServices(Array.isArray(data) ? data : data.services);
@@ -108,7 +109,7 @@ const ServiceList = () => {
     if (!confirm("Are you sure you want to delete this service?")) return;
 
     try {
-      const res = await fetch(`${API_BASE}/services/${id}`, { method: "DELETE" });
+      const res = await fetch(`${API_URL}/services/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to delete");
 
@@ -161,7 +162,7 @@ const ServiceList = () => {
         images: [...editingService.images, ...base64NewImages],
       };
 
-      const res = await fetch(`${API_BASE}/services/${editingService._id}`, {
+      const res = await fetch(`${API_URL}/services/${editingService._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

@@ -2,14 +2,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "@/styles/Offer.module.css";
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import { API_URL } from "@/config/api";
 
 interface Offer {
   _id: string;
   imageBase64: string;
 }
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_BASE =
+//   process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const VISIBLE = 3;
 const AUTO_DELAY = 3000;
@@ -27,7 +28,7 @@ const OfferComponent = () => {
   /* ================= FETCH ================= */
   const fetchOffers = async () => {
     try {
-      const res = await fetch(`${API_BASE}/offers`);
+      const res = await fetch(`${API_URL}/offers`);
       const data: Offer[] = await res.json();
       setSlides(data);
     } catch (err) {

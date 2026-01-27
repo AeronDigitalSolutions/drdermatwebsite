@@ -1,5 +1,6 @@
 // pages/index.tsx
 "use client";
+import { API_URL } from "@/config/api";
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
@@ -37,8 +38,8 @@ const Index = () => {
   useEffect(() => {
     let mounted = true;
 
-    const API_BASE =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+    // const API_BASE =
+    //   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
 
     const endpoints = [
       "/api/clinic-categories",
@@ -69,7 +70,7 @@ const Index = () => {
           const ep = endpoints[i];
           setMessage(`Loading ${ep.replace("/api/", "")}...`);
           try {
-            const res = await fetchWithTimeout(`${API_BASE}${ep}`, 10_000);
+            const res = await fetchWithTimeout(`${API_URL}${ep}`, 10_000);
             try {
               await res?.json();
             } catch {

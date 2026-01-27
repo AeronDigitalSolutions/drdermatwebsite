@@ -5,8 +5,9 @@ import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import styles from "@/styles/cliniclogin.module.css";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { API_URL } from "@/config/api";
 
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 export default function ClinicLogin() {
   const router = useRouter();

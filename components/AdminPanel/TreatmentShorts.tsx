@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import styles from "@/styles/LatestUpdateShorts.module.css";
+import { API_URL } from "@/config/api";
 
 interface Short {
   _id: string;
@@ -10,7 +11,7 @@ interface Short {
 }
 
 // ✅ Use environment variable for API base URL
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const TreatmentShorts: React.FC = () => {
   const [shorts, setShorts] = useState<Short[]>([]);

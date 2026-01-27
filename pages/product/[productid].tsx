@@ -9,6 +9,7 @@ import { FiShare2 } from "react-icons/fi";
 import MobileNavbar from "@/components/Layout/MobileNavbar";
 import Topbar from "@/components/Layout/Topbar";
 import Footer from "@/components/Layout/Footer";
+import { API_URL } from "@/config/api";
 
 interface Review {
   rating: number;
@@ -49,14 +50,14 @@ export default function ProductDetail() {
   // New review form
   const [newComment, setNewComment] = useState("");
   const [newRating, setNewRating] = useState(0);
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
   // Fetch product with reviews
   useEffect(() => {
     if (!productid) return;
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`${API_BASE}/products/${productid}`);
+        const res = await axios.get(`${API_URL}/products/${productid}`);
         setProduct(res.data);
         setMainImage(res.data.images?.[0] || null);
       } catch (err) {
@@ -82,7 +83,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api"
   const handleReviewSubmit = async () => {
     if (!newComment.trim() || newRating === 0 || !productid) return;
     try {
-      const res = await axios.post(`${API_BASE}/products/${productid}/reviews`, {
+      const res = await axios.post(`${API_URL}/products/${productid}/reviews`, {
         rating: newRating,
         comment: newComment,
         user: "Guest User", // Replace with logged-in user if available

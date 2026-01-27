@@ -1,9 +1,10 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 export default function PurchasedServices() {
   const router = useRouter();
@@ -38,7 +39,7 @@ export default function PurchasedServices() {
     if (!clinicId) return;
 
     try {
-      const url = `${API_BASE}/clinics/${clinicId}/purchased-services`;
+      const url = `${API_URL}/clinics/${clinicId}/purchased-services`;
 
       const res = await fetch(url, {
         method: "GET",
@@ -64,7 +65,7 @@ export default function PurchasedServices() {
   -------------------------- */
   const loadDoctors = async () => {
     try {
-      const res = await fetch(`${API_BASE}/doctors`);
+      const res = await fetch(`${API_URL}/doctors`);
       const data = await res.json();
       setDoctors(data);
     } catch (err) {
@@ -85,7 +86,7 @@ export default function PurchasedServices() {
 
     try {
       const res = await fetch(
-        `${API_BASE}/clinics/purchased-services/${serviceEntryId}/assign-doctor`,
+        `${API_URL}/clinics/purchased-services/${serviceEntryId}/assign-doctor`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

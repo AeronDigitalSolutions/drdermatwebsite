@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -56,7 +57,7 @@ const ClinicDetailPage = () => {
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [categories, setCategories] = useState<Category[]>([]);
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+  // const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
   // Fetch clinic details
   useEffect(() => {
@@ -64,7 +65,7 @@ const ClinicDetailPage = () => {
     const fetchClinic = async () => {
       setLoadingClinic(true);
       try {
-        const res = await fetch(`${API_BASE}/clinics/${clinicId}`);
+        const res = await fetch(`${API_URL}/clinics/${clinicId}`);
         if (!res.ok) throw new Error("Failed to fetch clinic details");
         const data: Clinic = await res.json();
         setClinic(data);
@@ -76,7 +77,7 @@ const ClinicDetailPage = () => {
       }
     };
     fetchClinic();
-  }, [clinicId, API_BASE]);
+  }, [clinicId, API_URL]);
 
   // Fetch services for this clinic
   useEffect(() => {
@@ -84,7 +85,7 @@ const ClinicDetailPage = () => {
     const fetchServices = async () => {
       setLoadingServices(true);
       try {
-        const res = await fetch(`${API_BASE}/services?clinic=${clinicId}`);
+        const res = await fetch(`${API_URL}/services?clinic=${clinicId}`);
         if (!res.ok) throw new Error("Failed to fetch services");
         const data: Service[] = await res.json();
 
@@ -114,7 +115,7 @@ const ClinicDetailPage = () => {
       }
     };
     fetchServices();
-  }, [clinicId, API_BASE]);
+  }, [clinicId, API_URL]);
 
   const filteredServices =
     activeCategory === "All"

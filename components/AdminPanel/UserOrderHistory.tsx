@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/config/api";
 
 import React, { useEffect, useState } from "react";
 import styles from "@/styles/Dashboard/allorders.module.css";
@@ -27,8 +28,8 @@ interface IOrder {
   status: "Pending" | "Shipped" | "Delivered" | "Cancelled";
 }
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_BASE =
+//   process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const AllOrders: React.FC = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);
@@ -39,7 +40,7 @@ const AllOrders: React.FC = () => {
   useEffect(() => {
     const fetchAllOrders = async () => {
       try {
-        const res = await fetch(`${API_BASE}/orders/all`);
+        const res = await fetch(`${API_URL}/orders/all`);
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Failed to fetch orders");
         setOrders(data);
@@ -72,7 +73,7 @@ const AllOrders: React.FC = () => {
   // 🛠️ Update order status
   const updateOrderStatus = async (orderId: string, newStatus: IOrder["status"]) => {
     try {
-      const res = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+      const res = await fetch(`${API_URL}/orders/${orderId}/status`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),

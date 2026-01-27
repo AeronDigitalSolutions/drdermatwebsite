@@ -13,6 +13,7 @@ import {
   FiClipboard,
 } from "react-icons/fi";
 import ServiceHistory from "@/components/UserPanel/ServiceHistory";
+import { API_URL } from "@/config/api";
 
 import Topbar from "@/components/Layout/Topbar";
 import Footer from "@/components/Layout/Footer";
@@ -27,7 +28,7 @@ interface User {
   email?: string;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const UserDashboard: React.FC = () => {
   const router = useRouter();

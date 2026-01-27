@@ -3,9 +3,10 @@
 import React, { useState, useRef } from "react";
 import styles from "@/styles/Dashboard/createcategory.module.css";
 import MobileNavbar from "../Layout/MobileNavbar";
+import { API_URL } from "@/config/api";
 
 // ✅ Use environment variable for API base
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const CreateServiceCategory = () => {
   const [categoryName, setCategoryName] = useState("");

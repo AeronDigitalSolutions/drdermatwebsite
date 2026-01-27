@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import styles from "@/styles/HappyStories.module.css";
+import { API_URL } from "@/config/api";
 
 interface Short {
   _id: string;
@@ -18,8 +19,8 @@ declare global {
   }
 }
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_BASE =
+//   process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const TreatmentStories = () => {
   const [shorts, setShorts] = useState<Short[]>([]);
@@ -50,7 +51,7 @@ const TreatmentStories = () => {
 
   const fetchShorts = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/treatment-shorts`);
+      const res = await axios.get(`${API_URL}/treatment-shorts`);
       setShorts(res.data || []);
     } catch (err) {
       console.error("Failed to fetch treatment shorts", err);

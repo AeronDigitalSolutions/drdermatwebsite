@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "@/styles/pages/productcategorylist.module.css";
 import productImg from "@/public/product1.png";
+import { API_URL } from "@/config/api";
 
 interface Category {
   id: string;
@@ -10,7 +11,7 @@ interface Category {
   imageUrl?: string;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const ProductCategoryList: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);

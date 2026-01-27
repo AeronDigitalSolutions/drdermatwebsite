@@ -10,6 +10,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import MobileNavbar from "@/components/Layout/MobileNavbar";
+import { API_URL } from "@/config/api";
 
 interface IUserProfile {
   _id?: string;
@@ -18,8 +19,8 @@ interface IUserProfile {
   addresses: { type: string; address: string }[];
 }
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_BASE =
+//   process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const CartPage: React.FC = () => {
   const router = useRouter();
@@ -40,7 +41,7 @@ const CartPage: React.FC = () => {
 
     const fetchUser = async () => {
       try {
-        const res = await fetch(`${API_BASE}/userprofile/${email}`);
+        const res = await fetch(`${API_URL}/userprofile/${email}`);
         if (res.ok) {
           const data: IUserProfile = await res.json();
           setUser(data);

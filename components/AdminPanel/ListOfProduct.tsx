@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import styles from "@/styles/Dashboard/productlist.module.css";
+import { API_URL } from "@/config/api";
 
 interface Category {
   _id: string;
@@ -36,8 +37,8 @@ interface Product {
   createdAt: string;
 }
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL =
+//   process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const ListOfProduct: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);

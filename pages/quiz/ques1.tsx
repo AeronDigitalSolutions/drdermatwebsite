@@ -5,6 +5,7 @@ import axios from "axios";
 import styles from "@/styles/quiz/ques1.module.css";
 import Topbar from "@/components/Layout/Topbar";
 import Footer from "@/components/Layout/Footer";
+import { API_URL } from "@/config/api";
 
 interface Option {
   text: string;
@@ -33,7 +34,7 @@ const UserQuiz: React.FC = () => {
   const [slideClass, setSlideClass] = useState("");
   const [showCategory, setShowCategory] = useState(true);
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+  // const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
   // ✅ Fetch questions when category selected
   useEffect(() => {
@@ -43,7 +44,7 @@ const UserQuiz: React.FC = () => {
 
   const fetchQuestions = async (category: "Hair" | "Skin") => {
     try {
-      const res = await axios.get<Question[]>(`${API_BASE}/quiz/${category}`);
+      const res = await axios.get<Question[]>(`${API_URL}/quiz/${category}`);
       setQuestions(res.data);
       setCurrentIndex(0);
       setSelectedAnswers({});

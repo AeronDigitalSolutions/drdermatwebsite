@@ -8,6 +8,7 @@ import { FiShare2 } from "react-icons/fi";
 import MobileNavbar from "@/components/Layout/MobileNavbar";
 import Topbar from "@/components/Layout/Topbar";
 import Footer from "@/components/Layout/Footer";
+import { API_URL } from "@/config/api";
 
 interface Review {
   _id: string;
@@ -46,14 +47,14 @@ export default function ProductDetail() {
   const [submitting, setSubmitting] = useState(false);
   const [zoomStyle, setZoomStyle] = useState<React.CSSProperties>({});
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+  // const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
   // Fetch product by ID
   useEffect(() => {
     if (!id) return;
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`${API_BASE}/products/${id}`);
+        const res = await fetch(`${API_URL}/products/${id}`);
         if (!res.ok) throw new Error("Failed to fetch product");
         const data: Product = await res.json();
         setProduct(data);
@@ -65,7 +66,7 @@ export default function ProductDetail() {
       }
     };
     fetchProduct();
-  }, [id, API_BASE]);
+  }, [id, API_URL]);
 
   // Submit a review
   const handleSubmitReview = async () => {
@@ -75,7 +76,7 @@ export default function ProductDetail() {
     }
     try {
       setSubmitting(true);
-      const res = await fetch(`${API_BASE}/products/${id}/reviews`, {
+      const res = await fetch(`${API_URL}/products/${id}/reviews`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ rating, comment, user: "Guest User" }),

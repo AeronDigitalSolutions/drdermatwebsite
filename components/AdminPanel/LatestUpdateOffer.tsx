@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import styles from "@/styles/UpdateOffer.module.css";
+import { API_URL } from "@/config/api";
 
 interface LatestOffer {
   _id: string;
@@ -21,7 +22,7 @@ const REQUIRED_WIDTH = 1600;
 const REQUIRED_HEIGHT = 350;
 
 // ✅ Use environment variable for API base
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const LatestUpdateOffer = () => {
   const [offers, setOffers] = useState<LatestOffer[]>([]);

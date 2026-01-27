@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { CartItem } from "./CartContext";
+import { API_URL } from "@/config/api";
 
 export interface IOrder {
   _id?: string;
@@ -30,8 +31,8 @@ interface OrderContextType {
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_BASE =
+//   process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 export const OrderProvider: React.FC<{ children: ReactNode }> = ({
   children,
@@ -55,7 +56,7 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({
   image: item.image,        // optional but useful
 }));
 
-      const res = await axios.post(`${API_BASE}/orders`, {
+      const res = await axios.post(`${API_URL}/orders`, {
         userId,
         products: formattedProducts,
         totalAmount: total,

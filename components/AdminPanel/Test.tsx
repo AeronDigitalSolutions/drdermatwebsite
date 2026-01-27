@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import styles from "@/styles/clinicdashboard/test.module.css";
+import { API_URL } from "@/config/api";
 
 interface Option {
   text: string;
@@ -20,7 +21,7 @@ interface Question {
 const categories: ("Hair" | "Skin")[] = ["Hair", "Skin"];
 
 // ✅ Configurable API URL for localhost and server
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 const Test: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);

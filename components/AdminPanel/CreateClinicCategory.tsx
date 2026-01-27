@@ -2,8 +2,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import styles from "@/styles/Dashboard/createcliniccategory.module.css";
 import MobileNavbar from "../Layout/MobileNavbar";
+import { API_URL } from "@/config/api";
 
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 /* ✅ AUTO CATEGORY ID GENERATOR */
 const generateCategoryId = () =>

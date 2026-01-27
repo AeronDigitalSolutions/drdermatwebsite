@@ -43,48 +43,60 @@ export default function CreateAdmin() {
 
   /* ================= SUBMIT ================= */
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
+  // ✅ REQUIRED FIELD CHECK (MUST BE FIRST)
+  if (
+    !form.name.trim() ||
+    !form.email.trim() ||
+    !form.password.trim()
+  ) {
+    setError("Name, Email and Password are required");
+    return;
+  }
 
-    const payload = {
-      // empId: userId, // ✅ IMPORTANT
+  // ✅ PASSWORD MATCH CHECK
+  if (form.password !== form.confirmPassword) {
+    setError("Passwords do not match");
+    return;
+  }
 
-      name: form.name,
-      email: form.email,
-      phone: form.phone,
-      password: form.password,
-accessLevel: form.accessLevel.toLowerCase(),
-    };
-
-    try {
-      const res = await fetch(`${API_URL}/admins`, {
-        method: "POST",
-          credentials: "include", // 🔥 REQUIRED
-
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-
-      setSuccess("✅ Admin account created successfully");
-      setForm({
-        name: "",
-        email: "",
-        phone: "",
-        password: "",
-        confirmPassword: "",
-        accessLevel: "Admin",
-      });
-    } catch (err: any) {
-      setError(err.message || "Failed to create admin");
-    }
+  const payload = {
+    name: form.name.trim(),
+    email: form.email.trim(),
+    phone: form.phone?.trim(),
+    password: form.password,
+    accessLevel: form.accessLevel.toLowerCase(),
   };
+
+  console.log("ADMIN PAYLOAD 👉", payload); // 🧪 DEBUG (keep once)
+
+  try {
+    const res = await fetch(`${API_URL}/admins`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+
+    setSuccess("✅ Admin account created successfully");
+    setError("");
+
+    setForm({
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+      confirmPassword: "",
+      accessLevel: "Admin",
+    });
+  } catch (err: any) {
+    setError(err.message || "Failed to create admin");
+  }
+};
 
   return (
     <div className={styles.container}>

@@ -51,7 +51,7 @@ export default function CreateAdmin() {
     }
 
     const payload = {
-      empId: userId, // ✅ IMPORTANT
+      // empId: userId, // ✅ IMPORTANT
 
       name: form.name,
       email: form.email,

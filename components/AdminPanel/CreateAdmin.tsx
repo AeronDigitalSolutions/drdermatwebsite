@@ -49,7 +49,7 @@ export default function CreateAdmin() {
     }
 
     const payload = {
-      userId,
+    
       name: form.name,
       email: form.email,
       phone: form.phone,

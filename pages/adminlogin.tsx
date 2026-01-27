@@ -49,10 +49,10 @@ export default function AdminLogin() {
         router.replace(nextPath);
       } else if (data.role?.toLowerCase() === "superadmin") {
         router.replace("/Dashboard");
-        window.location.href = "/Dashboard";
+        // window.location.href = "/Dashboard";
       } else if (data.role?.toLowerCase() === "admin") {
         router.replace("/adminDashboard");
-        window.location.href = "/adminDashboard";
+        // window.location.href = "/adminDashboard";
       } else {
         router.push("/adminlogin");
       }

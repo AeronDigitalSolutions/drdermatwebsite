@@ -1,30 +1,46 @@
-import Layout from "@/components/Layout/Layout";
-import { log } from "console";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React from 'react'
 
 function index() {
-  const session = useSession();
-  const router = useRouter();
-
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    if (session.status == "unauthenticated") {
-      router.push("/login");
-    }
-
-    if (session.status == "authenticated") {
-      setLoading(false);
-    }
-  }, [session, session.status]);
-
-  if (loading) {
-    return <h1>Loading</h1>;
-  }
-
-  return <Layout>callid</Layout>;
+  return (
+    <div>index</div>
+  )
 }
 
-export default index;
+export default index
+
+
+
+// export const dynamic = "force-dynamic";
+
+// import Layout from "@/components/Layout/Layout";
+// import { useSession } from "next-auth/react";
+// import { useRouter } from "next/router";
+// import React, { useEffect, useState } from "react";
+
+// function CallIndexPage() {
+//   const { status } = useSession();
+//   const router = useRouter();
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     if (status === "unauthenticated") {
+//       router.push("/login");
+//     }
+
+//     if (status === "authenticated") {
+//       setLoading(false);
+//     }
+//   }, [status, router]);
+
+//   if (loading) {
+//     return <h1>Loading...</h1>;
+//   }
+
+//   return (
+//     <Layout>
+//       <div>Call Page</div>
+//     </Layout>
+//   );
+// }
+
+// export default CallIndexPage;

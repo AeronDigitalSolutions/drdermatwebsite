@@ -21,7 +21,6 @@ export default function CreateUser() {
     profileReset: false,
   });
 
-  /* ================= AUTO PATIENT ID ON LOAD ================= */
   useEffect(() => {
     setFormData((prev) => ({
       ...prev,

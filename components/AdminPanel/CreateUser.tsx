@@ -14,6 +14,10 @@ export default function CreateUser() {
     email: "",
     contactNo: "",
     address: "",
+
+    password: "",            // 🔧 ADDED
+    confirmPassword: "",     // 🔧 ADDED
+
     membershipPlan: "",
     paymentMethod: "",
     location: "",
@@ -46,26 +50,41 @@ export default function CreateUser() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // 🔧 ADDED – REQUIRED FIELD CHECK
+    if (
+      !formData.patientName.trim() ||
+      !formData.email.trim() ||
+      !formData.password.trim()
+    ) {
+      alert("Name, Email and Password are required");
+      return;
+    }
+
+    // 🔧 ADDED – PASSWORD MATCH CHECK
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
     const payload = {
       patientId: formData.patientId, // ✅ SENT TO BACKEND
       name: formData.patientName,
       email: formData.email,
       contactNo: formData.contactNo,
       address: formData.address,
+
+      password: formData.password, // 🔧 ADDED (CRITICAL)
     };
 
-    try {
-      const res = await fetch(
-        `${
-        API_URL
+    console.log("CREATE USER PAYLOAD 👉", payload); // 🔧 ADDED
 
-        }/users`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
+    try {
+      const res = await fetch(`${API_URL}/users`, {
+        method: "POST",
+        credentials: "include", // 🔧 ADDED (safe for prod)
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
       const data = await res.json();
 
@@ -80,6 +99,8 @@ export default function CreateUser() {
         email: "",
         contactNo: "",
         address: "",
+        password: "",            // 🔧 ADDED
+        confirmPassword: "",     // 🔧 ADDED
         membershipPlan: "",
         paymentMethod: "",
         location: "",
@@ -104,10 +125,10 @@ export default function CreateUser() {
           <div className={styles.field}>
             <label className={styles.label}>Patient ID</label>
             <input
-              className={styles.readonlyInput} // ✅ readonly style
+              className={styles.readonlyInput}
               name="patientId"
               value={formData.patientId}
-              disabled // ✅ cannot edit
+              disabled
             />
           </div>
 
@@ -155,6 +176,35 @@ export default function CreateUser() {
               placeholder="Enter full address"
               value={formData.address}
               onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        {/* 🔐 PASSWORD SECTION (ADDED, DOES NOT REMOVE ANYTHING) */}
+        <div className={styles.section}>
+          <div className={styles.sectionTitle}>Security</div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Password</label>
+            <input
+              className={styles.input}
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Confirm Password</label>
+            <input
+              className={styles.input}
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
             />
           </div>
         </div>

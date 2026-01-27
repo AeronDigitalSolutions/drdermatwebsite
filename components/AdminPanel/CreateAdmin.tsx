@@ -20,6 +20,7 @@ export default function CreateAdmin() {
     confirmPassword: "",
     accessLevel: "Admin", // Admin | SuperAdmin | Manager
   });
+  console.log();
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");

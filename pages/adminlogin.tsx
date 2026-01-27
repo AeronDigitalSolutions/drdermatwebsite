@@ -6,9 +6,6 @@ import Cookies from "js-cookie";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import styles from "@/styles/adminlogin.module.css";
 
-// ✅ Use environment variable for API URL
-// const API_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
-
 export default function AdminLogin() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -40,21 +37,19 @@ export default function AdminLogin() {
 
       if (!res.ok) throw new Error(data.message || "Login failed");
 
-      // ✅ Save token + role in cookies
+      // ✅ Save token + role in cookies (PATH IS IMPORTANT)
       Cookies.set("token", data.token, { expires: 1, path: "/" });
-      Cookies.set("role", data.role, { expires: 1, path: "/" });
+      Cookies.set("role", data.role?.toLowerCase(), { expires: 1, path: "/" });
 
-      // ✅ Redirect after login
+      // ✅ SAFE REDIRECT (NO window.location)
       if (nextPath) {
         router.replace(nextPath);
       } else if (data.role?.toLowerCase() === "superadmin") {
         router.replace("/Dashboard");
-        // window.location.href = "/Dashboard";
       } else if (data.role?.toLowerCase() === "admin") {
         router.replace("/adminDashboard");
-        // window.location.href = "/adminDashboard";
       } else {
-        router.push("/adminlogin");
+        router.replace("/adminlogin");
       }
     } catch (err: any) {
       setError(err.message || "Something went wrong");
@@ -67,6 +62,7 @@ export default function AdminLogin() {
     <div className={styles.container}>
       <div className={styles.card}>
         <h2 className={styles.heading}>Admin Login</h2>
+
         <form onSubmit={handleSubmit} className={styles.form}>
           {/* Email */}
           <input

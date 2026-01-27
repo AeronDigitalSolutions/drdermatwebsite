@@ -49,7 +49,7 @@ export default function AdminLogin() {
       } else if (data.role?.toLowerCase() === "admin") {
         router.replace("/adminDashboard");
       } else {
-        router.replace("/adminlogin");
+        router.replace("/Dashboard");
       }
     } catch (err: any) {
       setError(err.message || "Something went wrong");

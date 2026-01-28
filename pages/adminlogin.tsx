@@ -21,42 +21,42 @@ export default function AdminLogin() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    try {
-      const res = await fetch(`${API_URL}/auth/admin/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+  try {
+    const res = await fetch(`${API_URL}/auth/admin/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
 
-      const data = await res.json();
-      console.log("Login response:", data);
+    const data = await res.json();
+    console.log("Login response:", data);
 
-      if (!res.ok) throw new Error(data.message || "Login failed");
+    if (!res.ok) throw new Error(data.message || "Login failed");
+    if (!data.token) throw new Error("Token missing from server");
 
-      // ✅ Save token + role in cookies (PATH IS IMPORTANT)
-      Cookies.set("token", data.token, { expires: 1, path: "/" });
-      Cookies.set("role", data.role?.toLowerCase(), { expires: 1, path: "/" });
+    // ✅ STORE TOKEN
+    Cookies.set("token", data.token, { path: "/", sameSite: "lax" });
+    Cookies.set("role", data.role.toLowerCase(), { path: "/", sameSite: "lax" });
 
-      // ✅ SAFE REDIRECT (NO window.location)
-      if (nextPath) {
-        router.replace(nextPath);
-      } else if (data.role?.toLowerCase() === "superadmin") {
-        router.replace("/Dashboard");
-      } else if (data.role?.toLowerCase() === "admin") {
-        router.replace("/adminDashboard");
-      } else {
-        router.replace("/Dashboard");
-      }
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
+    // ✅ REDIRECT
+    if (data.role.toLowerCase() === "superadmin") {
+      router.replace("/Dashboard");
+    } else if (data.role.toLowerCase() === "admin") {
+      router.replace("/adminDashboard");
+    } else {
+      router.replace("/adminlogin");
     }
-  };
+  } catch (err: any) {
+    setError(err.message || "Something went wrong");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className={styles.container}>

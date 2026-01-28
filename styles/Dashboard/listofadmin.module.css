@@ -191,3 +191,25 @@
     padding: 14px;
   }
 }
+/* ===== TOOLBAR ===== */
+.toolbar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.search {
+  flex: 1;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid #c7d2fe;
+  font-size: 14px;
+}
+
+.filter {
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid #c7d2fe;
+  font-size: 14px;
+  min-width: 180px;
+}

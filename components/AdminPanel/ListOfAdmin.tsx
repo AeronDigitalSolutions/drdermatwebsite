@@ -1,7 +1,7 @@
 "use client";
-import { API_URL } from "@/config/api";
 
-import React, { useEffect, useState } from "react";
+import { API_URL } from "@/config/api";
+import React, { useEffect, useMemo, useState } from "react";
 import styles from "@/styles/Dashboard/listofadmin.module.css";
 
 interface Admin {
@@ -9,17 +9,20 @@ interface Admin {
   empId: string;
   name: string;
   email: string;
-  phone: string; // Contact No.
+  phone: string;
   role: "admin" | "superadmin" | "manager";
   createdAt: string;
 }
 
-// const API_URL =
-//   process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
-
 export default function ListOfAdmin() {
   const [admins, setAdmins] = useState<Admin[]>([]);
   const [loading, setLoading] = useState(true);
+
+  /* 🔍 FILTER STATE */
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+
+  /* ✏️ EDIT MODAL */
   const [editModal, setEditModal] = useState(false);
   const [currentAdmin, setCurrentAdmin] = useState<Admin | null>(null);
 
@@ -39,17 +42,34 @@ export default function ListOfAdmin() {
     }
   };
 
+  /* ================= FILTERED ADMINS ================= */
+  const filteredAdmins = useMemo(() => {
+    let data = [...admins];
+
+    if (search) {
+      data = data.filter(
+        (a) =>
+          a.name.toLowerCase().includes(search.toLowerCase()) ||
+          a.email.toLowerCase().includes(search.toLowerCase()) ||
+          a.empId.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    if (roleFilter !== "all") {
+      data = data.filter((a) => a.role === roleFilter);
+    }
+
+    return data;
+  }, [admins, search, roleFilter]);
+
+  /* ================= DELETE ================= */
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this admin?")) return;
-
-    try {
-      await fetch(`${API_URL}/admins/${id}`, { method: "DELETE" });
-      fetchAdmins();
-    } catch (error) {
-      console.error("Delete failed:", error);
-    }
+    await fetch(`${API_URL}/admins/${id}`, { method: "DELETE" });
+    fetchAdmins();
   };
 
+  /* ================= EDIT ================= */
   const handleEdit = (admin: Admin) => {
     setCurrentAdmin(admin);
     setEditModal(true);
@@ -66,26 +86,20 @@ export default function ListOfAdmin() {
     e.preventDefault();
     if (!currentAdmin) return;
 
-    try {
-      const res = await fetch(`${API_URL}/admins/${currentAdmin._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: currentAdmin.name,
-          email: currentAdmin.email,
-          number: currentAdmin.phone,
-          role: currentAdmin.role,
-        }),
-      });
+    await fetch(`${API_URL}/admins/${currentAdmin._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: currentAdmin.name,
+        email: currentAdmin.email,
+        number: currentAdmin.phone,
+        role: currentAdmin.role,
+      }),
+    });
 
-      if (res.ok) {
-        setEditModal(false);
-        setCurrentAdmin(null);
-        fetchAdmins();
-      }
-    } catch (error) {
-      console.error("Update failed:", error);
-    }
+    setEditModal(false);
+    setCurrentAdmin(null);
+    fetchAdmins();
   };
 
   if (loading) {
@@ -96,7 +110,28 @@ export default function ListOfAdmin() {
     <div className={styles.container}>
       <h1 className={styles.heading}>Admin Directory</h1>
 
-      {admins.length === 0 ? (
+      {/* 🔍 SEARCH & FILTER BAR */}
+      <div className={styles.toolbar}>
+        <input
+          className={styles.search}
+          placeholder="Search by name, email or Admin ID…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <select
+          className={styles.filter}
+          value={roleFilter}
+          onChange={(e) => setRoleFilter(e.target.value)}
+        >
+          <option value="all">All Roles</option>
+          <option value="admin">Admin</option>
+          <option value="superadmin">Super Admin</option>
+          <option value="manager">Manager</option>
+        </select>
+      </div>
+
+      {filteredAdmins.length === 0 ? (
         <div className={styles.noData}>No admins found.</div>
       ) : (
         <div className={styles.tableWrapper}>
@@ -113,18 +148,14 @@ export default function ListOfAdmin() {
             </thead>
 
             <tbody>
-              {admins.map((admin) => (
+              {filteredAdmins.map((admin) => (
                 <tr key={admin._id}>
                   <td className={styles.id}>{admin.empId}</td>
                   <td>{admin.name}</td>
                   <td>{admin.email}</td>
                   <td>{admin.phone}</td>
                   <td>
-                    <span
-                      className={`${styles.badge} ${
-                        styles[admin.role]
-                      }`}
-                    >
+                    <span className={`${styles.badge} ${styles[admin.role]}`}>
                       {admin.role}
                     </span>
                   </td>
@@ -161,19 +192,16 @@ export default function ListOfAdmin() {
                 name="name"
                 value={currentAdmin.name}
                 onChange={handleEditChange}
-                placeholder="Name"
               />
               <input
                 name="email"
                 value={currentAdmin.email}
                 onChange={handleEditChange}
-                placeholder="Email"
               />
               <input
-                name="number"
+                name="phone"
                 value={currentAdmin.phone}
                 onChange={handleEditChange}
-                placeholder="Contact No."
               />
 
               <select
